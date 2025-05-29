@@ -6,7 +6,7 @@ import Topbar from "./components/Topbar";
 const App = () => {
   return (
     <>
-      <Topbar />
+      {/* <Topbar /> */}
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />

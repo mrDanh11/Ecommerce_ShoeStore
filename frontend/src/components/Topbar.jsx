@@ -7,7 +7,7 @@ import Minicart from './Minicart';
 
 const Topbar = () => {
   const [showMinicart, setShowMinicart] = useState(false);
-
+  
   return (
     <div className="bg-gray-800 text-white hidden lg:flex justify-end items-center py-2 px-20 space-x-4">
       {/* Yêu thích */}
