@@ -4,8 +4,7 @@ const getCartItem = async (customerId) => {
     const { data, error } = await supabase.from('khachhang')
         .select(`
                 makhachhang, hoten,
-                giohang(magiohang, chitietgiohang(sanpham(masanpham ,tensanpham, gia, anhsanpham, size, color)
-                                , soluong
+                giohang(magiohang, chitietgiohang(soluong, machitietgiohang, chitietsanpham(gia, soluong, size, color, sanpham(tensanpham, anhsanpham, gia, tinhtrang, description))
                             )
                         )
             `)
