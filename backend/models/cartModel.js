@@ -58,6 +58,15 @@ const addOrUpdateCartItem = async (customerId, machitietsanpham, soluongMoiThem)
         // neu co -> tang so luong
         if (existingItem) {
             const newQuantity = existingItem.soluong + soluongMoiThem
+            
+            // lấy số lượng sp này trong kho coi đủ để add vào cart ko?
+            const {data: itemInProductItem, error} = await supabase.from('chitietsanpham').select('*').eq('machitietsanpham', existingItem.machitietsanpham).single()
+            const quantityItemInProductItem = itemInProductItem.soluong;
+            if(newQuantity > quantityItemInProductItem){
+                // throw error.message("Số lượng sản phẩm này trong giỏ hàng đã vượt quá số lượng tồn trong kho")
+                throw new Error(`Số lượng trong giỏ (${newQuantity}) đã vượt quá tồn kho (${quantityItemInProductItem})`);
+            }
+
             const { error: errorUpdate } = await supabase
                 .from('chitietgiohang')
                 .update({ soluong: newQuantity })

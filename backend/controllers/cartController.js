@@ -162,5 +162,23 @@ const updateCartItem = async (req, res) => {
   };
 
 
+const deleteCartItem = async (req, res) => {
+    const {customerId, itemId} = req.params;
+    console.log('check req.params: ', req.params)
 
-module.exports = { getCartItem, postCartItem, updateCartItem }
+    try {
+        
+    } catch (error) {
+        console.log('Lỗi deleteCartItem: ', error)
+        return res.status(500).json({
+            errorCode: -1,
+            success: false,
+            error: error.message
+        })
+    }
+
+}
+
+
+
+module.exports = { getCartItem, postCartItem, updateCartItem, deleteCartItem }
