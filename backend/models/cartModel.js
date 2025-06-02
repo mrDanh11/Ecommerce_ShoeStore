@@ -114,4 +114,158 @@ const addOrUpdateCartItem = async (customerId, masanpham, soluongMoiThem) => {
 }
 
 
-module.exports = { getCartItem, addOrUpdateCartItem }
+// lấy giỏ hàng theo khách hàng
+const getCartByCustomer = async (customerId) => {
+    const {data, error} = await supabase
+    .from('giohang')
+    .select('*')
+    .eq('makhachhang', customerId)
+    .single()
+
+    return {
+        cart: data,
+        error: error
+    }
+}
+
+// tạo giỏ hàng mới cho khách hanbgf (nếu chưa có)
+const createCart = async (customerId) => {
+    const {data, error} = await supabase
+    .from('giohang')
+    .insert([{makhachhang: customerId, total_amount: 0, tongsoluong: 0 }])
+    .single()
+
+    return {
+        cart: data,
+        error: error
+    }
+}
+
+// lấy chitietgiohang theo magiohang va machitietgiohang
+const getCartItemById = async (itemId) => {
+    const {data, error} = await supabase
+    .from('chitietgiohang')
+    .select('*')
+    .eq('machitietgiohang', itemId)
+
+    return {
+        cartItem: data,
+        error: error
+    }
+}
+
+// lấy chitietsanpham theo machitietsanpham
+const getProductItemById = async (productItemId) => {
+    const {data, error} = await supabase
+    .from('chitietsanpham')
+    .select('*')
+    .eq('machitietsanpham', productItemId)
+    .single()
+
+    return {
+        productItem: data,
+        error: error
+    }
+}
+
+// tìm chitietsanpham mới trong chitietsanpham (theo masanpham + size + color)
+const getProductItemByAttributes = async (productId, size, color) => {
+    const {data, error} = await supabase
+    .from('chitietsanpham')
+    .select('*')
+    .eq('masanpham', productId)
+    .eq('size', size)
+    .eq('color', color)
+
+    return {
+        productItem: data,
+        error
+    }
+}
+
+// check trong bảng chitietgiohang có tồn tại sp có magiohang + machitietsanpham chua??
+const checkCartItemByCartId_ProductItemId = async (cartId, productItemId) => {
+    const {data, error} = await supabase 
+    .from('chitietgiohang')
+    .select('*')
+    .eq('magiohang', cartId)
+    .eq('machitietsanpham', productItemId)
+    .single()
+
+    return {
+        cartItemExists: data,
+        error
+    }
+}
+
+// cập nhật số lượng trong chitietdonhang
+const updateCartItemQuantity = async (itemId, newQuantity) => {
+    const {error} = await supabase
+    .from('chitietgiohang')
+    .update({soluong: newQuantity})
+    .eq('machitietgiohang', itemId)
+
+    return {error}
+}
+
+// xóa chitietgiohang
+const deleteCartItem = async (itemId) => {
+    const {error} = await supabase
+    .from('chitietgiohang')
+    .delete()
+    .eq('machitietgiohang', itemId)
+
+    return {error}
+}
+
+// cập nhật machitietsanpham và số lượng trong chitietgiohang
+const updateCartItemProductItemAndQuantity = async (itemId, newProductItemId, newQuantity) => {
+    const {data, error} = await supabase
+    .from('chitietgiohang')
+    . update({
+        machitietsanpham: newProductItemId,
+        soluong: newQuantity
+    })
+    .eq('machitietgiohang', itemId)
+
+    return {error}
+}
+
+// lấy toàn bộ chitietgiohang của giohang -> tính tổng
+const getAllCartItems = async (cartId) => {
+    const {data, error} = await supabase
+    .from('chitietgiohang')
+    .select('soluong, machitietsanpham(gia)')
+    .eq('magiohang', cartId)
+
+    return {
+        items: data,
+        error
+    }
+}
+
+// update tổng số lượng và tổng tiền của giỏ hàng
+const updateCartTotals = async (cartId, totalQty, totalAmt) => {
+    const { error } = await supabase
+    .from('giohang')
+    .update({
+      tongsoluong: totalQty,
+      total_amount: totalAmt
+    })
+    .eq('magiohang', cartId);
+
+  return { error };
+}
+
+
+
+
+
+
+
+module.exports = { getCartItem, addOrUpdateCartItem,
+    getCartByCustomer, getCartItemById, createCart,
+    checkCartItemByCartId_ProductItemId, getProductItemByAttributes,
+    deleteCartItem, updateCartItemQuantity, getAllCartItems, updateCartItemProductItemAndQuantity,
+    updateCartTotals, getProductItemById
+ }
