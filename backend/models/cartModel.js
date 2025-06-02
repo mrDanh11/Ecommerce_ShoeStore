@@ -20,7 +20,7 @@ const getCartItem = async (customerId) => {
     return data;
 }
 
-const addOrUpdateCartItem = async (customerId, masanpham, soluongMoiThem) => {
+const addOrUpdateCartItem = async (customerId, machitietsanpham, soluongMoiThem) => {
     try {
         // lay gio hang hien tai cua khasch hang
         const { data: existingCart, error: errorCart } = await supabase
@@ -50,7 +50,7 @@ const addOrUpdateCartItem = async (customerId, masanpham, soluongMoiThem) => {
             .from('chitietgiohang')
             .select('*')
             .eq('magiohang', cart.magiohang)
-            .eq('masanpham', masanpham)
+            .eq('machitietsanpham', machitietsanpham)
             .single()
 
         if (errorItem && errorItem.code !== 'PGRST116')
@@ -69,7 +69,7 @@ const addOrUpdateCartItem = async (customerId, masanpham, soluongMoiThem) => {
         else { // neu chua -> tao sp moi trong chitietdonhang
             const { error: errorInsert } = await supabase
                 .from('chitietgiohang')
-                .insert([{ magiohang: cart.magiohang, soluong: soluongMoiThem, masanpham: masanpham }])
+                .insert([{ magiohang: cart.magiohang, soluong: soluongMoiThem, machitietsanpham: machitietsanpham }])
 
             if (errorInsert)
                 throw errorInsert
@@ -78,7 +78,7 @@ const addOrUpdateCartItem = async (customerId, masanpham, soluongMoiThem) => {
         // lay lai toan bo san pham trong gio hang --> de tinh tong tien va tong so luong
         const { data: allItems, error: errorAllItems } = await supabase
             .from('chitietgiohang')
-            .select('soluong, masanpham(gia)')
+            .select('soluong, chitietsanpham(gia)')
             .eq('magiohang', cart.magiohang)
 
         if (errorAllItems)
@@ -86,7 +86,7 @@ const addOrUpdateCartItem = async (customerId, masanpham, soluongMoiThem) => {
 
         // cap nhat lai gio hang
         const tongsoluong = allItems.reduce((acc, item) => acc + item.soluong, 0);
-        const totalamount = allItems.reduce((acc, item) => acc + item.soluong * (item.masanpham?.gia || 0), 0);
+        const totalamount = allItems.reduce((acc, item) => acc + item.soluong * (item.chitietsanpham?.gia || 0), 0);
 
         const { error: errorUpdateCart } = await supabase
             .from('giohang')
