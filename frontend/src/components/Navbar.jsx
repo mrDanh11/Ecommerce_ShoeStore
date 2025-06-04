@@ -15,7 +15,6 @@ const Navbar = () => {
     console.log("Searching:", searchTerm);
   };
 
-  // Dùng để ẩn thanh search khi resize từ trạng thái mobile về tablet và desktop
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 640) {
@@ -26,7 +25,6 @@ const Navbar = () => {
     handleResize();
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-  
 
   return (
     <nav className="bg-white shadow-md px-4 md:px-12 lg:px-16 py-4 flex flex-col">
@@ -38,7 +36,7 @@ const Navbar = () => {
 
         {/* Menu links - desktop */}
         <div className="hidden lg:flex space-x-6">
-          <Link to="#" className="text-black font-semibold hover:text-gray-600 uppercase">Sản phẩm</Link>
+          <Link to="/shop" className="text-black font-semibold hover:text-gray-600 uppercase">Sản phẩm</Link>
           <Link to="#" className="text-black font-semibold hover:text-gray-600 uppercase">Nam</Link>
           <Link to="#" className="text-black font-semibold hover:text-gray-600 uppercase">Nữ</Link>
           <Link to="#" className="text-black font-semibold hover:text-gray-600 uppercase">Sale Off</Link>
@@ -46,11 +44,7 @@ const Navbar = () => {
 
         {/* Right icons */}
         <div className="flex space-x-4 items-center">
-          {/* Search form - desktop */}
-          <form
-            onSubmit={handleSearchSubmit}
-            className="relative hidden sm:block"
-          >
+          <form onSubmit={handleSearchSubmit} className="relative hidden sm:block">
             <button
               type="submit"
               className="absolute left-0 top-0 h-full px-3 flex items-center justify-center text-gray-600 text-xl focus:outline-none"
@@ -68,19 +62,12 @@ const Navbar = () => {
             />
           </form>
 
-          {/* Search icon - mobile */}
           <IoSearch
             onClick={() => setShowSearch(!showSearch)}
             className="text-xl cursor-pointer text-gray-800 block sm:hidden"
           />
-
-          {/* Favorite - only mobile */}
           <IoHeart className="text-xl cursor-pointer text-gray-800 lg:hidden" />
-
-          {/* Cart - only mobile */}
           <FaCartPlus className="text-xl cursor-pointer text-gray-800 lg:hidden" />
-
-          {/* Hamburger - only mobile */}
           <GiHamburgerMenu
             onClick={() => setMenuOpen(!menuOpen)}
             className="text-2xl text-gray-800 lg:hidden"
@@ -88,7 +75,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Search bar */}
       {showSearch && (
         <form
           onSubmit={handleSearchSubmit}
@@ -113,7 +99,7 @@ const Navbar = () => {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="mt-4 flex flex-col space-y-2 lg:hidden">
-          <Link to="#" className="text-black font-semibold">Sản phẩm</Link>
+          <Link to="/shop" className="text-black font-semibold">Sản phẩm</Link>
           <Link to="#" className="text-black font-semibold">Nam</Link>
           <Link to="#" className="text-black font-semibold">Nữ</Link>
           <Link to="#" className="text-black font-semibold">Sale Off</Link>
