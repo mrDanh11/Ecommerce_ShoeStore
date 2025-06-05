@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { HiMagnifyingGlass, HiMiniXMark } from "react-icons/hi2"
-import { FaCartPlus } from "react-icons/fa6"
+import { FaShoppingCart } from "react-icons/fa"
 import { GiHamburgerMenu } from "react-icons/gi"
 import { FaUser } from "react-icons/fa"
 import { IoMdClose } from "react-icons/io"
@@ -101,7 +101,7 @@ const Navbar = () => {
             onClick={toggleMinicart}
             className="cursor-pointer hover:text-black p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Shopping cart"
           >
-            <FaCartPlus className="h-6 w-6 text-gray-700" />
+            <FaShoppingCart className="h-6 w-6 text-gray-700" />
           </button>
 
           {/* Profile Icon */}
