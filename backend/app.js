@@ -1,9 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const passport = require('passport');
-
 const app = express();
+const PORT = process.env.PORT;
 
 // CORS configuration
 app.use(cors({
@@ -16,10 +15,6 @@ app.use(cors({
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Initialize Passport
-app.use(passport.initialize());
-require('./config/passport');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
