@@ -44,6 +44,10 @@ const Navbar = () => {
     setMinicartOpen(!minicartOpen);
   };
 
+  const handleTurnOffMinicart = () => {
+    setMinicartOpen(false);
+  }
+
   return (
     <>
       <nav className="container mx-auto flex items-center justify-between py-4 px-6 h-18">
@@ -174,7 +178,7 @@ const Navbar = () => {
           </div>
         </div>
       </nav>
-      <Minicart minicartOpen={minicartOpen} toggleMinicart={toggleMinicart} />
+      <Minicart handleTurnOffMinicart={handleTurnOffMinicart} minicartOpen={minicartOpen} toggleMinicart={toggleMinicart} />
     </>
   )
 }
