@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const supabase = require('../config/supabaseClient'); // Đảm bảo bạn đã cấu hình Supabase Client đúng
+const supabase = require('../config/supabaseClient');
 const { checkout } = require('../controllers/orderController')
 
 // thanh toán sp trong giỏ hàng
