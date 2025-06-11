@@ -11,15 +11,21 @@ const App = () => {
     </Routes>
 =======
 import Navbar from "./components/Navbar"; // Thêm dòng này
-import Topbar from "./components/Topbar";
+import CartPage from "./pages/CartPage";
+import Login from "./pages/authentication/Login";
+import Register from "./pages/authentication/Register";
+import ForgotPassword from "./pages/authentication/ForgotPassword";
 
 const App = () => {
   return (
     <>
-      <Topbar />
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/cart" element={<CartPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </>
 >>>>>>> d24973a86fb96ad848d6413d47b6b140a66c0d0f

@@ -1,126 +1,186 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { IoSearch, IoHeart } from "react-icons/io5";
-import { FaCartPlus } from "react-icons/fa6";
-import { GiHamburgerMenu } from "react-icons/gi";
-import { FaArrowRight } from "react-icons/fa6";
+import { useState } from "react"
+import { Link } from "react-router-dom"
+import { HiMagnifyingGlass, HiMiniXMark } from "react-icons/hi2"
+import { FaShoppingCart } from "react-icons/fa"
+import { GiHamburgerMenu } from "react-icons/gi"
+import { FaUser } from "react-icons/fa"
+import { IoMdClose } from "react-icons/io"
+import Eureka from "../assets/Eureka.svg"
+import Minicart from "./Minicart"
+
 
 const Navbar = () => {
-  const [showSearch, setShowSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [navDrawerOpen, setNavDrawerOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [minicartOpen, setMinicartOpen] = useState(false);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    console.log("Searching:", searchTerm);
+    console.log("Tìm kiếm:", searchTerm);
+    // If the mobile search overlay is open, close it after submission
+    if (isSearchOpen) {
+      setIsSearchOpen(false);
+    }
   };
 
-  // Dùng để ẩn thanh search khi resize từ trạng thái mobile về tablet và desktop
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 640) {
-        setShowSearch(false);
-      }
-    };
-    window.addEventListener("resize", handleResize);
-    handleResize();
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-  
+  const handleSearchToggle = () => {
+    setIsSearchOpen(!isSearchOpen);
+    // If opening the search bar, close the mobile menu to prevent overlap
+    if (!isSearchOpen && navDrawerOpen) {
+      setNavDrawerOpen(false);
+    }
+  };
+
+  const toggleNavDrawer = () => {
+    setNavDrawerOpen(!navDrawerOpen);
+    // If opening the menu, close the search bar to prevent overlap
+    if (!navDrawerOpen && isSearchOpen) {
+      setIsSearchOpen(false);
+    }
+  };
+
+  const toggleMinicart = () => {
+    setMinicartOpen(!minicartOpen);
+  };
+
+  const handleTurnOffMinicart = () => {
+    setMinicartOpen(false);
+  }
 
   return (
-    <nav className="bg-white shadow-md px-4 md:px-12 lg:px-16 py-4 flex flex-col">
-      <div className="flex justify-between items-center">
-        {/* Logo */}
-        <Link to="/" className="text-2xl font-bold text-black">
-          Shoe Store
-        </Link>
-
-        {/* Menu links - desktop */}
-        <div className="hidden lg:flex space-x-6">
-          <Link to="#" className="text-black font-semibold hover:text-gray-600 uppercase">Sản phẩm</Link>
-          <Link to="#" className="text-black font-semibold hover:text-gray-600 uppercase">Nam</Link>
-          <Link to="#" className="text-black font-semibold hover:text-gray-600 uppercase">Nữ</Link>
-          <Link to="#" className="text-black font-semibold hover:text-gray-600 uppercase">Sale Off</Link>
+    <>
+      <nav className="container mx-auto flex items-center justify-between py-4 px-6 h-18">
+        {/* Left - Logo */}
+        <div>
+          <Link to="/" className="text-2xl font-bold text-black p-1" aria-label="Home">
+            <img src={Eureka} alt={"Eureka"} />
+          </Link>
         </div>
 
-        {/* Right icons */}
-        <div className="flex space-x-4 items-center">
-          {/* Search form - desktop */}
+        {/* Center - Navigation links - desktop only */}
+        <div className="hidden md:flex space-x-6">
+          <Link to="#" className="text-gray-700 hover:text-black font-medium uppercase">Sản phẩm</Link>
+          <Link to="#" className="text-gray-700 hover:text-black font-medium uppercase">Nam</Link>
+          <Link to="#" className="text-gray-700 hover:text-black font-medium uppercase">Nữ</Link>
+          <Link to="#" className="text-gray-700 hover:text-black font-medium uppercase">Sale Off</Link>
+        </div>
+
+        {/* Right icons and search */}
+        <div className="flex items-center space-x-4">
+          {/* Desktop Search Form: Visible on medium screens and up */}
           <form
             onSubmit={handleSearchSubmit}
-            className="relative hidden sm:block"
+            className="relative hidden md:flex items-center bg-gray-100 rounded-3xl overflow-hidden h-10 w-50"
           >
             <button
               type="submit"
-              className="absolute left-0 top-0 h-full px-3 flex items-center justify-center text-gray-600 text-xl focus:outline-none"
+              className="absolute left-4 text-gray-400 cursor-pointer"
               tabIndex={-1}
               aria-label="Tìm kiếm"
             >
-              <IoSearch className="cursor-pointer" />
+              <HiMagnifyingGlass className="w-5 h-5 text-black" />
             </button>
             <input
               type="text"
+              placeholder="Tìm kiếm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Tìm kiếm"
-              className="bg-gray-100 pl-10 pr-3 py-2 rounded-2xl border-none focus:outline-none text-black"
+              className="w-full pl-12 pr-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-3xl"
+              aria-label="Tìm kiếm"
             />
           </form>
 
-          {/* Search icon - mobile */}
-          <IoSearch
-            onClick={() => setShowSearch(!showSearch)}
-            className="text-xl cursor-pointer text-gray-800 block sm:hidden"
-          />
-
-          {/* Favorite - only mobile */}
-          <IoHeart className="text-xl cursor-pointer text-gray-800 lg:hidden" />
-
-          {/* Cart - only mobile */}
-          <FaCartPlus className="text-xl cursor-pointer text-gray-800 lg:hidden" />
-
-          {/* Hamburger - only mobile */}
-          <GiHamburgerMenu
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="text-2xl text-gray-800 lg:hidden"
-          />
-        </div>
-      </div>
-
-      {/* Search bar */}
-      {showSearch && (
-        <form
-          onSubmit={handleSearchSubmit}
-          className="mt-4 flex items-center border border-gray-300 rounded overflow-hidden"
-        >
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Tìm kiếm"
-            className="flex-1 px-4 py-2 focus:outline-none"
-          />
+          {/* Mobile Search Icon: Visible only on small screens */}
           <button
-            type="submit"
-            className="cursor-pointer text-white px-4 py-2 h-fit"
+            onClick={handleSearchToggle}
+            className="md:hidden cursor-pointer hover:text-black p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-label="Toggle search bar"
           >
-            <FaArrowRight className="text-black"/>
+            <HiMagnifyingGlass className="h-6 w-6 text-gray-800" />
           </button>
-        </form>
-      )}
 
-      {/* Mobile menu */}
-      {menuOpen && (
-        <div className="mt-4 flex flex-col space-y-2 lg:hidden">
-          <Link to="#" className="text-black font-semibold">Sản phẩm</Link>
-          <Link to="#" className="text-black font-semibold">Nam</Link>
-          <Link to="#" className="text-black font-semibold">Nữ</Link>
-          <Link to="#" className="text-black font-semibold">Sale Off</Link>
+          {/* Cart Icon */}
+          <button
+            onClick={toggleMinicart}
+            className="cursor-pointer hover:text-black p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Shopping cart"
+          >
+            <FaShoppingCart className="h-6 w-6 text-gray-700" />
+          </button>
+
+          {/* Profile Icon */}
+          <Link to="/profile" className="hover:text-black p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="User profile">
+            <FaUser className="h-6 w-6 text-gray-700" />
+          </Link>
+
+          {/* Hamburger Menu Icon: Visible only on small screens */}
+          <button
+            onClick={toggleNavDrawer}
+            className="md:hidden cursor-pointer p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-label="Toggle navigation menu"
+          >
+            <GiHamburgerMenu className="h-6 w-6 text-gray-800" />
+          </button>
         </div>
-      )}
-    </nav>
-  );
-};
 
-export default Navbar;
+        {/* Mobile Search Overlay*/}
+        {isSearchOpen && (
+          <div className="flex items-center justify-center w-full transition-all duration-300 absolute top-0 left-0 bg-white h-18 z-50">
+            <form
+              onSubmit={handleSearchSubmit}
+              className="relative flex items-center justify-center w-full"
+            >
+              <div className="relative w-3/5">
+                <input 
+                  type="text"
+                  placeholder="Tìm kiếm"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="bg-gray-100 px-4 py-2 pl-2 pr-12 rounded-lg focus:outline-none w-full placeholder:text-gray-700"
+                />
+                {/* Search Button */}
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-800 cursor-pointer"
+                >
+                  <HiMagnifyingGlass className="h-6 w-6" />
+                </button>
+              </div>
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={handleSearchToggle}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-800 cursor-pointer"
+              >
+                <HiMiniXMark className="h-6 w-6" />
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* Mobile Navigation */}
+        <div className={`fixed top-0 left-0 w-3/4 sm:w-1/2 md:w-1/3 h-full bg-white shadow-lg transform transition-transform duration-300 z-50 ${
+          navDrawerOpen ? "translate-x-0" : "-translate-x-full"
+        }`}>
+          <div className="flex justify-end p-4">
+            <button onClick={toggleNavDrawer} className="cursor-pointer">
+              <IoMdClose className="h-6 w-6 text-gray-600" />
+            </button>
+          </div>
+          <div className="p-10">
+            <h2 className="text-2xl font-semibold mb-4">Menu</h2>
+            <nav className="space-y-4">
+              <Link to="#" onClick={toggleNavDrawer} className="block text-gray-700 hover:text-black font-medium uppercase">Sản phẩm</Link>
+              <Link to="#" onClick={toggleNavDrawer} className="block text-gray-700 hover:text-black font-medium uppercase">Nam</Link>
+              <Link to="#" onClick={toggleNavDrawer} className="block text-gray-700 hover:text-black font-medium uppercase">Nữ</Link>
+              <Link to="#" onClick={toggleNavDrawer} className="block text-gray-700 hover:text-black font-medium uppercase">Sale Off</Link>
+            </nav>
+          </div>
+        </div>
+      </nav>
+      <Minicart handleTurnOffMinicart={handleTurnOffMinicart} minicartOpen={minicartOpen} toggleMinicart={toggleMinicart} />
+    </>
+  )
+}
+
+export default Navbar
