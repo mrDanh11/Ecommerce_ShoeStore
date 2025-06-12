@@ -25,8 +25,8 @@ const categoryRoutes = require('./routes/categoryRoutes');
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/categories', categoryRoutes);
+//app.use('/api/products', productRoutes);
+//app.use('/api/categories', categoryRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -45,9 +45,6 @@ app.use((req, res) => {
   });
 });
 
-// Global error handler
-const errorHandler = require('./middleware/errorHandler');
-app.use(errorHandler);
 
 // Start server
 app.listen(PORT, () => {
