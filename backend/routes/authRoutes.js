@@ -13,10 +13,10 @@ router.post('/login', authController.login);
 router.post('/oauth', authController.oauthLogin);
 
 // Đổi mật khẩu
-router.put('/change-password', authMiddleware, authController.changePassword);
+//router.put('/change-password', authMiddleware, authController.changePassword);
 
 // Lấy thông tin user hiện tại
-router.get('/me', authMiddleware, authController.getMe);
+//router.get('/me', authMiddleware, authController.getMe);
 
 // Đăng xuất
 router.post('/logout', authController.logout);
