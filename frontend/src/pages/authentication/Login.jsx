@@ -23,7 +23,7 @@ const Login = () => {
         headers: { "Content-Type": "application/json" },
         
         body: JSON.stringify({
-          email: form.username,    // Change 'username' to 'email'
+          username: form.username,    // Change 'username' to 'email'
           matkhau: form.password
         }),
       });
@@ -67,10 +67,10 @@ const Login = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Email *</label>
+            <label className="block text-sm font-medium text-gray-700">Tên người dùng *</label>
             <input
-              type="email"
-              placeholder="Email"
+              type="text"
+              placeholder="Tên người dùng"
               className="mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
               value={form.username}
               onChange={e => setForm({ ...form, username: e.target.value })}
@@ -104,7 +104,7 @@ const Login = () => {
           </Link>
         </div>
         <div className="mt-4 text-center text-blue-500">
-          <button onClick={handleGoogleLogin} className="font-medium hover:underline">
+          <button onClick={handleGoogleLogin} className="font-medium hover:underline ">
           Đăng nhập với Google
         </button>
 
