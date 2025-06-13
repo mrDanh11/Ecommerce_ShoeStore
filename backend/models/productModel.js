@@ -1,215 +1,403 @@
-const db = require("../config/database");
+const supabase = require("../config/supabaseClient");
+const { v4: uuidv4 } = require("uuid");
 
 exports.getProducts = async (limit, offset, filters) => {
-  const conditions = [];
-  const values = [];
-  let query = `
-    SELECT 
-      p.*, 
-      json_build_object(
-        'id', c.id, 
-        'name', c.name, 
-        'image', c.image
-      ) AS category
-    FROM PRODUCT p
-    LEFT JOIN CATEGORY c ON p.category_id = c.id
-  `; //LEFT JOIN is used to get all products even if they don't have a category
-  
+  let query = supabase
+    .from('sanpham')
+    .select(`
+      *,
+      danhmucsanpham (
+        madanhmuc,
+        tendanhmuc,
+        masaleoff
+      ),
+      chitietsanpham (
+        machitietsanpham,
+        color,
+        size,
+        soluong,
+        gia
+      )
+    `);
+
   if (filters.category_id) {
-    conditions.push(`p.category_id = $${conditions.length + 1}`);
-    values.push(filters.category_id);
-  } //All the IF conditions here and below for filtering, adding the conditions to the query and values to the values array
+    query = query.eq('madanhmuc', filters.category_id);
+  }
 
   if (filters.search) {
-    conditions.push(`p.name ILIKE $${conditions.length + 1}`);
-    values.push(`%${filters.search}%`);
+    query = query.ilike('tensanpham', `%${filters.search}%`);
   }
 
   if (filters.min_price) {
-    conditions.push(`p.price >= $${conditions.length + 1}`);
-    values.push(filters.min_price);
+    query = query.gte('gia', filters.min_price);
   }
 
   if (filters.max_price) {
-    conditions.push(`p.price <= $${conditions.length + 1}`);
-    values.push(filters.max_price);
-  }
-
-  if (filters.min_release_year) {
-    conditions.push(`p.release_year >= $${conditions.length + 1}`);
-    values.push(filters.min_release_year);
-  }
-
-  if (filters.max_release_year) {
-    conditions.push(`p.release_year <= $${conditions.length + 1}`);
-    values.push(filters.max_release_year);
+    query = query.lte('gia', filters.max_price);
   }
 
   if (filters.isAvailable !== undefined) {
     if (filters.isAvailable === true) {
-      conditions.push(`p.quantity > 0`);
+      // Only include products where the sum of 'soluong' in chitietsanpham > 0
+      query = query.in('masanpham',
+        supabase
+          .from('chitietsanpham')
+          .select('masanpham')
+          .gt('soluong', 0)
+      );
     } else if (filters.isAvailable === false) {
-      conditions.push(`p.quantity <= 0`);
+      // Only include products where all 'soluong' in chitietsanpham <= 0
+      // This is more complex; you may need a view or RPC for full accuracy.
+      // Here, we exclude products that have any chitietsanpham with soluong > 0
+      query = query.not('masanpham', 'in',
+        supabase
+          .from('chitietsanpham')
+          .select('masanpham')
+          .gt('soluong', 0)
+      );
     }
   }
 
-  if (conditions.length > 0) {
-    query += ` WHERE ${conditions.join(" AND ")}`;
+  if (filters.CnS !== undefined) {
+    // Filter by both color AND size in the same chitietsanpham record
+    if (filters.CnS.color && filters.CnS.size) {
+      const { data: matchingDetails } = await supabase
+        .from('chitietsanpham')
+        .select('masanpham')
+        .eq('color', filters.CnS.color)
+        .eq('size', filters.CnS.size);
+      
+      const productIds = matchingDetails.map(detail => detail.masanpham);
+      query = query.in('masanpham', productIds);
+      
+      // Thêm filter cho chitietsanpham để chỉ lấy chi tiết matching
+      query = query.select(`
+        *,
+        danhmucsanpham (
+          madanhmuc,
+          tendanhmuc,
+          masaleoff
+        ),
+        chitietsanpham!inner (
+          machitietsanpham,
+          color,
+          size,
+          soluong,
+          gia
+        )
+      `).eq('chitietsanpham.color', filters.CnS.color)
+       .eq('chitietsanpham.size', filters.CnS.size);
+       
+    } else {
+      // Individual filters
+      if (filters.CnS.color) {
+        query = query.in('masanpham',
+          supabase
+            .from('chitietsanpham')
+            .select('masanpham')
+            .eq('color', filters.CnS.color)
+        );
+        
+        // Filter chi tiết theo color
+        query = query.select(`
+          *,
+          danhmucsanpham (
+            madanhmuc,
+            tendanhmuc,
+            masaleoff
+          ),
+          chitietsanpham!inner (
+            machitietsanpham,
+            color,
+            size,
+            soluong,
+            gia
+          )
+        `).eq('chitietsanpham.color', filters.CnS.color);
+      }
+      
+      if (filters.CnS.size) {
+        query = query.in('masanpham',
+          supabase
+            .from('chitietsanpham')
+            .select('masanpham')
+            .eq('size', filters.CnS.size)
+        );
+        
+        // Filter chi tiết theo size
+        query = query.select(`
+          *,
+          danhmucsanpham (
+            madanhmuc,
+            tendanhmuc,
+            masaleoff
+          ),
+          chitietsanpham!inner (
+            machitietsanpham,
+            color,
+            size,
+            soluong,
+            gia
+          )
+        `).eq('chitietsanpham.size', filters.CnS.size);
+      }
+    }
   }
 
   if (limit && offset !== null) {
-    query += ` LIMIT $${values.length + 1} OFFSET $${values.length + 2}`;
-    values.push(limit, offset);
+    query = query.range(offset, offset + limit - 1);
   }
 
-  return await db.any(query, values);
+  const { data, error } = await query;
+  if (error) throw error;
+  return data;
 };
 
-//Do the same work to all the functions below
 exports.getProductCount = async (filters) => {
-  const conditions = [];
-  const values = [];
-  let query = "SELECT COUNT(*) FROM PRODUCT";
+  let query = supabase
+    .from('sanpham')
+    .select('*', { count: 'exact', head: true });
 
   if (filters.category_id) {
-    conditions.push(`category_id = $${conditions.length + 1}`);
-    values.push(filters.category_id);
+    query = query.eq('madanhmuc', filters.category_id);
   }
 
   if (filters.search) {
-    conditions.push(`name ILIKE $${conditions.length + 1}`);
-    values.push(`%${filters.search}%`);
+    query = query.ilike('tensanpham', `%${filters.search}%`);
   }
 
   if (filters.min_price) {
-    conditions.push(`price >= $${conditions.length + 1}`);
-    values.push(filters.min_price);
+    query = query.gte('gia', filters.min_price);
   }
 
   if (filters.max_price) {
-    conditions.push(`price <= $${conditions.length + 1}`);
-    values.push(filters.max_price);
-  }
-
-  if (filters.min_release_year) {
-    conditions.push(`release_year >= $${conditions.length + 1}`);
-    values.push(filters.min_release_year);
-  }
-
-  if (filters.max_release_year) {
-    conditions.push(`release_year <= $${conditions.length + 1}`);
-    values.push(filters.max_release_year);
+    query = query.lte('gia', filters.max_price);
   }
 
   if (filters.isAvailable !== undefined) {
     if (filters.isAvailable === true) {
-      conditions.push(`quantity > 0`);
+      // Only count products where at least one chitietsanpham has soluong > 0
+      query = query.in('masanpham',
+        (
+          await supabase
+            .from('chitietsanpham')
+            .select('masanpham', { distinct: true })
+            .gt('soluong', 0)
+        ).data.map(row => row.masanpham)
+      );
     } else if (filters.isAvailable === false) {
-      conditions.push(`quantity <= 0`);
+      // Only count products where all chitietsanpham have soluong <= 0
+      // Exclude products that have any chitietsanpham with soluong > 0
+      query = query.not('masanpham', 'in',
+        (
+          await supabase
+            .from('chitietsanpham')
+            .select('masanpham', { distinct: true })
+            .gt('soluong', 0)
+        ).data.map(row => row.masanpham)
+      );
     }
   }
 
-  if (conditions.length > 0) {
-    query += ` WHERE ${conditions.join(" AND ")}`;
+  const { count, error } = await query;
+  if (error) throw error;
+  return count;
+};
+
+exports.insertProduct = async (productData, detailsData) => {
+  const { name, desc, img, price, categoryId, status } = productData;
+  let product = null;  
+  let details = null;  
+  
+  if(name) {
+    const id = uuidv4();
+    const { data: productResult, error: productError } = await supabase  
+      .from('sanpham')
+      .insert([
+        {
+          masanpham: id,
+          tensanpham: name,
+          description: desc,
+          anhsanpham: img,
+          gia: price,
+          madanhmuc: categoryId,
+          tinhtrang: status,
+        },
+      ])
+      .select()
+      .single();
+
+    if (productError) throw productError;
+    product = productResult;  
+  } 
+  
+  const { color, size, quantity, dPrice, productId } = detailsData;
+  if (color || size || quantity) {
+    const detailsId = uuidv4();
+    const { data: detailsResult, error: detailsError } = await supabase  
+    .from('chitietsanpham')
+    .insert([
+      {
+        machitietsanpham: detailsId,
+        masanpham: productId || product?.masanpham,  
+        color: color,
+        size: size,
+        soluong: quantity,
+        gia: dPrice || product?.gia,  
+      },
+    ])
+    .select()
+    .single();
+
+    if (detailsError) throw detailsError;
+    details = detailsResult;  
+  } 
+  
+  return { product, details };
+};
+
+exports.deleteProduct = async (productId) => {
+  // Sử dụng transaction để đảm bảo xóa dữ liệu ở cả 2 bảng
+  try {
+    // Xóa chi tiết sản phẩm trước
+    const { error: detailsError } = await supabase
+      .from('chitietsanpham')
+      .delete()
+      .eq('masanpham', productId);
+
+    if (detailsError) throw detailsError;
+
+    // Sau đó xóa sản phẩm
+    const { data, error } = await supabase
+      .from('sanpham')
+      .delete()
+      .eq('masanpham', productId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.updateProduct = async (productId, updates, detailsData) => {
+  const allowedFields = [
+    'name',
+    'desc',
+    'img',
+    'price',
+    'productId',
+    'status',
+  ];
+  const updateData = {};
+  for (const key of allowedFields) {
+    if (updates[key] !== undefined) {
+      updateData[key] = updates[key];
+    }
   }
 
-  return await db.one(query, values, (result) => +result.count);
-};
+  // Update sanpham if there are fields to update
+  let productData = null;
+  if (Object.keys(updateData).length > 0) {
+    const mappedUpdateData = {};
+    if (updateData.name !== undefined) mappedUpdateData.tensanpham = updateData.name;
+    if (updateData.desc !== undefined) mappedUpdateData.description = updateData.desc;
+    if (updateData.img !== undefined) mappedUpdateData.anhsanpham = updateData.img;
+    if (updateData.price !== undefined) mappedUpdateData.gia = updateData.price;
+    if (updateData.status !== undefined) mappedUpdateData.tinhtrang = updateData.status;
 
-exports.insertProduct = async (
-  name,
-  description,
-  image,
-  price,
-  category_id,
-  quantity,
-  release_year
-) => {
-  const query = `
-    INSERT INTO PRODUCT (name, description, image, price, category_id, quantity, release_year)
-    VALUES ($1, $2, $3, $4, $5, $6, $7)
-  `;
-  const values = [
-    name,
-    description,
-    image,
-    price,
-    category_id,
-    quantity,
-    release_year,
-  ];
+    const { data, error } = await supabase
+      .from('sanpham')
+      .update(mappedUpdateData)
+      .eq('masanpham', productId)
+      .select()
+      .single();
 
-  return await db.none(query, values);
-};
+    if (error) throw error;
+    productData = data;
+  }
 
-exports.deleteProduct = async (id) => {
-  const query = `
-    DELETE FROM PRODUCT WHERE id = $1
-  `;
+  // Update chitietsanpham if detailsData is provided
+  let detailsResult = null;
+  if (detailsData && detailsData.detailsId) {
+    const detailId = detailsData.detailsId ;
+    const detailsUpdateData = {};
+    if (detailsData.color !== undefined) detailsUpdateData.color = detailsData.color;
+    if (detailsData.size !== undefined) detailsUpdateData.size = detailsData.size;
+    if (detailsData.quantity !== undefined) detailsUpdateData.soluong = detailsData.quantity;
+    if (updateData.price !== undefined) detailsUpdateData.gia = updateData.price;
 
-  return await db.result(query, [id]);
-};
+    if (Object.keys(detailsUpdateData).length > 0) {
+      const { data: details, error: detailsError } = await supabase
+        .from('chitietsanpham')
+        .update(detailsUpdateData)
+        .eq('machitietsanpham', detailId)
+        .select();
 
-exports.updateProduct = async (id, updates) => {
-  const fields = [];
-  const values = [];
+      if (detailsError) throw detailsError;
+      detailsResult = details;
+    }
+  }
 
-  Object.keys(updates).forEach((key, index) => {
-    fields.push(`${key} = $${index + 1}`);
-    values.push(updates[key]);
-  });
-
-  if (fields.length === 0) {
+  if (!productData && !detailsResult) {
     throw new Error("No fields to update");
   }
 
-  const query = `
-    UPDATE PRODUCT
-    SET ${fields.join(", ")}
-    WHERE id = ${id}
-    RETURNING *;
-  `;
-
-  return await db.oneOrNone(query, values);
+  return { product: productData, details: detailsResult };
 };
 
-exports.getRelatedProducts = async (id, limit, offset) => {
-  let query = `
-    SELECT p.*, 
-           json_build_object(
-        'id', c.id, 
-        'name', c.name, 
-        'image', c.image
-      ) AS category
-    FROM PRODUCT p
-    JOIN CATEGORY c ON p.category_id = c.id
-    WHERE p.category_id = (
-        SELECT category_id
-        FROM PRODUCT
-        WHERE id = $1
-    ) AND p.id != $1
-    ORDER BY p.quantity DESC
-  `;
+exports.getRelatedProducts = async (productId, limit, offset) => {
+  // First get the category of the current product
+  const { data: currentProduct, error: currentProductError } = await supabase
+    .from('sanpham')
+    .select('madanhmuc')
+    .eq('masanpham', productId)
+    .single();
 
-  const values = [id];
+  if (currentProductError) throw currentProductError;
+
+  let query = supabase
+    .from('sanpham')
+    .select(`
+      *,
+      danhMuc:danhmucsanpham (
+        madanhmuc,
+        tendanhmuc,
+        masaleoff
+      )
+    `)
+    .eq('madanhmuc', currentProduct.madanhmuc)
+    .neq('masanpham', productId)
+    .order('tensanpham', { ascending: true });
 
   if (limit && offset !== null) {
-    query += ` LIMIT $2 OFFSET $3`;
-    values.push(limit, offset);
+    query = query.range(offset, offset + limit - 1);
   }
 
-  return await db.any(query, values);
+  const { data, error } = await query;
+  if (error) throw error;
+  return data;
 };
 
-exports.getRelatedProductCount = async (id) => {
-  const query = `
-    SELECT COUNT(*) 
-    FROM PRODUCT 
-    WHERE category_id = (
-        SELECT category_id 
-        FROM PRODUCT 
-        WHERE id = $1
-    ) AND id != $1
-  `;
-  return await db.one(query, [id], (result) => +result.count);
+exports.getRelatedProductCount = async (productId) => {
+  // First get the category of the current product
+  const { data: currentProduct, error: currentProductError } = await supabase
+    .from('sanpham')
+    .select('madanhmuc')
+    .eq('masanpham', productId)
+    .single();
+
+  if (currentProductError) throw currentProductError;
+
+  // Count products in the same category, excluding the current product
+  const { count, error } = await supabase
+    .from('sanpham')
+    .select('*', { count: 'exact', head: true })
+    .eq('madanhmuc', currentProduct.madanhmuc)
+    .neq('masanpham', productId);
+
+  if (error) throw error;
+  return count;
 };
