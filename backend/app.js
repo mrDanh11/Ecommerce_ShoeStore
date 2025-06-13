@@ -1,30 +1,53 @@
-require('dotenv').config(); 
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT;
 
-// TN: Dùng thư viện cors để cho phép kết nối http từ client đến server
-app.use(cors( 
-    {
-        origin: process.env.WEB_URL,
-        credentials: true,
-        methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    }
-));
+// CORS configuration
+app.use(cors({
+  origin: process.env.WEB_URL || 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// routes
-const productRoutes = require('./routes/product')
+// Import routes
+const authRoutes = require('./routes/authRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const cartRouters = require('./routes/cartRoutes')
 const orderRoutes = require('./routes/orderRouter')
 
-app.use('/v1/api/',productRoutes )
+// API routes
+app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/v1/api/',cartRouters )
 app.use('/v1/api/',orderRoutes )
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT} at http://localhost:${PORT}`);
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    message: 'Server is running',
+    timestamp: new Date().toISOString()
+  });
 });
 
+// 404 Handler
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    error: 'Endpoint not found'
+  });
+});
+
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT} at http://localhost:${PORT}`);
+  console.log(`CORS configured for: ${process.env.WEB_URL || 'http://localhost:3000'}`);
+});

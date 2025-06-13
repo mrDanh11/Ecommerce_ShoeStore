@@ -1,41 +1,50 @@
-import imgTorpedo from '../assets/Pro_ALP2401_1.jpg';
-import imgToro from '../assets/Pro_AV00205_1.jpeg';
-import imgRobusto from '../assets/Pro_AV00214_1.jpg';
-import { TiDelete } from "react-icons/ti";
+import { Link } from 'react-router-dom'
+import { IoMdClose } from "react-icons/io"
+import { useState, useEffect } from 'react'
+import { FaShoppingCart } from "react-icons/fa"
 
-const Minicart = () => {
-  const cartItems = [
-    {
-      productId: 1,
-      img: imgTorpedo,
-      name: 'TORPEDO',
-      color: 'Trắng',
-      qty: 1,
-      size: 8,
-      price: 260000      
-    },
-    {
-      productId: 2,
-      img: imgToro,
-      name: 'TORO',
-      color: 'Xám',
-      qty: 1,
-      size: 9,
-      price: 270000    
-    },
-    {
-      productId: 3,
-      img: imgRobusto,
-      name: 'ROBUSTO',
-      color: 'Đen',
-      qty: 2,
-      size: 10,
-      price: 320000      
-    }
-  ]
+const Minicart = ({ handleTurnOffMinicart, minicartOpen, toggleMinicart }) => {
+  const [cartItems, setCartItems] = useState([])
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.qty, 0)
-  const shipping = subtotal * 0.2
+  useEffect(() => {
+    fetch('http://localhost:4004/v1/api/cart/0a1faa54-1e4e-4634-b394-835931d1e31a')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        const rawItems = data.data?.[0]?.giohang?.chitietgiohang || [];
+
+        const mappedItems = rawItems.map(item => {
+          const chiTiet = item.chitietsanpham;
+          const sanpham = chiTiet.sanpham;
+
+          return {
+            productId: chiTiet.machitietgiohang,
+            tensanpham: sanpham.tensanpham,
+            description: sanpham.description,
+            anhsanpham: sanpham.anhsanpham,
+            color: chiTiet.color,
+            size: chiTiet.size,
+            gia: item.gia,
+            soluong: item.soluong,
+          };
+        });
+
+        setCartItems(mappedItems);
+      })
+      .catch(error => {
+        console.error('Fetch error:', error);
+      });
+  }, []);
+
+  const calculateSubtotal = () => {
+    return cartItems.reduce((sum, item) => sum + item.gia * item.soluong, 0);
+  };
+
+  const subtotal = calculateSubtotal();
 
   const toVND = (value) => {
     value = value.toString().replace(/\./g, "");
@@ -47,58 +56,115 @@ const Minicart = () => {
       .replace("₫", "")
       .trim();
     
-    return formatted;
+    return formatted
   }
     
+  const handleRemoveItem = (productId) => {
+    const updatedCartItems = cartItems.filter(item => item.productId !== productId);
+    setCartItems(updatedCartItems);
+  };
+
+  const handleQuantityChange = (productId, newQty) => {
+    const parsedNewQty = parseInt(newQty) || 0;
+
+    if (parsedNewQty <= 0) {
+      handleRemoveItem(productId);
+    } else {
+      const updatedCartItems = cartItems.map(item =>
+        item.productId === productId
+          ? { ...item, soluong: parsedNewQty }
+          : item
+      );
+      setCartItems(updatedCartItems);
+    }
+  };
+
   return (
-    <div className="absolute -right-5 top-5 w-104 bg-white rounded-xl shadow-lg z-50 p-5">
-      {/* Items */}
-      <div className="space-y-4">
-        {
-          cartItems.map((product, index) => (
-            <div key={index} className="flex items-center space-x-3">
-              <button className="text-gray-500 text-xl hover:text-gray-700 z-10 cursor-pointer">
-                <TiDelete className="h-7 w-7"/>
-              </button>
-              <img src={product.img} alt={product.name} className="w-26 h-full object-cover rounded" />
-              <div className="flex-1 ml-2">
-                <h4 className="font-semibold text-gray-700">{product.name}</h4>
-                <p className="text-xs text-gray-600">Màu: {product.color}<br/>Size: US {product.size}</p>
-                <div className="flex justify-center items-center rounded mt-2 w-fit">
-                  <button className="px-3 py-1 text-gray-700 bg-gray-100 hover:bg-gray-200 cursor-pointer">−</button>
-                  <span className="px-4 text-gray-800">{product.qty}</span>
-                  <button className="px-3 py-1 text-gray-700 bg-gray-100 hover:bg-gray-200 cursor-pointer">+</button>
+    <div className={`fixed top-0 right-0 w-6/7 sm:w-3/5 md:w-1/3 h-full bg-white shadow-lg transform transition-transform duration-300 flex flex-col z-50 ${
+      minicartOpen ? "translate-x-0" : "translate-x-full"
+    }`}>
+
+      {/* Close Button */}
+      <div className="flex justify-end pt-4 pr-4">
+        <button className="cursor-pointer" onClick={toggleMinicart}>
+          <IoMdClose className="h-6 w-6 text-gray-600" />
+        </button>
+      </div>
+
+      {/* Cart contents with scrollable area */}
+      <div className="flex-grow p-4 overflow-y-auto">
+        <div className="border-b border-gray-400">
+          <h2 className="text-center text-xl font-semibold mb-4 uppercase">Giỏ hàng</h2>
+        </div>
+        <div>
+          { cartItems.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-gray-500 mt-8">
+              <FaShoppingCart className="w-16 h-16 text-gray-400 mb-4" /> {/* Icon giỏ hàng */}
+              <p className="text-lg">Hiện chưa có sản phẩm</p> {/* Thông báo giỏ hàng trống */}
+            </div>
+          ) : (
+            cartItems.map((product, index) => (
+              <div key={index} className="flex justify-between py-4 border-b border-dotted border-gray-400">
+                <div className="flex items-start w-full">
+                  <img href={product.anhsanpham} alt={product.tensanpham} className="w-20 h-24 object-cover mr-4 rounded" />
+                  <div className="flex flex-col justify-between h-full w-full">
+                    <div>
+                      <h3 className="block text-sm font-semibold text-gray-700">
+                      {product.tensanpham}
+                      </h3>
+                      <p className="block text-xs text-gray-600">
+                        {product.color} / {product.size} 
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center mt-2">
+                        <button
+                          className="border rounded px-2 py-0.5 text-gray-700 font-medium bg-gray-100 hover:bg-gray-200 cursor-pointer"
+                          onClick={() => handleQuantityChange(product.productId, product.soluong - 1)}
+                        >
+                          −
+                        </button>
+                        <span className="mx-3 text-sm text-gray-800">{product.soluong}</span>
+                        <button
+                          className="border rounded px-2 py-0.5 text-gray-700 font-medium bg-gray-100 hover:bg-gray-200 cursor-pointer"
+                          onClick={() => handleQuantityChange(product.productId, product.soluong + 1)}
+                        >
+                          +
+                        </button>
+                      </div>
+                      <p className="self-end text-sm font-medium text-gray-800 mb-1">{toVND(product.gia * product.soluong)}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="text-sm text-gray-800 font-bold self-start">{toVND(product.price)}</div>
-            </div>
-          ))
-        }
-      </div>
-
-      {/* Subtotal */}
-      <div className="border-t mt-4 pt-4 text-sm text-gray-800 font-bold">
-        <div className="flex justify-between">
-          <span>Tổng số tiền</span>
-          <span className="font-bold">{toVND(subtotal)}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Phí vận chuyển</span>
-          <span className="text-green-600">{toVND(shipping)}</span>
+            ))
+          )}
         </div>
       </div>
 
-      {/* Buttons */}
-      <div className="mt-6">
-        <button className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg text-sm font-semibold cursor-pointer">
-          XEM GIỎ HÀNG
-        </button>
-        <button className="w-full mt-2 bg-gray-200 hover:bg-gray-300 text-black py-2 rounded-lg text-sm font-semibold cursor-pointer">
-          THANH TOÁN
-        </button>
+      {/* Subtotal and Navigate To Cart Page Button at the bottom */}
+      <div className="p-4 bg-white sticky bottom-0">
+        <div className="border-t border-gray-400 pt-4 mt-4"></div>
+        {/* Subtotal */}
+        <div className="mb-4 text-sm text-gray-800 font-bold">
+          <div className="flex justify-between">
+            <span>TỔNG TIỀN:</span>
+            <span className="font-bold text-red-500">{toVND(subtotal)}</span>
+          </div>
+        </div>
+
+        {/* Navigate to cart page */}
+        <Link to="/cart" className="block" onClick={handleTurnOffMinicart}>
+          <button
+            className="cursor-pointer w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition transform hover:scale-102 shadow-lg"
+            aria-label="Xem giỏ hàng"
+          >
+            XEM GIỎ HÀNG
+          </button>
+        </Link>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Minicart;
+export default Minicart
