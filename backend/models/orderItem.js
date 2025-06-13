@@ -25,6 +25,7 @@ const getListOrderItemByCustomerId = async (customerId) => {
         .select(`
             mahoadon, 
             hoadon(mahoadon, makhachhang, mashipment, ngaydat, tongsoluong, tongtien, thanhtien, voucher,
+            payment(id, mahoadon, phuongthuc, status, paid_at, amount, created_at, updated_at),
             shipment(mashipment, makhachhang, diachigiaohang, trangthai, mavanchuyen)),
 
             machitietsanpham, tongsoluong, tongtien,
