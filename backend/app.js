@@ -19,14 +19,12 @@ app.use(express.urlencoded({ extended: true }));
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
-const productRoutes = require('./routes/productRoutes'); 
-const categoryRoutes = require('./routes/categoryRoutes');
+const cartRouters = require('./routes/cartRoutes')
 
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
-//app.use('/api/products', productRoutes);
-//app.use('/api/categories', categoryRoutes);
+app.use('/v1/api/',cartRouters )
 
 // Health check endpoint
 app.get('/health', (req, res) => {
