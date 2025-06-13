@@ -1,61 +1,100 @@
-const db = require("../config/database");
+const supabase = require("../config/supabaseClient");
 
 exports.getCategories = async (limit, offset, search) => {
-  let query = "SELECT * FROM CATEGORY";
-  const values = [];
+  let query = supabase.from('danhmucsanpham').select('*');
 
   if (search) {
-    query += " WHERE name ILIKE $1";
-    values.push(`%${search}%`);
+    query = query.ilike('tendanhmuc', `%${search}%`);
   }
 
   if (limit) {
-    query += search ? " LIMIT $2 OFFSET $3" : " LIMIT $1 OFFSET $2";
-    values.push(limit, offset);
+    query = query.range(offset, offset + limit - 1);
   }
 
-  return await db.any(query, values);
+  const { data, error } = await query;
+  
+  if (error) {
+    throw error;
+  }
+  
+  return data;
 };
 
 exports.getCategoryCount = async (search) => {
-  let query = "SELECT COUNT(*) FROM CATEGORY";
-  const values = [];
+  let query = supabase.from('danhmucsanpham').select('*', { count: 'exact', head: true });
 
   if (search) {
-    query += " WHERE name ILIKE $1";
-    values.push(`%${search}%`);
+    query = query.ilike('tendanhmuc', `%${search}%`);
   }
 
-  const result = await db.one(query, values);
-  return parseInt(result.count);
+  const { count, error } = await query;
+  
+  if (error) {
+    throw error;
+  }
+  
+  return count;
 };
 
-exports.insertCategory = async (name, image) => {
-  return await db.none("INSERT INTO CATEGORY (name, image) VALUES ($1, $2)", [
-    name,
-    image,
-  ]);
+exports.insertCategory = async (name, saleOffId = null) => {
+  if (!name || name.trim() === "") {
+    throw new Error("Category name is required");
+  }
+  const { data, error } = await supabase
+    .from('danhmucsanpham')
+    .insert([
+      {
+        tendanhmuc: name,
+        masaleoff: saleOffId
+      }
+    ])
+    .select();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
 };
 
-exports.deleteCategoryById = async (id) => {
-  return await db.result("DELETE FROM CATEGORY WHERE id = $1", [id]);
+exports.deleteCategory = async (id) => {
+  const { data, error } = await supabase
+    .from('danhmucsanpham')
+    .delete()
+    .eq('madanhmuc', id)
+    .select();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
 };
 
-exports.updateCategoryById = async (id, updates) => {
-  const fields = [];
-  const values = [];
-
-  Object.keys(updates).forEach((key, index) => {
-    fields.push(`${key} = $${index + 1}`);
-    values.push(updates[key]);
-  });
-
-  if (fields.length === 0) {
+exports.updateCategory = async (id, updates) => {
+  if (!updates || Object.keys(updates).length === 0) {
     throw new Error("No fields to update");
   }
 
-  const query = `UPDATE CATEGORY SET ${fields.join(
-    ", "
-  )} WHERE id = ${id} RETURNING *;`;
-  return await db.oneOrNone(query, values);
+  const updateData = {
+    name: updates.name || null,
+    saleOffId: updates.saleOffId || null
+  };
+
+  const { data, error } = await supabase
+    .from('danhmucsanpham')
+    .update([
+      {
+        tendanhmuc: updateData.name,
+        masaleoff: updateData.saleOffId
+      }
+    ])
+    .eq('madanhmuc', id)
+    .select();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
 };
