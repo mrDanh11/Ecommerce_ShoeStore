@@ -1,14 +1,13 @@
 const Category = require('../models/categoryModel');
 const Product = require('../models/productModel'); 
-const { search } = require('../routes/productRoutes');
 
 const getCategories = async (req, res) => {
-    const { limit, offset, search } = req.body;
+    const { limit, offset, filters } = req.body;
     try {
         const categories = await Category.getCategories(
             parseInt(limit) || 10,
             parseInt(offset) || 0,
-            search || ''
+            filters ? JSON.parse(filters) : {}
         );
         res.status(200).json({
             errorCode: 0,
@@ -23,9 +22,9 @@ const getCategories = async (req, res) => {
 }
 
 const getCategoryCount = async (req, res) => {
-    const { search } = req.body;
+    const { filters } = req.body;
     try {
-        const count = await Category.getCategoryCount(search || '');
+        const count = await Category.getCategoryCount(filters ? JSON.parse(filters) : {});
         res.status(200).json({
             errorCode: 0,
             count

@@ -1,10 +1,17 @@
 const supabase = require("../config/supabaseClient");
 
-exports.getCategories = async (limit, offset, search) => {
+exports.getCategories = async (limit, offset, filters) => {
   let query = supabase.from('danhmucsanpham').select('*');
 
-  if (search) {
-    query = query.ilike('tendanhmuc', `%${search}%`);
+  if (filters.categoryId) {
+    query = query.eq('madanhmuc', filters.categoryId);
+  }
+  if (filters.search) {
+    query = query.ilike('tendanhmuc', `%${filters.search}%`);
+  }
+
+  if (filters.saleOffId) {
+    query = query.eq('masaleoff', filters.saleOffId);
   }
 
   if (limit) {
@@ -20,11 +27,19 @@ exports.getCategories = async (limit, offset, search) => {
   return data;
 };
 
-exports.getCategoryCount = async (search) => {
+exports.getCategoryCount = async (filters) => {
   let query = supabase.from('danhmucsanpham').select('*', { count: 'exact', head: true });
 
-  if (search) {
-    query = query.ilike('tendanhmuc', `%${search}%`);
+  if (filters.categoryId) {
+    query = query.eq('madanhmuc', filters.categoryId);
+  }
+
+  if (filters.search) {
+    query = query.ilike('tendanhmuc', `%${filters.search}%`);
+  }
+
+  if (filters.saleOffId) {
+    query = query.eq('masaleoff', filters.saleOffId);
   }
 
   const { count, error } = await query;
@@ -72,23 +87,36 @@ exports.deleteCategory = async (id) => {
 };
 
 exports.updateCategory = async (id, updates) => {
-  if (!updates || Object.keys(updates).length === 0) {
-    throw new Error("No fields to update");
+  const allowedUpdates = ['name', 'saleOffId'];
+  const updateData = {};
+  console.log("Updates received:", updates);
+  for (const key of allowedUpdates) {
+    if (key in updates) {
+      updateData[key] = updates[key];
+    }
   }
 
-  const updateData = {
-    name: updates.name || null,
-    saleOffId: updates.saleOffId || null
-  };
+  if (Object.keys(updateData).length === 0) {
+    throw new Error("No valid fields to update");
+  }
+
+  console.log("Update data prepared:", updateData);
+
+  const categoryData = {};
+
+  if (updateData.name !== undefined) {
+    categoryData.tendanhmuc = updateData.name;
+  }
+
+  if (updateData.saleOffId !== undefined) {
+    categoryData.masaleoff = updateData.saleOffId;
+  }
+
+  console.log("Category data to update:", categoryData);
 
   const { data, error } = await supabase
     .from('danhmucsanpham')
-    .update([
-      {
-        tendanhmuc: updateData.name,
-        masaleoff: updateData.saleOffId
-      }
-    ])
+    .update(categoryData)
     .eq('madanhmuc', id)
     .select();
 
