@@ -1,12 +1,63 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+//import SummaryApi from '../../common';
+import { supabase } from '../../supabaseClient';
+import { useNavigate } from 'react-router-dom';
+
+
 
 const Login = () => {
   const [form, setForm] = useState({ username: '', password: '' });
+  const navigate = useNavigate(); 
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
+
+
     console.log('Logging in with:', form);
+
+
+    try {
+      const response = await fetch("http://localhost:4004/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        
+        body: JSON.stringify({
+          email: form.username,    // Change 'username' to 'email'
+          matkhau: form.password
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+
+      console.log("Login success:", data);
+      // Store token and redirect (e.g., localStorage.setItem("token", data.token))
+      navigate("/");
+      
+    } catch (error) {
+      console.error("Login error:", error);
+      alert(error.message || "Login failed. Please check your credentials.");
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    console.log(" Bắt đầu đăng nhập bằng Google...");
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: 'http://localhost:5173/callback', // URL local bạn đang dùng
+      },
+    });
+    if (error) {
+      console.error(" Lỗi khi đăng nhập với Google:", error);
+    } else {
+      console.log(" Đã chuyển hướng tới Google Login");
+    }
   };
 
   return (
@@ -34,7 +85,7 @@ const Login = () => {
               placeholder="Mật khẩu"
               className="mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
               value={form.password}
-              onChange={e => setForm({ ...form, password: e.target.value })}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
               required
             />
           </div>
@@ -51,6 +102,12 @@ const Login = () => {
           <Link to="/forgot-password" className="text-gray-500 hover:text-black">
             Quên mật khẩu?
           </Link>
+        </div>
+        <div className="mt-4 text-center text-blue-500">
+          <button onClick={handleGoogleLogin} className="font-medium hover:underline">
+          Đăng nhập với Google
+        </button>
+
         </div>
 
         <div className="mt-4 text-sm text-center text-gray-600">

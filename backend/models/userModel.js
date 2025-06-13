@@ -1,39 +1,23 @@
 const supabase = require('../config/supabaseClient');
 const bcrypt = require('bcrypt');
 
-//Create a new user with hashed password
 async function createUser(userData) {
-  const hashedPassword = userData.password
-    ? await bcrypt.hash(userData.password, 10)
-    : null;
-  
-  const payload = {
-    email: userData.email,
-    password_hash: hashedPassword,
-    name: userData.name || null,
-    role: userData.role || 'user',
-    oauth_provider: userData.oauth_provider || null,
-    oauth_id: userData.oauth_id || null,
-    avatar: userData.avatar || null, 
-    phone: userData.phone || null,    
-    address: userData.address || null 
-  };
   const { data, error } = await supabase
-    .from('users')
-    .insert([payload])
-    .select('id, email, name, role, avatar, phone, address, created_at')
-    .single();
+    .from('account')
+    .insert([userData])
+    .select();
 
   if (error) throw error;
-  return data;
+  return data[0];
 }
+
 
 //Get single user by ID (Admin)
 async function getUserById(id) {
   const { data, error } = await supabase
-    .from('users')
-    .select('id, email, name, role, oauth_provider, oauth_id')
-    .eq('id', id)
+    .from('account')
+    .select('*')
+    .eq('mataikhoan', id)
     .single();
   
   if (error && error.code !== 'PGRST116') throw error;
@@ -48,8 +32,8 @@ async function listUsers({
   role = ''
 } = {}) {
   let query = supabase
-    .from('users')
-    .select('id, email, name, role, avatar, phone, address, created_at', { count: 'exact' })
+    .from('account')
+    .select('mataikhoan, email, tendangnhap,matkhau, marole, google_id, trangthai, update_at, created_at', { count: 'exact' })
     .range(offset, offset + limit - 1);
   
   if (search) {
@@ -69,7 +53,7 @@ async function listUsers({
 // Get user by email (for authentication)
 async function getUserByEmail(email) {
   const { data, error } = await supabase
-    .from('users')
+    .from('account')
     .select('*')
     .eq('email', email)
     .single();
@@ -85,17 +69,17 @@ async function comparePassword(rawPassword, hash) {
 
 // Update user by ID (Admin)
 async function updateUser(id, updates) {
-  if (updates.password) {
-    updates.password_hash = await bcrypt.hash(updates.password, 10);
-    delete updates.password;
+  if (updates.matkhau) {
+    updates.matkhau = await bcrypt.hash(updates.matkhau, 10);
   }
+
   const { data, error } = await supabase
-    .from('users')
+    .from('account')
     .update(updates)
-    .eq('id', id)
-    .select('id, email, name, role, avatar, phone, address, created_at')
+    .eq('mataikhoan', id)
+    .select('*')
     .single();
-  
+
   if (error) throw error;
   return data;
 }
@@ -103,58 +87,11 @@ async function updateUser(id, updates) {
 // Delete user by ID (Admin)
 async function deleteUser(id) {
   const { data, error } = await supabase
-    .from('users')
+    .from('account')
     .delete()
     .eq('id', id);
   if (error) throw error;
   return true;
-}
-
-// Find or create OAuth2 user 
-async function findOrCreateOAuthUser(profile, provider) {
-  const { id, displayName, emails, photos } = profile;
-  const email = emails?.[0]?.value;
-  const avatar = photos?.[0]?.value;
-  
-  let { data: user, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('oauth_provider', provider)
-    .eq('oauth_id', id)
-    .single();
-  
-  if (user) return user;
-  
-  if (email) {
-    ({ data: user, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', email)
-      .single());
-    
-    if (user) {
-      const { data: updatedUser } = await supabase
-        .from('users')
-        .update({
-          oauth_provider: provider,
-          oauth_id: id,
-          avatar: avatar || user.avatar
-        })
-        .eq('id', user.id)
-        .select()
-        .single();
-      
-      return updatedUser;
-    }
-  }
-  
-  return await createUser({
-    email,
-    name: displayName,
-    avatar,
-    oauth_provider: provider,
-    oauth_id: id
-  });
 }
 
 // Update Password
@@ -162,7 +99,7 @@ async function updatePassword(userId, newPassword) {
   const hashedPassword = await bcrypt.hash(newPassword, 10);
   
   const { error } = await supabase
-    .from('users')
+    .from('account')
     .update({ password_hash: hashedPassword })
     .eq('id', userId);
   
@@ -178,6 +115,5 @@ module.exports = {
   comparePassword,
   updateUser,
   deleteUser,
-  findOrCreateOAuthUser,
   updatePassword
 };

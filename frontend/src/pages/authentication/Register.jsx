@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Register = () => {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     fullName: '',
     email: '',
@@ -9,14 +10,44 @@ const Register = () => {
     confirmPassword: '',
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
+    console.log('Registering with:', form);
+
     if (form.password !== form.confirmPassword) {
       alert('Mật khẩu không giống nhau!');
       return;
     }
+    else try {
+      const dataResponse = await fetch('http://localhost:4004/api/auth/register',{
+            method : "POST",
+            headers : {
+                "content-type" : "application/json"
+            },
+            body : JSON.stringify({
+              tendangnhap: form.fullName,  
+              email: form.email,
+              matkhau: form.password
+            })
+          })
+  
+          const data = await dataResponse.json();
 
-    console.log('Registering with:', form);
+          if (!dataResponse.ok) {
+            throw new Error(data.message || "Đăng ký thất bại");
+          }
+
+          //  Hiển thị thông báo và chuyển hướng
+          alert("Đăng ký thành công! Vui lòng đăng nhập.");
+          navigate("/login");
+
+        } catch (error) {
+          console.error("Đăng ký lỗi:", error);
+          alert(error.message || "Đăng ký thất bại");
+    }
+    
+
+
   };
 
   return (

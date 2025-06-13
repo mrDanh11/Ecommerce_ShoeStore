@@ -22,6 +22,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const productRoutes = require('./routes/productRoutes'); 
 const categoryRoutes = require('./routes/categoryRoutes');
 const saleOffRoutes = require('./routes/saleOffRoutes');
+const cartRouters = require('./routes/cartRoutes')
 
 // API routes
 app.use('/api/auth', authRoutes);
@@ -29,6 +30,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/sale-offs', saleOffRoutes);
+app.use('/v1/api/',cartRouters )
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -47,11 +49,9 @@ app.use((req, res) => {
   });
 });
 
-// Global error handler
-const errorHandler = require('./middleware/errorHandler');
-app.use(errorHandler);
 
 
+// Start server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT} at http://localhost:${PORT}`);
   console.log(`CORS configured for: ${process.env.WEB_URL || 'http://localhost:3000'}`);
