@@ -126,4 +126,26 @@ const checkout = async (req, res) => {
     }
 }
 
-module.exports = { checkout }
+const listUserOrder = async (req, res) => {
+    const { customerId } = req.params;
+    console.log('check userID: ', customerId)
+
+    try {
+        const { data, error } = await OrderItem.getListOrderItemByCustomerId(customerId)
+        res.status(200).json({
+            success: true,
+            errorCode: 1,
+            data: data
+
+        })
+    } catch (error) {
+        res.status(404).json({
+            success: false,
+            errorCode: -1,
+            data: null
+        })
+    }
+
+}
+
+module.exports = { checkout, listUserOrder }
