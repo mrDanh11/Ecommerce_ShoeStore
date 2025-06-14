@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShoeStore | Sale-off</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo">ShoeStore</div>
+    <nav>
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Sản phẩm</a></li>
+        <li class="active"><a href="#">Sale-off</a></li>
+        <li><a href="#">Liên hệ</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="sale-page">
+    <h1 class="title">Sale-off</h1>
+    <div class="products-grid">
+      <!-- Mẫu 1 sản phẩm -->
+      <div class="product-card">
+        <div class="img-container">
+          <img src="shoe1.jpg" alt="Giày Sale" />
+          <span class="badge sale">-25%</span>
+        </div>
+        <h3>Air Max 90</h3>
+        <div class="price">
+          <span class="new-price">1,875,000 ₫</span>
+          <span class="old-price">2,500,000 ₫</span>
+        </div>
+        <button class="btn-add-cart">Thêm vào giỏ</button>
+      </div>
+      <!-- Thêm các card khác tương tự -->
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 ShoeStore. All rights reserved.</p>
+  </footer>
+</body>
+</html>
+
+
+
+/* Reset & chung */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f9f9f9;
+}
+
+/* Header */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 16px 32px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.topbar .logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+.topbar nav ul {
+  display: flex;
+  gap: 24px;
+}
+.topbar nav a {
+  text-decoration: none;
+  color: #555;
+  font-size: 1rem;
+  padding-bottom: 4px;
+}
+.topbar nav .active a,
+.topbar nav a:hover {
+  color: #27ae60;
+  border-bottom: 2px solid #27ae60;
+}
+
+/* Trang Sale-off */
+.sale-page {
+  flex: 1;
+  padding: 40px 32px;
+}
+.sale-page .title {
+  font-size: 2rem;
+  margin-bottom: 24px;
+  color: #333;
+  text-align: center;
+}
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
+  gap: 24px;
+}
+
+/* Card sản phẩm */
+.product-card {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+.product-card:hover {
+  transform: translateY(-4px);
+}
+.img-container {
+  position: relative;
+  overflow: hidden;
+}
+.img-container img {
+  width: 100%;
+  display: block;
+}
+.badge.sale {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #c0392b;
+  color: white;
+  font-size: 0.85rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.product-card h3 {
+  margin: 16px;
+  font-size: 1.1rem;
+  color: #333;
+}
+.price {
+  margin: 0 16px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.price .new-price {
+  font-size: 1.2rem;
+  color: #27ae60;
+  font-weight: bold;
+}
+.price .old-price {
+  font-size: 1rem;
+  color: #777;
+  text-decoration: line-through;
+}
+.btn-add-cart {
+  margin: 0 16px 16px;
+  padding: 10px;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s ease;
+}
+.btn-add-cart:hover {
+  background: #1e8449;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 16px;
+  background: white;
+  font-size: 0.9rem;
+  color: #777;
+  border-top: 1px solid #eee;
+}
