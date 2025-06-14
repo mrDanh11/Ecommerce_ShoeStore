@@ -148,4 +148,32 @@ const listUserOrder = async (req, res) => {
 
 }
 
-module.exports = { checkout, listUserOrder }
+const allOrder = async (req, res) => {
+    const {
+        limit = undefined,  
+        offset = undefined,
+        filters = undefined
+    } = req.body || {};  
+
+    console.log('check limit: ', limit)
+    console.log('check offset: ', offset)
+    console.log('check filters: ', filters)
+
+    try {
+        const { data, error } = await OrderItem.getAllOrder(limit, offset, filters)
+        res.status(200).json({
+            success: true,
+            errorCode: 1,
+            data: data
+
+        })
+    } catch (error) {
+        res.status(404).json({
+            success: false,
+            errorCode: -1,
+            data: null
+        })
+    }
+}
+
+module.exports = { checkout, listUserOrder, allOrder }

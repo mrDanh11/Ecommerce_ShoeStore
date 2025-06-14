@@ -25,8 +25,8 @@ const orderRoutes = require('./routes/orderRouter')
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/v1/api/',cartRouters )
-app.use('/v1/api/',orderRoutes )
+app.use('/v1/api/cart',cartRouters )
+app.use('/v1/api/order',orderRoutes )
 
 // Health check endpoint
 app.get('/health', (req, res) => {
