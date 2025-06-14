@@ -21,9 +21,7 @@ exports.register = async (req, res) => {
     }
 
     const hashedmatkhau = await bcrypt.hash(matkhau, 10);
-
-
-
+    
     const newUser = await userModel.createUser({
       email,
       //google_id: google_id || null,
@@ -48,8 +46,8 @@ exports.login = async (req,res) => {
         const { email , matkhau} = req.body  
         const user = await userModel.getUserByEmail(email)
 
-        console.log("User from DB:", user); // ✅ Log toàn bộ user
-        console.log("matkhau from DB:", user?.matkhau); // ✅ Log matkhau
+        console.log("User from DB:", user); //  Log toàn bộ user
+        console.log("matkhau from DB:", user?.matkhau); // Log matkhau
 
        if(!user){
           //res.status(404).json({ message: 'Không tìm thấy người dùng' });
@@ -140,9 +138,9 @@ exports.oauthLogin = async (req, res) => {
     // Gửi cookie về frontend
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,       // ⚠️ Không dùng true nếu không phải HTTPS
-      sameSite: "lax",     // ✅ Đảm bảo cookie hoạt động với fetch/axios cross-origin
-      path: "/",           // Đảm bảo cookie dùng được trên toàn site
+      secure: false,       
+      sameSite: "lax",    
+      path: "/",          
     });
 
     res.status(200).json({
