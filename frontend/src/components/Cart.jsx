@@ -8,7 +8,7 @@ const Cart = () => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('http://localhost:4004/v1/api/cart/0a1faa54-1e4e-4634-b394-835931d1e31a')
+    fetch('http://localhost:4004/v1/api/cart/3fe55df8-db5f-496c-88f7-9e57c1affb79')
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -84,7 +84,7 @@ const Cart = () => {
 
   if (loading) 
     return (
-      <div className="container mx-auto p-4 md:p-8 min-h-screen">
+      <div className="container mx-auto p-4 md:p-8 min-h-screen bg-gray-100">
         <h1 className="text-3xl font-bold text-center mb-8 uppercase">Giỏ hàng của bạn</h1>
         <div className="text-center py-20 bg-gray-50 rounded-lg shadow-sm">
           <p className="text-xl text-gray-700 mb-4">Đang tải giỏ hàng...</p>
@@ -94,11 +94,11 @@ const Cart = () => {
   
 
   return (
-    <div className="container mx-auto p-4 md:p-8 min-h-screen">
+    <div className="container mx-auto p-4 md:p-8 min-h-screen bg-gray-100">
       <h1 className="text-3xl font-bold text-center mb-8 uppercase">Giỏ hàng của bạn</h1>
 
       {cartItems.length === 0 ? (
-        <div className="text-center py-20 bg-gray-50 rounded-lg shadow-sm">
+        <div className="text-center py-20 bg-white rounded-lg shadow-sm">
           <p className="text-xl text-gray-700 mb-4">Giỏ hàng của bạn đang trống</p>
           <Link to="/" className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-black hover:bg-gray-800 transition-colors">
             Tiếp tục mua sắm
@@ -158,7 +158,7 @@ const Cart = () => {
               <li>Bạn cũng có thể nhập mã giảm giá ở trang thanh toán.</li>
             </ul>
             
-            <Link to="/checkout" className="block">
+            <Link to="/shipping-information" className="block">
               <button
                 className="cursor-pointer w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition transform hover:scale-105 shadow-lg"
                 aria-label="Đặt hàng ngay"

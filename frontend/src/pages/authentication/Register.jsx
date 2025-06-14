@@ -5,6 +5,7 @@ const Register = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     fullName: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -25,7 +26,8 @@ const Register = () => {
                 "content-type" : "application/json"
             },
             body : JSON.stringify({
-              tendangnhap: form.fullName,  
+              hoten: form.fullName,  
+              tendangnhap: form.username,  
               email: form.email,
               matkhau: form.password
             })
@@ -45,9 +47,6 @@ const Register = () => {
           console.error("Đăng ký lỗi:", error);
           alert(error.message || "Đăng ký thất bại");
     }
-    
-
-
   };
 
   return (
@@ -64,6 +63,18 @@ const Register = () => {
               placeholder="Họ và tên"
               value={form.fullName}
               onChange={e => setForm({ ...form, fullName: e.target.value })}
+              required
+              className="mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Tên người dùng *</label>
+            <input
+              type="text"
+              placeholder="Tên người dùng"
+              value={form.username}
+              onChange={e => setForm({ ...form, username: e.target.value })}
               required
               className="mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
             />
