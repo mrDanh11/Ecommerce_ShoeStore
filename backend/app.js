@@ -32,9 +32,6 @@ app.use('/api/auth', authRoutes);
 //app.use('/api/products', productRoutes);
 //app.use('/api/categories', categoryRoutes);
 
-// Route test database
-app.use('/api/test', require('./routes/testRoutes'));
-
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ 
