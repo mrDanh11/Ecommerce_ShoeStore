@@ -1,7 +1,6 @@
 const supabase = require('../config/supabaseClient');
 const bcrypt = require('bcrypt');
 
-
 async function createUser(userData) {
   const { data, error } = await supabase
     .from('account')
@@ -103,6 +102,7 @@ async function updatePassword(userId, newPassword) {
     .from('account')
     .update({ matkhau: hashedPassword })
     .eq('mataikhoan', userId);
+
   
   if (error) throw error;
   return true;

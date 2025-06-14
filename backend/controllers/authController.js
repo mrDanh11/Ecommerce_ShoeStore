@@ -1,6 +1,8 @@
 const userModel = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const path = require('path');
+
 
 //Đăng ký tài khoản
 exports.register = async (req, res) => {
@@ -21,7 +23,7 @@ exports.register = async (req, res) => {
     }
 
     const hashedmatkhau = await bcrypt.hash(matkhau, 10);
-    
+
     const newUser = await userModel.createUser({
       email,
       //google_id: google_id || null,
@@ -46,8 +48,8 @@ exports.login = async (req,res) => {
         const { email , matkhau} = req.body  
         const user = await userModel.getUserByEmail(email)
 
-        console.log("User from DB:", user); //  Log toàn bộ user
-        console.log("matkhau from DB:", user?.matkhau); // Log matkhau
+        console.log("User from DB:", user); // Log toàn bộ user
+        console.log("matkhau from DB:", user?.matkhau); //  Log matkhau
 
        if(!user){
           //res.status(404).json({ message: 'Không tìm thấy người dùng' });
@@ -60,17 +62,20 @@ exports.login = async (req,res) => {
 
        if(checkmatkhau){
         const tokenData = {
+
             mataikhoan : user.mataikhoan,
             email : user.email,
             vaitro: user.vaitro
         }
         const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET_KEY, { expiresIn: '1d' });
+
         //console.log("jwt: ",token)
 
         const tokenOption = {
             httpOnly : true,
             secure : false,
             sameSite: 'lax'
+
         }
 
         res.cookie("token",token,tokenOption).status(200).json({
@@ -93,7 +98,6 @@ exports.login = async (req,res) => {
     }
 
 }
-
 
 
 // Đăng nhập bằng Google
@@ -128,7 +132,6 @@ exports.oauthLogin = async (req, res) => {
         );
       }
     }
-
   
     const token = jwt.sign({ mataikhoan: user.mataikhoan, email: user.email, vaitro: user.vaitro },
        process.env.TOKEN_SECRET_KEY, 
@@ -151,6 +154,7 @@ exports.oauthLogin = async (req, res) => {
         tendangnhap: user.tendangnhap,
         vaitro: user.vaitro
       }
+
     });
 
     res.json({ success: true, message: 'OAuth login thành công', token, user });
@@ -179,6 +183,7 @@ exports.changematkhau = async (req, res) => {
     
     // Kiểm tra mật khẩu hiện tại
     const isMatch = await userModel.comparematkhau(currentmatkhau, user.matkhau);
+
     if (!isMatch) {
       return res.status(401).json({ 
         success: false,

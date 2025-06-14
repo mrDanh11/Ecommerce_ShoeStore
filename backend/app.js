@@ -19,18 +19,25 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+const adminRoutes = require('./routes/adminRoutes');
+const orderRoutes = require('./routes/orderRouter')
+const productRoutes = require('./routes/productRoutes'); 
+const categoryRoutes = require('./routes/categoryRoutes');
+const saleOffRoutes = require('./routes/saleOffRoutes');
+const cartRouters = require('./routes/cartRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
-// Import routes
-const authRoutes = require('./routes/authRoutes');
-//const adminRoutes = require('./routes/adminRoutes');
-//const productRoutes = require('./routes/productRoutes'); 
-//const categoryRoutes = require('./routes/categoryRoutes');
 
 // API routes
 app.use('/api/auth', authRoutes);
-//app.use('/api/admin', adminRoutes);
-//app.use('/api/products', productRoutes);
-//app.use('/api/categories', categoryRoutes);
+app.use('/api/admin', adminRoutes);
+
+app.use('/v1/api/cart',cartRouters )
+app.use('/v1/api/order',orderRoutes )
+app.use('/api/products', productRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/sale-offs', saleOffRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -49,9 +56,6 @@ app.use((req, res) => {
   });
 });
 
-// Global error handler
-const errorHandler = require('./middlewares/errorHandler');
-app.use(errorHandler);
 
 // Start server
 app.listen(PORT, () => {

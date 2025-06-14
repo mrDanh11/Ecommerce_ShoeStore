@@ -1,13 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const passport = require('passport');
 const authController = require('../controllers/authController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
-
-// Đăng ký tài khoản
 router.post('/register', authController.register);
-
 router.post('/login', authController.login);
 router.post('/oauth', authController.oauthLogin);
 router.get('/getme', authMiddleware.verifyToken, authController.getMe);
