@@ -1,0 +1,845 @@
+{
+	"info": {
+		"_postman_id": "29d7ff70-e277-4fbd-b948-70f6d63205d1",
+		"name": "shoeTest",
+		"description": "# 🚀 Get started here\n\nThis template guides you through CRUD operations (GET, POST, PUT, DELETE), variables, and tests.\n\n## 🔖 **How to use this template**\n\n#### **Step 1: Send requests**\n\nRESTful APIs allow you to perform CRUD operations using the POST, GET, PUT, and DELETE HTTP methods.\n\nThis collection contains each of these [request](https://learning.postman.com/docs/sending-requests/requests/) types. Open each request and click \"Send\" to see what happens.\n\n#### **Step 2: View responses**\n\nObserve the response tab for status code (200 OK), response time, and size.\n\n#### **Step 3: Send new Body data**\n\nUpdate or add new data in \"Body\" in the POST request. Typically, Body data is also used in PUT request.\n\n```\n{\n    \"name\": \"Add your name in the body\"\n}\n\n ```\n\n#### **Step 4: Update the variable**\n\nVariables enable you to store and reuse values in Postman. We have created a [variable](https://learning.postman.com/docs/sending-requests/variables/) called `base_url` with the sample request [https://postman-api-learner.glitch.me](https://postman-api-learner.glitch.me). Replace it with your API endpoint to customize this collection.\n\n#### **Step 5: Add tests in the \"Scripts\" tab**\n\nAdding tests to your requests can help you confirm that your API is working as expected. You can write test scripts in JavaScript and view the output in the \"Test Results\" tab.\n\n<img src=\"https://content.pstmn.io/fa30ea0a-373d-4545-a668-e7b283cca343/aW1hZ2UucG5n\" width=\"2162\" height=\"1530\">\n\n## 💪 Pro tips\n\n- Use folders to group related requests and organize the collection.\n    \n- Add more [scripts](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/) to verify if the API works as expected and execute workflows.\n    \n\n## 💡Related templates\n\n[API testing basics](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9a37a28-055b-49cd-8c7e-97494a21eb54&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[API documentation](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9c28f47-1253-44af-a2f3-20dce4da1f18&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[Authorization methods](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=31a9a6ed-4cdf-4ced-984c-d12c9aec1c27&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40466906",
+		"_collection_link": "https://shoeteam-4545.postman.co/workspace/My-Workspace~f0389cc9-7b75-445f-8761-0f4ed386574d/collection/40466906-29d7ff70-e277-4fbd-b948-70f6d63205d1?action=share&source=collection_link&creator=40466906"
+	},
+	"item": [
+		{
+			"name": "PRODUCT",
+			"item": [
+				{
+					"name": "getProduct",
+					"item": [
+						{
+							"name": "by name",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var template = `\r",
+											"<style type=\"text/css\">\r",
+											"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}\r",
+											"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}\r",
+											"    .tftable tr {background-color:#ffffff;}\r",
+											"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}\r",
+											"    .tftable tr:hover {background-color:#e0ffff;}\r",
+											"</style>\r",
+											"\r",
+											"<table class=\"tftable\" border=\"1\">\r",
+											"    <tr>\r",
+											"        <th>Product Code</th>\r",
+											"        <th>Product Name</th>\r",
+											"        <th>Price</th>\r",
+											"        <th>Description</th>\r",
+											"        <th>Status</th>\r",
+											"        <th>Image</th>\r",
+											"        <th>Category ID</th>\r",
+											"        <th>Category Name</th>\r",
+											"    </tr>\r",
+											"    \r",
+											"    {{#each response.data}}\r",
+											"        <tr id=row_{{@key}}>\r",
+											"            <td>{{masanpham}}</td>\r",
+											"            <td>{{tensanpham}}</td>\r",
+											"            <td>{{gia}}</td>\r",
+											"            <td>{{description}}</td>\r",
+											"            <td>{{tinhtrang}}</td>\r",
+											"            <td>{{anhsanpham}}</td>\r",
+											"            <td>{{madanhmuc}}</td>\r",
+											"            <td>{{danhMuc.tendanhmuc}}</td>\r",
+											"        </tr>\r",
+											"    {{/each}}\r",
+											"</table>\r",
+											"`;\r",
+											"\r",
+											"function constructVisualizerPayload() {\r",
+											"    return {response: pm.response.json()}\r",
+											"}\r",
+											"\r",
+											"pm.visualizer.set(template, constructVisualizerPayload());"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"filters\": \"{\\\"search\\\":\\\"nike\\\"}\" \r\n}\r\n\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:4004/api/products",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4004",
+									"path": [
+										"api",
+										"products"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "by categoryId",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var template = `\r",
+											"<style type=\"text/css\">\r",
+											"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}\r",
+											"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}\r",
+											"    .tftable tr {background-color:#ffffff;}\r",
+											"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}\r",
+											"    .tftable tr:hover {background-color:#e0ffff;}\r",
+											"</style>\r",
+											"\r",
+											"<table class=\"tftable\" border=\"1\">\r",
+											"    <tr>\r",
+											"        <th>Product Code</th>\r",
+											"        <th>Product Name</th>\r",
+											"        <th>Price</th>\r",
+											"        <th>Description</th>\r",
+											"        <th>Status</th>\r",
+											"        <th>Image</th>\r",
+											"        <th>Category ID</th>\r",
+											"        <th>Category Name</th>\r",
+											"    </tr>\r",
+											"    \r",
+											"    {{#each response.data}}\r",
+											"        <tr id=row_{{@key}}>\r",
+											"            <td>{{masanpham}}</td>\r",
+											"            <td>{{tensanpham}}</td>\r",
+											"            <td>{{gia}}</td>\r",
+											"            <td>{{description}}</td>\r",
+											"            <td>{{tinhtrang}}</td>\r",
+											"            <td>{{anhsanpham}}</td>\r",
+											"            <td>{{madanhmuc}}</td>\r",
+											"            <td>{{danhMuc.tendanhmuc}}</td>\r",
+											"        </tr>\r",
+											"    {{/each}}\r",
+											"</table>\r",
+											"`;\r",
+											"\r",
+											"function constructVisualizerPayload() {\r",
+											"    return {response: pm.response.json()}\r",
+											"}\r",
+											"\r",
+											"pm.visualizer.set(template, constructVisualizerPayload());"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"filters\": \"{\\\"category_id\\\":\\\"3\\\"}\" \r\n}\r\n\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:4004/api/products",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4004",
+									"path": [
+										"api",
+										"products"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "general",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"limit\": 5, // giới hạn số lượng và\r\n    \"offset\": 10, // mốc khởi điểm (ví dụ ở đây là 10/5 = 2, sẽ lấy cho trang 2 + 1 = 3) dùng cho phân trang\r\n    \"filters\": \"{\\\"search\\\":\\\"test01\\\"}\" \r\n    /* ngoài search ra còn các khóa khác để lọc: \r\n        category_id, -> tìm theo mã sản phẩm\r\n        min_price, \r\n        max_price, -> tìm theo khoảng giá\r\n        isAvailable, -> tìm theo tình trạng hiện hữu\r\n        CnS: {\r\n            color, -> tìm chitietsanpham theo màu\r\n            size -> tìm chitietsanpham theo size\r\n        }\r\n    */\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:4004/api/products",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4004",
+									"path": [
+										"api",
+										"products"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "postProduct",
+					"item": [
+						{
+							"name": "with full info",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"test01\",\r\n  \"desc\": \"this is the description of the product test01\",\r\n  \"img\": \"https://upload.wikimedia.org/wikipedia/en/c/c7/Chill_guy_original_artwork.jpg\",\r\n  \"price\": 36000,\r\n  \"categoryId\": 3,\r\n  \"status\": \"Mới\",\r\n  \"detailsData\": [\r\n    {\r\n      \"size\": 22,\r\n      \"color\": \"Cyan\",\r\n      \"quantity\": 5\r\n    }\r\n  ]\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:4004/api/products",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4004",
+									"path": [
+										"api",
+										"products"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "with only name and details",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"test01\",\r\n  \"detailsData\": [\r\n    {\r\n      \"size\": 22,\r\n      \"color\": \"Cyan\",\r\n      \"quantity\": 5\r\n    }\r\n  ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:4004/api/products",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4004",
+									"path": [
+										"api",
+										"products"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "deleteProduct",
+					"item": [
+						{
+							"name": "by productId in params",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"test01\",\r\n    \"desc\": \"this is the description of the product test01\",\r\n    \"img\": \"https://upload.wikimedia.org/wikipedia/en/c/c7/Chill_guy_original_artwork.jpg\",\r\n    \"price\": \"36000\",\r\n    \"categoryId\": 1,\r\n    \"status\": \"Mới\",\r\n    \"detailsData\": [\r\n        \r\n    ]\r\n}"
+								},
+								"url": {
+									"raw": "http://localhost:4004/api/products/:id",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4004",
+									"path": [
+										"api",
+										"products",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "a6017b77-e5aa-4ae4-8268-b339dda6fc7b"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "updateProduct",
+					"item": [
+						{
+							"name": "by productId in params",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    // cập nhật trường nào thì truyền trường đó thôi chứ đừng truyền tất cả\r\n    \"name\": \"test01\",\r\n    \"desc\": \"this is the description of the product test01\",\r\n    \"img\": \"https://upload.wikimedia.org/wikipedia/en/c/c7/Chill_guy_original_artwork.jpg\",\r\n    \"price\": 36000,\r\n    \"categoryId\": 1,\r\n    \"status\": \"Mới\",\r\n    \"detailsData\": [\r\n        {\r\n        \"size\": 22,\r\n        \"color\": \"Cyan\",\r\n        \"quantity\": 5\r\n        }\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:4004/api/products/:id",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4004",
+									"path": [
+										"api",
+										"products",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "421766d5-1b61-4f51-9c63-b8fb465319ee"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "CATEGORY",
+			"item": [
+				{
+					"name": "getCategory",
+					"item": [
+						{
+							"name": "all",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"limit\": 1000, // giới hạn số lượng và\r\n    \"offset\": 0 // mốc khởi điểm (ví dụ ở đây là 0/1000 = 0, sẽ lấy cho trang 0 + 1 = 1) dùng cho phân trang\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:4004/api/categories",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4004",
+									"path": [
+										"api",
+										"categories"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "by name",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"limit\": 1000, // giới hạn số lượng và\r\n    \"offset\": 0, // mốc khởi điểm (ví dụ ở đây là 0/1000 = 0, sẽ lấy cho trang 0 + 1 = 1) dùng cho phân trang\r\n    \"filters\": \"{\\\"search\\\":\\\"temp\\\"}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:4004/api/categories",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4004",
+									"path": [
+										"api",
+										"categories"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "by categoryId",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"limit\": 1000, // giới hạn số lượng và\r\n    \"offset\": 0, // mốc khởi điểm (ví dụ ở đây là 0/1000 = 0, sẽ lấy cho trang 0 + 1 = 1) dùng cho phân trang\r\n    \"filters\": \"{\\\"categoryId\\\":9}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:4004/api/categories",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4004",
+									"path": [
+										"api",
+										"categories"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "count",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"limit\": 1000, // giới hạn số lượng và\r\n    \"offset\": 0 // mốc khởi điểm (ví dụ ở đây là 0/1000 = 0, sẽ lấy cho trang 0 + 1 = 1) dùng cho phân trang\r\n    // filters\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:4004/api/categories/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4004",
+									"path": [
+										"api",
+										"categories",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "postCategory",
+					"item": [
+						{
+							"name": "general",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Temp Category 36\", // bat buoc co\r\n    \"saleOffId\": 3 // nullable\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:4004/api/categories",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4004",
+									"path": [
+										"api",
+										"categories"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "deleteCategory",
+					"item": [
+						{
+							"name": "by categoryId in params",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:4004/api/categories/:categoryId",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4004",
+									"path": [
+										"api",
+										"categories",
+										":categoryId"
+									],
+									"variable": [
+										{
+											"key": "categoryId",
+											"value": "7"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "updateCategory",
+					"item": [
+						{
+							"name": "by categoryId in params",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Temp Category 1\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:4004/api/categories/:categoryId",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4004",
+									"path": [
+										"api",
+										"categories",
+										":categoryId"
+									],
+									"variable": [
+										{
+											"key": "categoryId",
+											"value": "9"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "SALEOFF",
+			"item": [
+				{
+					"name": "getSaleOff",
+					"item": [
+						{
+							"name": "general",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"limit\": 1000,\r\n    \"offset\": 0,\r\n    \"filters\": \"{\\\"maxValue\\\":1000000,\\\"status\\\":\\\"true\\\",\\\"startDate\\\":\\\"2025-06-08\\\"}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:4004/api/sale-offs",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4004",
+									"path": [
+										"api",
+										"sale-offs"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "all",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"limit\": 1000,\r\n    \"offset\": 0,\r\n    \"filters\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:4004/api/sale-offs",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4004",
+									"path": [
+										"api",
+										"sale-offs"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "postSaleOff",
+					"item": [
+						{
+							"name": "general",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"value\": 36,\r\n    \"status\": true,\r\n    \"startDate\": \"2025-07-12\",\r\n    \"endDate\": \"2025-07-30\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:4004/api/sale-offs",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4004",
+									"path": [
+										"api",
+										"sale-offs"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "deleteSaleOff",
+					"item": [
+						{
+							"name": "by saleOffId in params",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:4004/api/sale-offs/:saleOffId",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4004",
+									"path": [
+										"api",
+										"sale-offs",
+										":saleOffId"
+									],
+									"variable": [
+										{
+											"key": "saleOffId",
+											"value": "3"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "updateSaleOff",
+					"item": [
+						{
+							"name": "by saleOffId in params",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:4004/api/sale-offs/:saleOffId",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4004",
+									"path": [
+										"api",
+										"sale-offs",
+										":saleOffId"
+									],
+									"variable": [
+										{
+											"key": "saleOffId",
+											"value": "4"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "UPLOAD",
+			"item": [
+				{
+					"name": "img -> supabase storage",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/D:/lilsadfoqs/Backup/ImageLinhtinh/toptop/gyokeres.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:4004/api/upload",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4004",
+							"path": [
+								"api",
+								"upload"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "id",
+			"value": "1"
+		},
+		{
+			"key": "base_url",
+			"value": "https://postman-rest-api-learner.glitch.me/"
+		}
+	]
+}
