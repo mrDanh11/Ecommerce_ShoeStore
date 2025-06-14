@@ -11,11 +11,7 @@ const App = () => {
     </Routes>
 =======
 import Navbar from "./components/Navbar"; // Thêm dòng này
-import CartPage from "./pages/CartPage";
-import Login from "./pages/authentication/Login";
-import Register from "./pages/authentication/Register";
-import ForgotPassword from "./pages/authentication/ForgotPassword";
-import CallBack from "./pages/authentication/CallBack";
+import Topbar from "./components/Topbar";
 
 const App = () => {
   return (
@@ -29,6 +25,7 @@ const App = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/callback" element={<CallBack />} />
       </Routes>
+      <Footer />
     </>
 >>>>>>> d24973a86fb96ad848d6413d47b6b140a66c0d0f
   )
