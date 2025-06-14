@@ -8,8 +8,8 @@ import Register from "./pages/authentication/Register";
 import ForgotPassword from "./pages/authentication/ForgotPassword";
 import CallBack from "./pages/authentication/CallBack";
 import CheckoutPage from "./pages/CheckoutPage";
-import Topbar from "./components/Topbar";
-
+import Footer from "./components/Footer";
+ 
 const App = () => {
   return (
     <>
