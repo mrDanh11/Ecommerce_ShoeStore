@@ -5,7 +5,7 @@ import { FaShoppingCart } from "react-icons/fa"
 import { GiHamburgerMenu } from "react-icons/gi"
 import { FaUser } from "react-icons/fa"
 import { IoMdClose } from "react-icons/io"
-import Eureka from "../assets/Eureka.svg"
+import Shoea from "../assets/Shoea-Logo.svg"
 import Minicart from "./Minicart"
 
 
@@ -53,8 +53,11 @@ const Navbar = () => {
       <nav className="container mx-auto flex items-center justify-between py-4 px-6 h-18">
         {/* Left - Logo */}
         <div>
-          <Link to="/" className="text-2xl font-bold text-black p-1" aria-label="Home">
-            <img src={Eureka} alt={"Eureka"} />
+          <Link to="/" className="flex items-center text-2xl font-bold text-black p-1" aria-label="Home">
+            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center mr-2"> {/* Thêm div này */}
+              <img className="w-8 h-8" src={Shoea} alt="Shoea" /> {/* Điều chỉnh kích thước ảnh nếu cần */}
+            </div>
+            Shoea {/* Thêm text Shoea */}
           </Link>
         </div>
 
