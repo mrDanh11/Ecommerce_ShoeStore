@@ -89,7 +89,7 @@ async function deleteUser(id) {
   const { data, error } = await supabase
     .from('account')
     .delete()
-    .eq('id', id);
+    .eq('mataikhoan', id);
   if (error) throw error;
   return true;
 }
@@ -100,8 +100,9 @@ async function updatePassword(userId, newPassword) {
   
   const { error } = await supabase
     .from('account')
-    .update({ password_hash: hashedPassword })
-    .eq('id', userId);
+    .update({ matkhau: hashedPassword })
+    .eq('mataikhoan', userId);
+
   
   if (error) throw error;
   return true;

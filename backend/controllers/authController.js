@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const path = require('path');
 
+
 //Đăng ký tài khoản
 exports.register = async (req, res) => {
   try {
@@ -22,8 +23,6 @@ exports.register = async (req, res) => {
     }
 
     const hashedmatkhau = await bcrypt.hash(matkhau, 10);
-
-
 
     const newUser = await userModel.createUser({
       email,
@@ -63,22 +62,27 @@ exports.login = async (req,res) => {
 
        if(checkmatkhau){
         const tokenData = {
-            _id : user._id,
+
+            mataikhoan : user.mataikhoan,
             email : user.email,
+            vaitro: user.vaitro
         }
-        const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET_KEY, { expiresIn: 60 * 60 * 8 });
+        const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET_KEY, { expiresIn: '1d' });
+
         //console.log("jwt: ",token)
 
         const tokenOption = {
             httpOnly : true,
-            secure : true
+            secure : false,
+            sameSite: 'lax'
+
         }
 
         res.cookie("token",token,tokenOption).status(200).json({
             message : "Login successfully",
-            data : token,
+            //data : token,
             success : true,
-            error : false
+            //error : false
         })
 
        }else{
@@ -94,7 +98,6 @@ exports.login = async (req,res) => {
     }
 
 }
-
 
 
 // Đăng nhập bằng Google
@@ -129,12 +132,29 @@ exports.oauthLogin = async (req, res) => {
         );
       }
     }
-
   
     const token = jwt.sign({ mataikhoan: user.mataikhoan, email: user.email, vaitro: user.vaitro },
        process.env.TOKEN_SECRET_KEY, 
        {
       expiresIn: '1d',
+    });
+    // Gửi cookie về frontend
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,       
+      sameSite: "lax",    
+      path: "/",          
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "OAuth login thành công",
+      user: {
+        email: user.email,
+        tendangnhap: user.tendangnhap,
+        vaitro: user.vaitro
+      }
+
     });
 
     res.json({ success: true, message: 'OAuth login thành công', token, user });
@@ -162,7 +182,8 @@ exports.changematkhau = async (req, res) => {
     }
     
     // Kiểm tra mật khẩu hiện tại
-    const isMatch = await userModel.comparematkhau(currentmatkhau, user.matkhau_hash);
+    const isMatch = await userModel.comparematkhau(currentmatkhau, user.matkhau);
+
     if (!isMatch) {
       return res.status(401).json({ 
         success: false,
@@ -188,22 +209,16 @@ exports.changematkhau = async (req, res) => {
 // Lấy thông tin user hiện tại
 exports.getMe = async (req, res) => {
   try {
+    console.log("Decoded user:", req.user);
+
     const user = await userModel.getUserById(req.user.userId);
     if (!user) {
-      return res.status(404).json({ 
-        success: false,
-        error: 'Người dùng không tồn tại' 
-      });
+      return res.status(404).json({ success: false, error: 'Người dùng không tồn tại' });
     }
-    res.json({
-      success: true,
-      user
-    });
+    res.json({ success: true, user });
   } catch (error) {
-    res.status(500).json({ 
-      success: false,
-      error: error.message 
-    });
+    console.error('Lỗi getMe:', error); 
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
@@ -211,8 +226,9 @@ exports.getMe = async (req, res) => {
 exports.logout = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    secure: true,
-    sameSite: "none" // Hoặc "lax" tùy frontend ở đâu
+    secure: false,
+    sameSite: "lax",
+    path: "/"
   });
 
   res.status(200).json({

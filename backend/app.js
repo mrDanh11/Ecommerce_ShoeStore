@@ -2,22 +2,23 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const cookieParser = require('cookie-parser');
 const PORT = process.env.PORT;
+
+// Middleware
+app.use(express.json());
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
+
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.WEB_URL || 'http://localhost:3000',
+  origin: process.env.WEB_URL || 'http://localhost:5137',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Import routes
-const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const orderRoutes = require('./routes/orderRouter')
 const productRoutes = require('./routes/productRoutes'); 
@@ -54,7 +55,6 @@ app.use((req, res) => {
     error: 'Endpoint not found'
   });
 });
-
 
 
 // Start server
