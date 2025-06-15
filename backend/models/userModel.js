@@ -33,20 +33,24 @@ async function listUsers({
 } = {}) {
   let query = supabase
     .from('account')
-    .select('mataikhoan, email, tendangnhap,matkhau, marole, google_id, trangthai, update_at, created_at', { count: 'exact' })
+    .select(
+      'mataikhoan, email, tendangnhap, marole, google_id, trangthai, updated_at, created_at',
+      { count: 'exact' }
+    )
     .range(offset, offset + limit - 1);
-  
+
   if (search) {
-    query = query.or(`email.ilike.%${search}%,name.ilike.%${search}%`);
+    query = query.or(`email.ilike.%${search}%,tendangnhap.ilike.%${search}%`);
   }
-  
+
   if (role) {
-    query = query.eq('role', role);
+    query = query.eq('marole', role);
   }
-  
+
   const { data, error, count } = await query;
-  
+
   if (error) throw error;
+
   return { data, count };
 }
 
@@ -108,6 +112,16 @@ async function updatePassword(userId, newPassword) {
   return true;
 }
 
+async function getUserByRole(role) {
+  const { data, error } = await supabase
+    .from('account')
+    .select('*')
+    .eq('marole', role);
+
+  if (error) throw error;
+  return data;
+}
+
 module.exports = {
   createUser,
   getUserById,
@@ -116,5 +130,6 @@ module.exports = {
   comparePassword,
   updateUser,
   deleteUser,
-  updatePassword
+  updatePassword,
+  getUserByRole,
 };
