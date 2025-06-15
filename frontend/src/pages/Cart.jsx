@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useState } from 'react'
 import { FaTrashAlt } from "react-icons/fa"
 import { Link } from 'react-router-dom' 
+import toVND from '../utils/helper'
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([])
@@ -43,24 +44,7 @@ const Cart = () => {
       });
   }, []);
 
-  const toVND = (value) => {
-    value = value.toString().replace(/\./g, "");
-    const formatted = new Intl.NumberFormat("it-IT", {
-      style: "currency",
-      currency: "VND",
-      })
-      .format(value)
-      .replace("₫", "")
-      .trim();
-
-    return formatted
-  }
-
-  const calculateSubtotal = () => {
-    return cartItems.reduce((sum, item) => sum + item.gia * item.soluong, 0);
-  };
-
-  const subtotal = calculateSubtotal();
+  const subtotal = cartItems.reduce((sum, item) => sum + item.gia * item.soluong, 0);
 
   const handleRemoveItem = (productId) => {
   const updatedCartItems = cartItems.filter(item => item.productId !== productId);
@@ -84,9 +68,9 @@ const Cart = () => {
 
   if (loading) 
     return (
-      <div className="container mx-auto p-4 md:p-8 min-h-screen bg-gray-100">
+      <div className="max-w-7xl mx-auto min-h-screen overflow-hidden">
         <h1 className="text-3xl font-bold text-center mb-8 uppercase">Giỏ hàng của bạn</h1>
-        <div className="text-center py-20 bg-gray-50 rounded-lg shadow-sm">
+        <div className="bg-gray-50 text-center py-20 rounded-lg shadow-sm">
           <p className="text-xl text-gray-700 mb-4">Đang tải giỏ hàng...</p>
         </div>
       </div>
@@ -94,11 +78,11 @@ const Cart = () => {
   
 
   return (
-    <div className="container mx-auto p-4 md:p-8 min-h-screen bg-gray-100">
+    <div className="max-w-7xl mx-auto min-h-screen overflow-hidden">
       <h1 className="text-3xl font-bold text-center mb-8 uppercase">Giỏ hàng của bạn</h1>
 
       {cartItems.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-lg shadow-sm">
+        <div className="text-center py-20 bg-white rounded-lg shadow-lg">
           <p className="text-xl text-gray-700 mb-4">Giỏ hàng của bạn đang trống</p>
           <Link to="/" className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-black hover:bg-gray-800 transition-colors">
             Tiếp tục mua sắm
@@ -107,7 +91,7 @@ const Cart = () => {
       ) : (
         <div className="flex flex-col lg:flex-row gap-8">
           {/* List of products in cart */}
-          <div className="flex-grow bg-white p-6 rounded-lg shadow-md">
+          <div className="flex-grow bg-gray-50 p-6 rounded-lg shadow-lg">
             <h2 className="text-2xl font-semibold mb-6 border-b pb-4">Sản phẩm trong giỏ</h2>
             {cartItems.map((product) => (
               <div key={product.productId} className="flex items-center py-6 border-b border-gray-200 last:border-b-0">
@@ -145,7 +129,7 @@ const Cart = () => {
           </div>
 
           {/* Order information */}
-          <div className="w-full lg:w-1/3 bg-white p-6 rounded-lg shadow-md h-fit">
+          <div className="w-full lg:w-1/3 bg-gray-50 p-6 rounded-lg shadow-lg h-fit">
             <h2 className="text-2xl font-semibold mb-6 border-b pb-4">Thông tin đơn hàng</h2>
             <div className="space-y-4 text-gray-700 border-b pb-4">
               <div className="flex justify-between">
@@ -158,12 +142,12 @@ const Cart = () => {
               <li>Bạn cũng có thể nhập mã giảm giá ở trang thanh toán.</li>
             </ul>
             
-            <Link to="/shipping-information" className="block">
+            <Link to="/checkout" className="block">
               <button
                 className="cursor-pointer w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition transform hover:scale-105 shadow-lg"
                 aria-label="Đặt hàng ngay"
               >
-                ĐẶT HÀNG NGAY
+                Thanh toán
               </button>
             </Link>
             <Link to="/" className="block text-center mt-4 text-sm text-blue-600 hover:underline">

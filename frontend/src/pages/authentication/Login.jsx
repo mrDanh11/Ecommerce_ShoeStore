@@ -61,8 +61,8 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="bg-gray-50 p-8 rounded-lg shadow-lg w-full max-w-sm">
         <h2 className="text-2xl font-bold text-center mb-6">ĐĂNG NHẬP</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -71,7 +71,7 @@ const Login = () => {
             <input
               type="email"
               placeholder="Email"
-              className="mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              className="bg-white mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
               value={form.username}
               onChange={e => setForm({ ...form, username: e.target.value })}
               required
@@ -83,7 +83,7 @@ const Login = () => {
             <input
               type="password"
               placeholder="Mật khẩu"
-              className="mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              className="bg-white mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               required

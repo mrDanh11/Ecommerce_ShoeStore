@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import toVND from '../utils/helper.js'
 import { BsCashCoin } from "react-icons/bs";
@@ -90,11 +90,11 @@ const CheckoutPage = () => {
     const total = subtotal - discountAmount + shippingFee;
 
     return (
-        <div className="min-h-screen bg-gray-100 py-8 px-4 lg:px-8">
+        <div className="min-h-screen py-8 px-4 lg:px-8">
             <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
                 <div className="flex flex-col-reverse lg:flex-row">
                     {/* Left Section: Shipping Information */}
-                    <div className="lg:w-3/5 p-8 border-b lg:border-b-0 lg:border-r border-gray-200">
+                    <div className="lg:w-3/5 p-8 bg-gray-50 border-b lg:border-b-0 lg:border-r border-gray-200">
                         <div className="text-sm text-gray-500 mb-6 flex space-x-2">
                             <span className="text-blue-600 font-semibold">Giỏ hàng</span>
                             <span className="font-bold">&gt;</span>

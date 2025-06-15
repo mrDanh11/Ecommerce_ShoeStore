@@ -51,8 +51,8 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center ">
+      <div className="bg-gray-50 p-8 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold mb-1 text-center">ĐĂNG KÝ</h2>
         <p className="text-sm text-gray-500 mb-6 text-center">Nhập thông tin cá nhân để tạo tài khoản</p>
 
@@ -65,7 +65,7 @@ const Register = () => {
               value={form.fullName}
               onChange={e => setForm({ ...form, fullName: e.target.value })}
               required
-              className="mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              className="bg-white mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
             />
           </div>
 
@@ -77,7 +77,7 @@ const Register = () => {
               value={form.email}
               onChange={e => setForm({ ...form, email: e.target.value })}
               required
-              className="mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              className="bg-white mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
             />
           </div>
 
@@ -89,7 +89,7 @@ const Register = () => {
               value={form.password}
               onChange={e => setForm({ ...form, password: e.target.value })}
               required
-              className="mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              className="bg-white mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
             />
           </div>
 
@@ -101,7 +101,7 @@ const Register = () => {
               value={form.confirmPassword}
               onChange={e => setForm({ ...form, confirmPassword: e.target.value })}
               required
-              className="mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              className="bg-white mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
             />
           </div>
 
