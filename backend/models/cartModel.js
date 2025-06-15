@@ -45,6 +45,8 @@ const addOrUpdateCartItem = async (customerId, machitietsanpham, soluongMoiThem)
             throw errorCart;
         }
 
+        console.log('check cart: ', cart)
+
         // ktra sp da co trong chitietgiohang chua
         const { data: existingItem, error: errorItem } = await supabase
             .from('chitietgiohang')
@@ -264,11 +266,6 @@ const updateCartTotals = async (cartId, totalQty, totalAmt) => {
 
   return { error };
 }
-
-
-
-
-
 
 
 module.exports = { getCartItem, addOrUpdateCartItem,
