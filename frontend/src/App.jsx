@@ -9,6 +9,8 @@ import ForgotPassword from "./pages/authentication/ForgotPassword";
 import CallBack from "./pages/authentication/CallBack";
 import CheckoutPage from "./pages/CheckoutPage";
 import Footer from "./components/Footer";
+import Contact from "./pages/Contact";
+import Collections from "./pages/Collections";
 
 const App = () => {
   return (
@@ -17,6 +19,8 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/collections" element={<Collections />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

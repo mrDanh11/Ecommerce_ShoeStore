@@ -63,10 +63,10 @@ const Navbar = () => {
 
         {/* Center - Navigation links - desktop only */}
         <div className="hidden md:flex space-x-6">
-          <Link to="#" className="text-gray-700 hover:text-black font-medium uppercase">Sản phẩm</Link>
-          <Link to="#" className="text-gray-700 hover:text-black font-medium uppercase">Nam</Link>
-          <Link to="#" className="text-gray-700 hover:text-black font-medium uppercase">Nữ</Link>
-          <Link to="#" className="text-gray-700 hover:text-black font-medium uppercase">Sale Off</Link>
+          <Link to="/" className="text-gray-700 hover:text-black font-medium">Trang chủ</Link>
+          <Link to="/about" className="text-gray-700 hover:text-black font-medium">Giới thiệu</Link>
+          <Link to="/collections" className="text-gray-700 hover:text-black font-medium">Sản phẩm</Link>
+          <Link to="/contact" className="text-gray-700 hover:text-black font-medium">Liên hệ</Link>
         </div>
 
         {/* Right icons and search */}
