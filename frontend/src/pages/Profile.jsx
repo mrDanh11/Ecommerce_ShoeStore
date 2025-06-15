@@ -12,7 +12,7 @@ const Profile = () => {
     const fetchUser = async () => {
       try {
         const response = await axios.get('http://localhost:4004/api/auth/getme', {
-          withCredentials: true, // 🔥 Cần thiết để gửi cookie
+          withCredentials: true,
         });
 
         console.log("✅ Nhận user:", response.data.user);
@@ -43,6 +43,19 @@ const Profile = () => {
     }
   };
 
+  const getRoleName = (vaitro) => {
+    switch (vaitro) {
+      case 1:
+        return "Quản lý (Admin)";
+      case 2:
+        return "Khách hàng";
+      case 3:
+        return "Nhân viên bán hàng";
+      default:
+        return "Không xác định";
+    }
+  };
+
   if (loading) {
     return <p>🔄 Đang tải thông tin...</p>;
   }
@@ -57,14 +70,25 @@ const Profile = () => {
     );
   }
 
+  const role = user.vaitro ?? user.marole;
+
   return (
     <div style={{ padding: 20 }}>
       <h2>👤 Thông tin người dùng</h2>
       <p><strong>Tên đăng nhập:</strong> {user.tendangnhap}</p>
       <p><strong>Email:</strong> {user.email}</p>
-      <p><strong>Vai trò:</strong> {user.vaitro ?? user.marole}</p>
+      <p><strong>Vai trò:</strong> {getRoleName(role)}</p>
 
-      <button onClick={handleLogout} style={{ marginTop: 20 }}>
+      {role === 1 && (
+        <button
+          onClick={() => navigate('/admin')}
+          style={{ marginTop: 10, marginRight: 10 }}
+        >
+          🛠️ Đi đến trang quản trị
+        </button>
+      )}
+
+      <button onClick={handleLogout} style={{ marginTop: 10 }}>
         🚪 Đăng xuất
       </button>
     </div>

@@ -10,6 +10,11 @@ import CallBack from "./pages/authentication/CallBack";
 import Profile from "./pages/Profile";
 import CheckoutPage from "./pages/CheckoutPage";
 import Footer from "./components/Footer";
+import ProductList from "./pages/shop/ProductList";
+import EmployeeManager from "./pages/admin/EmployeeManager";
+import ProductStatistics from "./pages/admin/ProductStatistics";
+import PromotionManager from "./pages/admin/PromotionManager";
+import LandingPage from "./pages/admin/LandingPage";
  
 const App = () => {
   return (
@@ -25,6 +30,11 @@ const App = () => {
         <Route path="/callback" element={<CallBack />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/shop" element={<ProductList />} /> 
+        <Route path="/admin/employees" element={<EmployeeManager />} />
+        <Route path="/admin/statistics" element={<ProductStatistics />} />
+        <Route path="/admin/promotions" element={<PromotionManager />} />
+        <Route path="/admin" element={<LandingPage />} />
       </Routes>
       <Footer />
     </>
