@@ -1,143 +1,50 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const ProductStatistics = () => {
-  const [invoices, setInvoices] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [products] = useState([
+    { id: 1, name: "Giày ALP2401", price: 1200000, category: "Giày thể thao", quantity: 10 },
+    { id: 2, name: "Giày AV00205", price: 1450000, category: "Giày thể thao", quantity: 5 },
+    { id: 3, name: "Giày AV00214", price: 1350000, category: "Giày công sở", quantity: 8 },
+    { id: 4, name: "Giày Sneaker Cam", price: 1350000, category: "Giày thể thao", quantity: 12 }
+  ]);
 
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
-
-  // Gọi API lấy hóa đơn
-  const fetchInvoices = async (from = "", to = "") => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (from) params.append("from", from);
-      if (to) params.append("to", to);
-
-      const res = await fetch(`http://localhost:4004/api/admin/invoices?${params.toString()}`, {
-        credentials: "include",
-      });
-
-      const json = await res.json();
-      if (json.success) {
-        setInvoices(json.invoices);
-        setTotalRevenue(json.totalRevenue);
-      } else {
-        console.error("Lỗi backend:", json.error);
-      }
-    } catch (err) {
-      console.error("Lỗi khi gọi API:", err);
-    } finally {
-      setLoading(false);
+  // Tính toán thống kê
+  const totalProducts = products.length;
+  const totalRevenue = products.reduce((acc, product) => acc + product.price * product.quantity, 0);
+  const productsByCategory = products.reduce((acc, product) => {
+    if (!acc[product.category]) {
+      acc[product.category] = 0;
     }
-  };
-
-  // Gọi mặc định khi mở trang
-  useEffect(() => {
-    fetchInvoices();
-  }, []);
-
-  const handleFilter = () => {
-    fetchInvoices(fromDate, toDate);
-  };
-
-  const countByPromotion = invoices.reduce((acc, hd) => {
-    const key = hd.khuyenmai?.tenkhuyenmai || "Không dùng";
-    acc[key] = (acc[key] || 0) + 1;
+    acc[product.category] += product.quantity;
     return acc;
   }, {});
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-bold mb-6">📊 Thống kê hóa đơn</h1>
+      <h1 className="text-2xl font-bold mb-6">Thống kê sản phẩm</h1>
 
-      {/* Bộ lọc theo ngày */}
-      <div className="flex flex-wrap items-center gap-4 mb-6">
-        <div>
-          <label className="block font-semibold">Từ ngày:</label>
-          <input
-            type="date"
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
-            className="border p-2 rounded"
-          />
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="bg-gray-100 p-4 rounded-lg shadow-md">
+          <h2 className="text-lg font-semibold mb-2">Tổng số sản phẩm</h2>
+          <p className="text-2xl">{totalProducts}</p>
         </div>
-        <div>
-          <label className="block font-semibold">Đến ngày:</label>
-          <input
-            type="date"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-            className="border p-2 rounded"
-          />
+
+        <div className="bg-gray-100 p-4 rounded-lg shadow-md">
+          <h2 className="text-lg font-semibold mb-2">Tổng doanh thu</h2>
+          <p className="text-2xl">{totalRevenue.toLocaleString()} VND</p>
         </div>
-        <button
-          onClick={handleFilter}
-          className="mt-5 bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          🔍 Lọc
-        </button>
+
+        <div className="bg-gray-100 p-4 rounded-lg shadow-md">
+          <h2 className="text-lg font-semibold mb-2">Sản phẩm theo loại</h2>
+          <ul>
+            {Object.keys(productsByCategory).map((category) => (
+              <li key={category} className="text-xl">
+                {category}: {productsByCategory[category]} sản phẩm
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
-
-      {loading ? (
-        <p>⏳ Đang tải dữ liệu...</p>
-      ) : (
-        <>
-          {/* Thống kê tổng */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-gray-100 p-4 rounded shadow-md">
-              <h2 className="text-lg font-semibold mb-2">Tổng số hóa đơn</h2>
-              <p className="text-2xl">{invoices.length}</p>
-            </div>
-            <div className="bg-gray-100 p-4 rounded shadow-md">
-              <h2 className="text-lg font-semibold mb-2">Tổng doanh thu</h2>
-              <p className="text-2xl">{totalRevenue.toLocaleString()} VND</p>
-            </div>
-            <div className="bg-gray-100 p-4 rounded shadow-md">
-              <h2 className="text-lg font-semibold mb-2">Theo khuyến mãi</h2>
-              <ul>
-                {Object.entries(countByPromotion).map(([name, count]) => (
-                  <li key={name} className="text-base">
-                    {name}: {count} đơn
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* Bảng chi tiết hóa đơn */}
-          <div className="overflow-x-auto">
-            <table className="min-w-full border border-gray-300">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="p-2 border">#</th>
-                  <th className="p-2 border">Mã hóa đơn</th>
-                  <th className="p-2 border">Tổng tiền</th>
-                  <th className="p-2 border">Thành tiền</th>
-                  <th className="p-2 border">Ngày đặt</th>
-                  <th className="p-2 border">Tên khuyến mãi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {invoices.map((hd, idx) => (
-                  <tr key={hd.mahoadon} className="hover:bg-gray-50">
-                    <td className="p-2 border">{idx + 1}</td>
-                    <td className="p-2 border">{hd.mahoadon}</td>
-                    <td className="p-2 border">{hd.tongtien?.toLocaleString()} VND</td>
-                    <td className="p-2 border">{hd.thanhtien?.toLocaleString()} VND</td>
-                    <td className="p-2 border">{hd.ngaydat?.slice(0, 10)}</td>
-                    <td className="p-2 border">
-                      {hd.khuyenmai?.tenkhuyenmai || "Không dùng"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
     </div>
   );
 };

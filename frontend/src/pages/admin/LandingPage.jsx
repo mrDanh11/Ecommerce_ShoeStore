@@ -9,8 +9,8 @@ const LandingPage = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-2">Quản lý tài khoản</h2>
-          <p className="mb-4">Xem và quản lý danh sách tài khoản.</p>
+          <h2 className="text-xl font-semibold mb-2">Quản lý nhân viên</h2>
+          <p className="mb-4">Xem và quản lý danh sách nhân viên của công ty.</p>
           <Link to="/admin/employees" className="text-blue-500 hover:underline">
             Xem chi tiết
           </Link>
@@ -31,17 +31,10 @@ const LandingPage = () => {
             Xem chi tiết
           </Link>
         </div>
-
-        <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-2">Quản lý khuyến mãi</h2>
-          <p className="mb-4">Tạo và chỉnh sửa các chương trình khuyến mãi.</p>
-          <Link to="/admin/promotions" className="text-blue-500 hover:underline">
-            Xem chi tiết
-          </Link>
-        </div>
       </div>
     </div>
   );
 };
 
 export default LandingPage;
+

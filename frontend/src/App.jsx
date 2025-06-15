@@ -16,6 +16,7 @@ import ProductStatistics from "./pages/admin/ProductStatistics";
 import PromotionManager from "./pages/admin/PromotionManager";
 import LandingPage from "./pages/admin/LandingPage";
  
+
 const App = () => {
   return (
     <>
@@ -38,7 +39,7 @@ const App = () => {
       </Routes>
       <Footer />
     </>
-  )
+  );
 };
 
 export default App;
