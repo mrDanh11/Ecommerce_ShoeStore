@@ -111,8 +111,8 @@ const Navbar = () => {
             <FaShoppingCart className="h-6 w-6 text-gray-700" />
           </button>
 
-          {/* Profile Icon */}
-          <Link to="/profile" className="hover:text-black p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="User profile">
+          {/* Profile Icon for Login/Register */}
+          <Link to="/login" className="hover:text-black p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Login">
             <FaUser className="h-6 w-6 text-gray-700" />
           </Link>
 

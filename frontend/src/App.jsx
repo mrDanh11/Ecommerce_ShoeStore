@@ -2,13 +2,13 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Navbar from "./components/Navbar"; // Thêm dòng này
-import CartPage from "./pages/CartPage";
+import Cart from "./pages/Cart";
 import Login from "./pages/authentication/Login";
 import Register from "./pages/authentication/Register";
 import ForgotPassword from "./pages/authentication/ForgotPassword";
 import CallBack from "./pages/authentication/CallBack";
 import CheckoutPage from "./pages/CheckoutPage";
-import Topbar from "./components/Topbar";
+import Footer from "./components/Footer";
 
 const App = () => {
   return (
@@ -17,7 +17,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/cart" element={<CartPage />} />
+        <Route path="/cart" element={<Cart />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
