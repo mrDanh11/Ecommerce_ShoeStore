@@ -27,7 +27,7 @@ const getListOrderItemByCustomerId = async (customerId) => {
             mahoadon, 
             hoadon(mahoadon, makhachhang, mashipment, ngaydat, tongsoluong, tongtien, thanhtien, voucher,
             payment(id, mahoadon, phuongthuc, status, paid_at, amount, created_at, updated_at),
-            shipment(mashipment, makhachhang, diachigiaohang, trangthai, mavanchuyen)),
+            shipment(mashipment, makhachhang, diachigiaohang, trangthai, mavanchuyen, name, sdt)),
 
             machitietsanpham, tongsoluong, tongtien,
             chitietsanpham(machitietsanpham, size, color, soluong, gia, masanpham,
@@ -140,7 +140,7 @@ const getAllOrder = async (limit = 10, offset = 0, filters = {}) => {
                     id, mahoadon, phuongthuc, status, paid_at, amount, created_at, updated_at
                 ),
                 shipment(
-                    mashipment, makhachhang, diachigiaohang, trangthai, mavanchuyen
+                    mashipment, makhachhang, diachigiaohang, trangthai, mavanchuyen, name, sdt
                 )
             ),
             machitietsanpham, tongsoluong, tongtien,
