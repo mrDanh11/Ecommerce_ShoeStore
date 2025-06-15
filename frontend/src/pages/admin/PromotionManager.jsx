@@ -227,4 +227,4 @@ const PromotionManager = () => {
   );
 };
 
-export default PromotionMana
+export default PromotionManager
