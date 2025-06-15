@@ -69,8 +69,8 @@ const Login = () => {
           <div>
             <label className="block text-sm font-medium text-gray-700">Email *</label>
             <input
-              type="text"
-              placeholder="Tên người dùng"
+              type="email"
+              placeholder="Email"
               className="bg-white mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
               value={form.username}
               onChange={e => setForm({ ...form, username: e.target.value })}
