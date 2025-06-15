@@ -4,7 +4,8 @@ const Customer = require('../models/customerModel')
 const OrderItem = require('../models/orderItem')
 const Paymnet = require('../models/paymentModel')
 const Shipment = require('../models/shipment')
-const Voucher = require('../models/voucherModel')
+const Voucher = require('../models/voucherModel');
+const { changematkhau } = require('./authController');
 
 const checkout = async (req, res) => {
     const { customerid, items, address, paymentmethod, voucher } = req.body;
@@ -150,10 +151,10 @@ const listUserOrder = async (req, res) => {
 
 const allOrder = async (req, res) => {
     const {
-        limit = undefined,  
+        limit = undefined,
         offset = undefined,
         filters = undefined
-    } = req.body || {};  
+    } = req.body || {};
 
     console.log('check limit: ', limit)
     console.log('check offset: ', offset)
@@ -176,4 +177,28 @@ const allOrder = async (req, res) => {
     }
 }
 
-module.exports = { checkout, listUserOrder, allOrder }
+const updatePaymentStatus = async (req, res) => {
+    const { orderId, status } = req.body
+    console.log('check req.body: ', req.body)
+    console.log('check orderId: ', orderId)
+    console.log('check statusdy: ', status)
+
+    try {
+        const { data, error } = await Paymnet.updatePaymentStatus(orderId, status)
+        res.status(200).json({
+            errorCode: 1,
+            success: true,
+            data: data
+        })
+
+    } catch (error) {
+        console.log('check error: ', error)
+        res.status(500).json({
+            errorCode: -1,
+            success: false,
+            data: null
+        })
+    }
+}
+
+module.exports = { checkout, listUserOrder, allOrder, updatePaymentStatus }
