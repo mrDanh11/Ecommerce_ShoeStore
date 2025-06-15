@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 
 const Login = () => {
-  const [form, setForm] = useState({ username: '', password: '' });
+  const [form, setForm] = useState({ email: '', password: '' });
   const navigate = useNavigate(); 
 
   const handleSubmit = async(e) => {
@@ -23,7 +23,7 @@ const Login = () => {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          email: form.username,    // Change 'username' to 'email'
+          email: form.email,
           matkhau: form.password
         }),
       });
@@ -69,11 +69,11 @@ const Login = () => {
           <div>
             <label className="block text-sm font-medium text-gray-700">Email *</label>
             <input
-              type="text"
-              placeholder="Tên người dùng"
+              type="email"
+              placeholder="Email"
               className="bg-white mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-              value={form.username}
-              onChange={e => setForm({ ...form, username: e.target.value })}
+              value={form.email}
+              onChange={e => setForm({ ...form, email: e.target.value })}
               required
             />
           </div>

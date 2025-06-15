@@ -25,7 +25,7 @@ const Register = () => {
                 "content-type" : "application/json"
             },
             body : JSON.stringify({
-              tendangnhap: form.fullName,  
+              tendangnhap: form.fullName, // cần sửa tendangnhap lại thành hoten  
               email: form.email,
               matkhau: form.password
             })
@@ -64,18 +64,6 @@ const Register = () => {
               placeholder="Họ và tên"
               value={form.fullName}
               onChange={e => setForm({ ...form, fullName: e.target.value })}
-              required
-              className="bg-white mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Tên người dùng *</label>
-            <input
-              type="text"
-              placeholder="Tên người dùng"
-              value={form.username}
-              onChange={e => setForm({ ...form, username: e.target.value })}
               required
               className="bg-white mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
             />
