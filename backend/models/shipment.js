@@ -1,6 +1,6 @@
 const supabase = require('../config/supabaseClient')
 
-const createShipment = async (customerId, address) => {
+const createShipment = async (customerId, address, name, sdt) => {
     const shipmentDate = new Date();
     shipmentDate.setDate(shipmentDate.getDate() + 7);  
 
@@ -12,6 +12,8 @@ const createShipment = async (customerId, address) => {
             ngaygiaohang: shipmentDate.toISOString().split('T')[0],
             trangthai: 'Chưa/Đang Giao',
             mavanchuyen: 'GIAOHANG111',
+            name: name,
+            sdt: sdt
         }])
         .select();  
 

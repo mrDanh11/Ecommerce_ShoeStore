@@ -8,7 +8,7 @@ const Voucher = require('../models/voucherModel');
 const { changematkhau } = require('./authController');
 
 const checkout = async (req, res) => {
-    const { customerid, items, address, paymentmethod, voucher } = req.body;
+    const { customerid, items, address, paymentmethod, voucher, name, sdt } = req.body;
     console.log('check req.body: ', req.body)
 
     try {
@@ -62,7 +62,7 @@ const checkout = async (req, res) => {
             // console.log('check voucherDetails: ', voucherDetails)
         }
 
-        const shipment = await Shipment.createShipment(customerid, address);
+        const shipment = await Shipment.createShipment(customerid, address, name, sdt);
         // console.log('check shipment: ', shipment);
         if (!shipment) {
             console.log('Shipment creation failed: No shipment data returned');
