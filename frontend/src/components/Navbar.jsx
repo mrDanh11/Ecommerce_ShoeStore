@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { HiMagnifyingGlass, HiMiniXMark } from "react-icons/hi2"
 import { FaShoppingCart } from "react-icons/fa"
@@ -7,6 +7,7 @@ import { FaUser } from "react-icons/fa"
 import { IoMdClose } from "react-icons/io"
 import Shoea from "../assets/Shoea-Logo.svg"
 import Minicart from "./Minicart"
+import SearchBar from "./SearchBar"
 
 
 const Navbar = () => {
@@ -15,33 +16,53 @@ const Navbar = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [minicartOpen, setMinicartOpen] = useState(false);
 
+  // useEffect để kiểm tra kích thước màn hình và đóng nav drawer
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setNavDrawerOpen(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   const handleSearchSubmit = (e) => {
-    e.preventDefault();
     console.log("Tìm kiếm:", searchTerm);
-    // If the mobile search overlay is open, close it after submission
-    if (isSearchOpen) {
-      setIsSearchOpen(false);
-    }
+    setIsSearchOpen(false);
+    setSearchTerm("");
   };
 
-  const handleSearchToggle = () => {
+  const toggleSearch = () => {
     setIsSearchOpen(!isSearchOpen);
-    // If opening the search bar, close the mobile menu to prevent overlap
-    if (!isSearchOpen && navDrawerOpen) {
-      setNavDrawerOpen(false);
+    // Đảm bảo đóng các overlay khác khi mở/đóng search bar
+    if (!isSearchOpen) { 
+      if (navDrawerOpen) setNavDrawerOpen(false);
+      if (minicartOpen) setMinicartOpen(false);
+    } else {
+      setSearchTerm(""); 
     }
   };
 
   const toggleNavDrawer = () => {
     setNavDrawerOpen(!navDrawerOpen);
-    // If opening the menu, close the search bar to prevent overlap
-    if (!navDrawerOpen && isSearchOpen) {
-      setIsSearchOpen(false);
+    // Khi mở/đóng nav drawer, đảm bảo search overlay và minicart đóng lại
+    if (!navDrawerOpen) {
+      if (isSearchOpen) setIsSearchOpen(false);
+      if (minicartOpen) setMinicartOpen(false);
     }
   };
 
   const toggleMinicart = () => {
     setMinicartOpen(!minicartOpen);
+    // Khi mở/đóng minicart, đảm bảo search overlay và nav drawer đóng lại
+    if (!minicartOpen) {
+      if (isSearchOpen) setIsSearchOpen(false);
+      if (navDrawerOpen) setNavDrawerOpen(false);
+    }
   };
 
   const handleTurnOffMinicart = () => {
@@ -50,18 +71,18 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="container mx-auto flex items-center justify-between py-4 px-6 h-18">
+      <nav className="container mx-auto flex items-center justify-between py-4 px-6 h-18 relative z-40">
         {/* Left - Logo */}
         <div>
           <Link to="/" className="flex items-center text-2xl font-bold text-black p-1" aria-label="Home">
-            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center mr-2"> {/* Thêm div này */}
-              <img className="w-8 h-8" src={Shoea} alt="Shoea" /> {/* Điều chỉnh kích thước ảnh nếu cần */}
+            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+              <img className="w-8 h-8" src={Shoea} alt="Shoea" />
             </div>
-            Shoea {/* Thêm text Shoea */}
+            Shoea
           </Link>
         </div>
 
-        {/* Center - Navigation links - desktop only */}
+        {/* Center - Navigation links - Desktop only */}
         <div className="hidden md:flex space-x-6">
           <Link to="/" className="text-gray-700 hover:text-black font-medium">Trang chủ</Link>
           <Link to="/about" className="text-gray-700 hover:text-black font-medium">Giới thiệu</Link>
@@ -69,36 +90,13 @@ const Navbar = () => {
           <Link to="/contact" className="text-gray-700 hover:text-black font-medium">Liên hệ</Link>
         </div>
 
-        {/* Right icons and search */}
+        {/* Right icons */}
         <div className="flex items-center space-x-4">
-          {/* Desktop Search Form: Visible on medium screens and up */}
-          <form
-            onSubmit={handleSearchSubmit}
-            className="relative hidden md:flex items-center bg-gray-100 rounded-3xl overflow-hidden h-10 w-50"
-          >
-            <button
-              type="submit"
-              className="absolute left-4 text-gray-400 cursor-pointer"
-              tabIndex={-1}
-              aria-label="Tìm kiếm"
-            >
-              <HiMagnifyingGlass className="w-5 h-5 text-black" />
-            </button>
-            <input
-              type="text"
-              placeholder="Tìm kiếm"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-3xl"
-              aria-label="Tìm kiếm"
-            />
-          </form>
-
-          {/* Mobile Search Icon: Visible only on small screens */}
+          {/* Search Icon */}
           <button
-            onClick={handleSearchToggle}
-            className="md:hidden cursor-pointer hover:text-black p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-            aria-label="Toggle search bar"
+            onClick={toggleSearch}
+            className="cursor-pointer hover:text-black p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-label="Tìm kiếm"
           >
             <HiMagnifyingGlass className="h-6 w-6 text-gray-800" />
           </button>
@@ -106,7 +104,8 @@ const Navbar = () => {
           {/* Cart Icon */}
           <button
             onClick={toggleMinicart}
-            className="cursor-pointer hover:text-black p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Shopping cart"
+            className="cursor-pointer hover:text-black p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-label="Shopping cart"
           >
             <FaShoppingCart className="h-6 w-6 text-gray-700" />
           </button>
@@ -126,40 +125,15 @@ const Navbar = () => {
           </button>
         </div>
 
-        {/* Mobile Search Overlay*/}
-        {isSearchOpen && (
-          <div className="flex items-center justify-center w-full transition-all duration-300 absolute top-0 left-0 bg-white h-18 z-50">
-            <form
-              onSubmit={handleSearchSubmit}
-              className="relative flex items-center justify-center w-full"
-            >
-              <div className="relative w-3/5">
-                <input 
-                  type="text"
-                  placeholder="Tìm kiếm"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="bg-gray-100 px-4 py-2 pl-2 pr-12 rounded-lg focus:outline-none w-full placeholder:text-gray-700"
-                />
-                {/* Search Button */}
-                <button
-                  type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-800 cursor-pointer"
-                >
-                  <HiMagnifyingGlass className="h-6 w-6" />
-                </button>
-              </div>
-              {/* Close Button */}
-              <button
-                type="button"
-                onClick={handleSearchToggle}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-800 cursor-pointer"
-              >
-                <HiMiniXMark className="h-6 w-6" />
-              </button>
-            </form>
-          </div>
-        )}
+        {/* SearchBar */}
+        <SearchBar
+          isOpen={isSearchOpen}
+          onClose={toggleSearch}
+          onSubmit={handleSearchSubmit}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+        />
+
 
         {/* Mobile Navigation */}
         <div className={`fixed top-0 left-0 w-3/4 sm:w-1/2 md:w-1/3 h-full bg-white shadow-lg transform transition-transform duration-300 z-50 ${
@@ -173,14 +147,15 @@ const Navbar = () => {
           <div className="p-10">
             <h2 className="text-2xl font-semibold mb-4">Menu</h2>
             <nav className="space-y-4">
-              <Link to="#" onClick={toggleNavDrawer} className="block text-gray-700 hover:text-black font-medium uppercase">Sản phẩm</Link>
-              <Link to="#" onClick={toggleNavDrawer} className="block text-gray-700 hover:text-black font-medium uppercase">Nam</Link>
-              <Link to="#" onClick={toggleNavDrawer} className="block text-gray-700 hover:text-black font-medium uppercase">Nữ</Link>
-              <Link to="#" onClick={toggleNavDrawer} className="block text-gray-700 hover:text-black font-medium uppercase">Sale Off</Link>
+              <Link to="/" onClick={toggleNavDrawer} className="block text-gray-700 hover:text-black font-medium">Trang chủ</Link>
+              <Link to="/about" onClick={toggleNavDrawer} className="block text-gray-700 hover:text-black font-medium">Giới thiệu</Link>
+              <Link to="/collections" onClick={toggleNavDrawer} className="block text-gray-700 hover:text-black font-medium">Sản phẩm</Link>
+              <Link to="/contact" onClick={toggleNavDrawer} className="block text-gray-700 hover:text-black font-medium ">Liên hệ</Link>
             </nav>
           </div>
         </div>
       </nav>
+      {/* Minicart */}
       <Minicart handleTurnOffMinicart={handleTurnOffMinicart} minicartOpen={minicartOpen} toggleMinicart={toggleMinicart} />
     </>
   )
