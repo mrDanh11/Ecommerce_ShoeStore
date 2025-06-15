@@ -10,6 +10,7 @@ const EmployeeManager = () => {
 
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [searchEmail, setSearchEmail] = useState("");
+  const [selectedRole, setSelectedRole] = useState("");
 
   const convertRole = (code) => {
     switch (code) {
@@ -113,11 +114,13 @@ const EmployeeManager = () => {
   };
 
   const handleSearch = async () => {
-    if (!searchEmail.trim()) return;
+    const query = new URLSearchParams();
+    if (searchEmail.trim()) query.append("search", searchEmail.trim());
+    if (selectedRole) query.append("role", selectedRole);
 
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:4004/api/admin/users?search=${searchEmail}`, {
+      const res = await fetch(`http://localhost:4004/api/admin/users?${query.toString()}`, {
         credentials: "include",
       });
       const json = await res.json();
@@ -151,27 +154,41 @@ const EmployeeManager = () => {
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-4">Quản lý tài khoản</h1>
 
-      {/* 🔍 Form tìm kiếm theo email */}
-      <div className="mb-4">
+      {/* 🔍 Form tìm kiếm theo email + role */}
+      <div className="mb-4 flex flex-wrap gap-2">
         <input
           type="email"
-          className="border p-2 mr-2"
+          className="border p-2"
           placeholder="Nhập email để tìm kiếm"
           value={searchEmail}
           onChange={(e) => setSearchEmail(e.target.value)}
         />
+
+        <select
+          className="border p-2"
+          value={selectedRole}
+          onChange={(e) => setSelectedRole(e.target.value)}
+        >
+          <option value="">-- Lọc theo chức vụ -- </option>
+          <option value="1">Quản lý</option>
+          <option value="2">Khách hàng</option>
+          <option value="3">Nhân viên bán hàng</option>
+        </select>
+
         <button
           onClick={handleSearch}
-          className="bg-blue-500 text-white p-2 mr-2"
+          className="bg-blue-500 text-white px-4 py-2"
         >
           Tìm kiếm
         </button>
+
         <button
           onClick={() => {
             setSearchEmail('');
+            setSelectedRole('');
             fetchEmployees(1);
           }}
-          className="bg-gray-400 text-white p-2"
+          className="bg-gray-400 text-white px-4 py-2"
         >
           Xóa bộ lọc
         </button>
@@ -196,7 +213,7 @@ const EmployeeManager = () => {
               setEditingEmployee({ ...editingEmployee, role: parseInt(e.target.value) })
             }
           >
-            <option value={1}>Quản Lý</option>
+            <option value={1}>Quản lý</option>
             <option value={2}>Khách hàng</option>
             <option value={3}>Nhân viên bán hàng</option>
           </select>
