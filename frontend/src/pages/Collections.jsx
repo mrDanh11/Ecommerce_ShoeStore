@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import ProductItem from "../components/ProductItem";
-import { RiArrowDropRightLine } from "react-icons/ri";
 
-const Collection = () => {
+const Collections = () => {
   // ----------- Dữ liệu mẫu (Mock Data) trực tiếp trong component ------------
   const [products, setProducts] = useState([]); 
-  const [search, setSearch] = useState(""); // Giá trị tìm kiếm mẫu
-  const [showSearch, setShowSearch] = useState(false); // Trạng thái hiển thị thanh tìm kiếm mẫu (có thể thay đổi để test)
+  const [search, setSearch] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
 
   // Dữ liệu sản phẩm giày dép mẫu
   const defaultProducts = [
@@ -321,4 +320,4 @@ const Collection = () => {
   );
 };
 
-export default Collection;
+export default Collections;

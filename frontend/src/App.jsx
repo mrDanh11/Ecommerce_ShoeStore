@@ -14,7 +14,7 @@ import Collections from "./pages/Collections";
 
 const App = () => {
   return (
-    <>
+    <div className='px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]'>
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -29,7 +29,7 @@ const App = () => {
         <Route path="/checkout" element={<CheckoutPage />} />
       </Routes>
       <Footer />
-    </>
+    </div>
   )
 };
 
