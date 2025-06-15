@@ -21,9 +21,9 @@ const Login = () => {
       const response = await fetch("http://localhost:4004/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        
+        credentials: "include",
         body: JSON.stringify({
-          username: form.username,    // Change 'username' to 'email'
+          email: form.username,    // Change 'username' to 'email'
           matkhau: form.password
         }),
       });
@@ -67,7 +67,7 @@ const Login = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Tên người dùng *</label>
+            <label className="block text-sm font-medium text-gray-700">Email *</label>
             <input
               type="text"
               placeholder="Tên người dùng"
@@ -104,7 +104,7 @@ const Login = () => {
           </Link>
         </div>
         <div className="mt-4 text-center text-blue-500">
-          <button onClick={handleGoogleLogin} className="font-medium hover:underline ">
+          <button onClick={handleGoogleLogin} className="font-medium hover:underline">
           Đăng nhập với Google
         </button>
 

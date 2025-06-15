@@ -65,6 +65,7 @@ const Navbar = () => {
     }
   };
 
+
   const handleTurnOffMinicart = () => {
     setMinicartOpen(false);
   }
@@ -123,6 +124,7 @@ const Navbar = () => {
           >
             <GiHamburgerMenu className="h-6 w-6 text-gray-800" />
           </button>
+
         </div>
 
         {/* SearchBar */}

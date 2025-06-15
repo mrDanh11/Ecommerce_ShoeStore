@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const path = require('path');
 
+
 //Đăng ký tài khoản
 exports.register = async (req, res) => {
   try {
@@ -23,14 +24,12 @@ exports.register = async (req, res) => {
 
     const hashedmatkhau = await bcrypt.hash(matkhau, 10);
 
-
-
     const newUser = await userModel.createUser({
       email,
       //google_id: google_id || null,
       tendangnhap,
       matkhau: hashedmatkhau,
-      marole: 3,
+      marole: 2,
       trangthai: true,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
@@ -63,27 +62,33 @@ exports.login = async (req,res) => {
 
        if(checkmatkhau){
         const tokenData = {
-            _id : user._id,
+
+            mataikhoan : user.mataikhoan,
             email : user.email,
+            vaitro: user.vaitro || user.marole
         }
-        const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET_KEY, { expiresIn: 60 * 60 * 8 });
-        //console.log("jwt: ",token)
+        const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET_KEY, { expiresIn: '1d' });
 
         const tokenOption = {
             httpOnly : true,
-            secure : true
+            secure : false,
+            sameSite: 'lax'
+
         }
 
         res.cookie("token",token,tokenOption).status(200).json({
             message : "Login successfully",
-            data : token,
+            //data : token,
             success : true,
-            error : false
+            //error : false
         })
 
        }else{
-          //res.status(401).json({ message: 'Mật khẩu không đúng' })
-          throw new Error("Please check matkhau")
+          return res.status(401).json({
+            success: false,
+            message: "Sai mật khẩu hoặc tài khoản",
+            error: true
+          });
        }
     }catch(err){
         res.json({
@@ -96,9 +101,7 @@ exports.login = async (req,res) => {
 }
 
 
-
 // Đăng nhập bằng Google
-
 exports.oauthLogin = async (req, res) => {
   const { email, name, google_id } = req.body;
 
@@ -107,43 +110,57 @@ exports.oauthLogin = async (req, res) => {
   }
 
   try {
-    // Kiểm tra user tồn tại chưa
+    // Kiểm tra user đã tồn tại chưa
     let user = await userModel.getUserByEmail(email);
 
     if (!user) {
-      // Tạo mới
+      // Tạo user mới nếu chưa có
       user = await userModel.createUser({
         email,
         tendangnhap: name || email.split('@')[0],
         google_id,
         matkhau: null,
-        marole: 3,
+        marole: 2, // 2 = khách hàng đăng nhập qua Google
         trangthai: true,
       });
     } else {
+      // Nếu có rồi mà chưa có google_id thì cập nhật
       if (!user.google_id) {
-        await userModel.updateUser(
-          user.mataikhoan,
-          { google_id },
-          { where: { email } }
-        );
+        await userModel.updateUser(user.mataikhoan, { google_id });
+        user.google_id = google_id; // cập nhật tạm để dùng
       }
     }
 
-  
-    const token = jwt.sign({ mataikhoan: user.mataikhoan, email: user.email, vaitro: user.vaitro },
-       process.env.TOKEN_SECRET_KEY, 
-       {
-      expiresIn: '1d',
+    const token = jwt.sign({
+      mataikhoan: user.mataikhoan,
+      email: user.email,
+      vaitro: user.marole
+    }, process.env.TOKEN_SECRET_KEY, { expiresIn: '1d' });
+
+    // Gửi cookie về frontend
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      path: "/"
     });
 
-    res.json({ success: true, message: 'OAuth login thành công', token, user });
+    //  Response 1 lần duy nhất (tránh bị gửi 2 lần)
+    res.status(200).json({
+      success: true,
+      message: "OAuth login thành công",
+      user: {
+        email: user.email,
+        tendangnhap: user.tendangnhap,
+        vaitro: user.marole
+      }
+    });
+
   } catch (error) {
     console.error('OAuth login error:', error);
-    res.status(500).json({ message: 'Lỗi server 111 11' });
+    res.status(500).json({ message: 'Lỗi server' });
   }
 };
-
 
 
 // Đổi mật khẩu
@@ -162,7 +179,8 @@ exports.changematkhau = async (req, res) => {
     }
     
     // Kiểm tra mật khẩu hiện tại
-    const isMatch = await userModel.comparematkhau(currentmatkhau, user.matkhau_hash);
+    const isMatch = await userModel.comparematkhau(currentmatkhau, user.matkhau);
+
     if (!isMatch) {
       return res.status(401).json({ 
         success: false,
@@ -188,22 +206,16 @@ exports.changematkhau = async (req, res) => {
 // Lấy thông tin user hiện tại
 exports.getMe = async (req, res) => {
   try {
+    console.log("Decoded user:", req.user);
+
     const user = await userModel.getUserById(req.user.userId);
     if (!user) {
-      return res.status(404).json({ 
-        success: false,
-        error: 'Người dùng không tồn tại' 
-      });
+      return res.status(404).json({ success: false, error: 'Người dùng không tồn tại' });
     }
-    res.json({
-      success: true,
-      user
-    });
+    res.json({ success: true, user });
   } catch (error) {
-    res.status(500).json({ 
-      success: false,
-      error: error.message 
-    });
+    console.error('Lỗi getMe:', error); 
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
@@ -211,8 +223,9 @@ exports.getMe = async (req, res) => {
 exports.logout = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    secure: true,
-    sameSite: "none" // Hoặc "lax" tùy frontend ở đâu
+    secure: false,
+    sameSite: "lax",
+    path: "/"
   });
 
   res.status(200).json({

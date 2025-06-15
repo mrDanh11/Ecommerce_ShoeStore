@@ -5,7 +5,6 @@ const Register = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     fullName: '',
-    username: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -26,8 +25,7 @@ const Register = () => {
                 "content-type" : "application/json"
             },
             body : JSON.stringify({
-              hoten: form.fullName,  
-              tendangnhap: form.username,  
+              tendangnhap: form.fullName,  
               email: form.email,
               matkhau: form.password
             })
@@ -47,6 +45,9 @@ const Register = () => {
           console.error("Đăng ký lỗi:", error);
           alert(error.message || "Đăng ký thất bại");
     }
+    
+
+
   };
 
   return (
