@@ -2,12 +2,35 @@ const SaleOff = require('../models/saleOffModel');
 const Category = require('../models/categoryModel');
 
 const getSaleOffs = async (req, res) => {
-    const { limit, offset, filters } = req.body;
+    console.log('Get SaleOffs APIs called:', req.query);
+    const { limit, offset, minValue, maxValue, saleOffId, status, startDate, endDate } = req.query;
     try {
+        const filters = {};
+        
+        // Validate and add filters
+        if (minValue !== undefined && minValue !== null && minValue !== '') {
+            filters.minValue = parseFloat(minValue);
+        }
+        if (maxValue !== undefined && maxValue !== null && maxValue !== '') {
+            filters.maxValue = parseFloat(maxValue);
+        }
+        if (saleOffId !== undefined && saleOffId !== null && saleOffId !== '') {
+            filters.saleOffId = saleOffId;
+        }
+        if (status !== undefined && status !== null && status !== '') {
+            filters.status = status;
+        }
+        if (startDate !== undefined && startDate !== null && startDate !== '') {
+            filters.startDate = startDate;
+        }
+        if (endDate !== undefined && endDate !== null && endDate !== '') {
+            filters.endDate = endDate;
+        }
+
         const saleOffs = await SaleOff.getSaleOffs(
             parseInt(limit) || 10,
             parseInt(offset) || 0,
-            filters ? JSON.parse(filters) : {}
+            filters
         );
         res.status(200).json({
             errorCode: 0,
@@ -22,9 +45,31 @@ const getSaleOffs = async (req, res) => {
 }
 
 const getSaleOffCount = async (req, res) => {
-    const { filters } = req.body;
+    const { minValue, maxValue, saleOffId, status, startDate, endDate } = req.query;
     try {
-        const count = await SaleOff.getSaleOffCount(filters ? JSON.parse(filters) : {});
+        const filters = {};
+        
+        // Validate and add filters
+        if (minValue !== undefined && minValue !== null && minValue !== '') {
+            filters.minValue = parseFloat(minValue);
+        }
+        if (maxValue !== undefined && maxValue !== null && maxValue !== '') {
+            filters.maxValue = parseFloat(maxValue);
+        }
+        if (saleOffId !== undefined && saleOffId !== null && saleOffId !== '') {
+            filters.saleOffId = saleOffId;
+        }
+        if (status !== undefined && status !== null && status !== '') {
+            filters.status = status;
+        }
+        if (startDate !== undefined && startDate !== null && startDate !== '') {
+            filters.startDate = startDate;
+        }
+        if (endDate !== undefined && endDate !== null && endDate !== '') {
+            filters.endDate = endDate;
+        }
+
+        const count = await SaleOff.getSaleOffCount(filters);
         res.status(200).json({
             errorCode: 0,
             count

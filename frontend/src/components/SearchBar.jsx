@@ -1,57 +1,49 @@
 import { useState } from 'react'
 import { HiMagnifyingGlass, HiMiniXMark } from "react-icons/hi2"
 
-const SearchBar = () => {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [isOpen, setIsOpen] = useState(false)
+const SearchBar = ({ isOpen, onClose, onSubmit, searchTerm, setSearchTerm }) => {
 
-  const handleSearchToggle = () => {
-    setIsOpen(!isOpen)
-  }
-
-  const handleSearchSubmit = (e) => {
-    e.preventDefault()
-    console.log("Tìm kiếm:", searchTerm)
-    setIsOpen(false)
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(searchTerm);
   };
 
+  if (!isOpen) {
+    return null;
+  }
+
   return (
-    <div className={`flex items-center justify-center w-full transition-all duration-300 ${isOpen ? "absolute top-0 left-0 w-full bg-white h-24 z-50" : "w-auto"}`}>
-      {isOpen ? (
-        <form
-          onClick={handleSearchSubmit}
-          className="relative flex items-center justify-center w-full"
-        >
-          <div className="relative w-1/2">
-            <input 
-              type="text"
-              placeholder="Tìm kiếm"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-gray-100 px-4 py-2 pl-2 pr-12 rounded-lg focus:outline-none w-full placeholder:text-gray-700"
-            />
-            {/* Search Button */}
-            <button
-              type="submit"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-800"
-            >
-              <HiMagnifyingGlass className="h-6 w-6" />
-            </button>
-          </div>
-          {/* Close Button */}
+    <div className="absolute top-0 left-0 w-full h-full bg-white bg-opacity-95 flex items-center justify-center z-45 transition-opacity duration-300">
+      <form
+        onSubmit={handleFormSubmit}
+        className="relative flex items-center justify-center w-full px-4"
+      >
+        <div className="relative w-full max-w-2xl">
+          <input
+            type="text"
+            placeholder="Tìm kiếm sản phẩm..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="bg-gray-100 px-4 py-3 pl-12 pr-12 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-lg placeholder:text-gray-500"
+            autoFocus // Tự động focus khi mở
+          />
           <button
-              type="button"
-              onClick={handleSearchToggle}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-800"
+            type="submit"
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-800"
+            aria-label="Thực hiện tìm kiếm"
           >
-            <HiMiniXMark className="h-6 w-6" />
+            <HiMagnifyingGlass className="h-6 w-6" />
           </button>
-        </form>
-      ) : (
-        <button onClick={handleSearchToggle}>
-          <HiMagnifyingGlass className="h-6 w-6" />
+        </div>
+        <button
+          type="button" // Quan trọng: type="button" để không submit form
+          onClick={onClose} // Gọi hàm onClose được truyền từ Navbar
+          className="ml-4 p-2 text-gray-600 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full"
+          aria-label="Đóng tìm kiếm"
+        >
+          <HiMiniXMark className="h-8 w-8" />
         </button>
-      )}
+      </form>
     </div>
   )
 }

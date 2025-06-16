@@ -7,15 +7,13 @@ import { useNavigate } from 'react-router-dom';
 
 
 const Login = () => {
-  const [form, setForm] = useState({ username: '', password: '' });
+  const [form, setForm] = useState({ email: '', password: '' });
   const navigate = useNavigate(); 
 
   const handleSubmit = async(e) => {
     e.preventDefault();
 
-
     console.log('Logging in with:', form);
-
 
     try {
       const response = await fetch("http://localhost:4004/api/auth/login", {
@@ -23,7 +21,7 @@ const Login = () => {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          email: form.username,    // Change 'username' to 'email'
+          email: form.email,
           matkhau: form.password
         }),
       });
@@ -35,7 +33,10 @@ const Login = () => {
       }
 
       console.log("Login success:", data);
-      // Store token and redirect (e.g., localStorage.setItem("token", data.token))
+      
+      // Lưu token vào localStorage
+      localStorage.setItem("token", data.token)
+
       navigate("/");
       
     } catch (error) {
@@ -61,8 +62,8 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="bg-gray-50 p-8 rounded-lg shadow-lg w-full max-w-sm">
         <h2 className="text-2xl font-bold text-center mb-6">ĐĂNG NHẬP</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -71,9 +72,9 @@ const Login = () => {
             <input
               type="email"
               placeholder="Email"
-              className="mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-              value={form.username}
-              onChange={e => setForm({ ...form, username: e.target.value })}
+              className="bg-white mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              value={form.email}
+              onChange={e => setForm({ ...form, email: e.target.value })}
               required
             />
           </div>
@@ -83,7 +84,7 @@ const Login = () => {
             <input
               type="password"
               placeholder="Mật khẩu"
-              className="mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              className="bg-white mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               required

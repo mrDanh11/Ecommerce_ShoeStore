@@ -1,13 +1,14 @@
-import { useState } from "react"
-import { Link } from "react-router-dom"
-import { HiMagnifyingGlass, HiMiniXMark } from "react-icons/hi2"
+import { useState, useEffect } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import { HiMagnifyingGlass } from "react-icons/hi2"
 import { FaShoppingCart } from "react-icons/fa"
 import { GiHamburgerMenu } from "react-icons/gi"
 import { FaUser } from "react-icons/fa"
 import { IoMdClose } from "react-icons/io"
 import Shoea from "../assets/Shoea-Logo.svg"
 import Minicart from "./Minicart"
-
+import SearchBar from "./SearchBar"
+import { supabase } from '../supabaseClient';
 
 const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -15,33 +16,133 @@ const Navbar = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [minicartOpen, setMinicartOpen] = useState(false);
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    console.log("Tìm kiếm:", searchTerm);
-    // If the mobile search overlay is open, close it after submission
-    if (isSearchOpen) {
-      setIsSearchOpen(false);
+  // ------------------------------------------------------------------------
+  
+  // Profile Login/Logout
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      // 1. Kiểm tra trạng thái từ backend custom (qua localStorage token)
+      const customBackendToken = localStorage.getItem("token");
+      if (customBackendToken) {
+        setIsLoggedIn(true);
+        return; // Nếu đã đăng nhập qua backend custom, không cần kiểm tra Supabase
+      }
+
+      // 2. Nếu chưa có token từ backend custom, kiểm tra Supabase
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (session) {
+        setIsLoggedIn(true);
+      } else if (error) {
+        console.error("Error getting Supabase session:", error);
+        setIsLoggedIn(false);
+      } else {
+        setIsLoggedIn(false);
+      }
+    };
+
+    checkLoginStatus();
+
+    // Lắng nghe sự kiện thay đổi trạng thái Auth của Supabase
+    // Điều này đảm bảo Navbar cập nhật ngay lập tức nếu người dùng đăng nhập/đăng xuất qua Google
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === 'SIGNED_IN') {
+          setIsLoggedIn(true);
+        } else if (event === 'SIGNED_OUT') {
+          setIsLoggedIn(false);
+        }
+      }
+    );
+
+    // Clean up listener khi component unmount
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []); // Chạy một lần khi component được mount
+
+  const toggleProfileDropdown = () => {
+    setIsProfileDropdownOpen(!isProfileDropdownOpen);
+    // Đảm bảo đóng các overlay khác khi mở/đóng dropdown profile
+    if (!isProfileDropdownOpen) {
+      if (navDrawerOpen) setNavDrawerOpen(false);
+      if (isSearchOpen) setIsSearchOpen(false);
+      if (minicartOpen) setMinicartOpen(false);
     }
   };
 
-  const handleSearchToggle = () => {
+  const handleLogout = async () => {
+    // Xóa token từ backend custom (nếu có)
+    localStorage.removeItem("token");
+
+    // Xóa session từ Supabase
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Error logging out from Supabase:", error);
+      alert("Đã xảy ra lỗi khi đăng xuất.");
+    } else {
+      console.log("Đã đăng xuất thành công khỏi Supabase.");
+    }
+
+    setIsLoggedIn(false); // Cập nhật trạng thái đăng nhập
+    setIsProfileDropdownOpen(false); // Đóng dropdown
+    navigate('/login'); // Chuyển hướng về trang đăng nhập
+  };
+
+
+  // ------------------------------------------------------------------------
+  
+  // useEffect để kiểm tra kích thước màn hình và đóng nav drawer
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setNavDrawerOpen(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  const handleSearchSubmit = (e) => {
+    console.log("Tìm kiếm:", searchTerm);
+    setIsSearchOpen(false);
+    setSearchTerm("");
+  };
+
+  const toggleSearch = () => {
     setIsSearchOpen(!isSearchOpen);
-    // If opening the search bar, close the mobile menu to prevent overlap
-    if (!isSearchOpen && navDrawerOpen) {
-      setNavDrawerOpen(false);
+    // Đảm bảo đóng các overlay khác khi mở/đóng search bar
+    if (!isSearchOpen) { 
+      if (navDrawerOpen) setNavDrawerOpen(false);
+      if (minicartOpen) setMinicartOpen(false);
+    } else {
+      setSearchTerm(""); 
     }
   };
 
   const toggleNavDrawer = () => {
     setNavDrawerOpen(!navDrawerOpen);
-    // If opening the menu, close the search bar to prevent overlap
-    if (!navDrawerOpen && isSearchOpen) {
-      setIsSearchOpen(false);
+    // Khi mở/đóng nav drawer, đảm bảo search overlay và minicart đóng lại
+    if (!navDrawerOpen) {
+      if (isSearchOpen) setIsSearchOpen(false);
+      if (minicartOpen) setMinicartOpen(false);
     }
   };
 
   const toggleMinicart = () => {
     setMinicartOpen(!minicartOpen);
+    // Khi mở/đóng minicart, đảm bảo search overlay và nav drawer đóng lại
+    if (!minicartOpen) {
+      if (isSearchOpen) setIsSearchOpen(false);
+      if (navDrawerOpen) setNavDrawerOpen(false);
+    }
   };
 
   const handleTurnOffMinicart = () => {
@@ -50,55 +151,32 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="container mx-auto flex items-center justify-between py-4 px-6 h-18">
+      <nav className="container mx-auto flex items-center justify-between py-4 px-6 h-18 relative z-40">
         {/* Left - Logo */}
         <div>
           <Link to="/" className="flex items-center text-2xl font-bold text-black p-1" aria-label="Home">
-            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center mr-2"> {/* Thêm div này */}
-              <img className="w-8 h-8" src={Shoea} alt="Shoea" /> {/* Điều chỉnh kích thước ảnh nếu cần */}
+            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+              <img className="w-8 h-8" src={Shoea} alt="Shoea" />
             </div>
-            Shoea {/* Thêm text Shoea */}
+            Shoea
           </Link>
         </div>
 
-        {/* Center - Navigation links - desktop only */}
+        {/* Center - Navigation links - Desktop only */}
         <div className="hidden md:flex space-x-6">
-          <Link to="#" className="text-gray-700 hover:text-black font-medium uppercase">Sản phẩm</Link>
-          <Link to="#" className="text-gray-700 hover:text-black font-medium uppercase">Nam</Link>
-          <Link to="#" className="text-gray-700 hover:text-black font-medium uppercase">Nữ</Link>
-          <Link to="#" className="text-gray-700 hover:text-black font-medium uppercase">Sale Off</Link>
+          <Link to="/" className="text-gray-700 hover:text-black font-medium">Trang chủ</Link>
+          <Link to="/about" className="text-gray-700 hover:text-black font-medium">Giới thiệu</Link>
+          <Link to="/collections" className="text-gray-700 hover:text-black font-medium">Sản phẩm</Link>
+          <Link to="/contact" className="text-gray-700 hover:text-black font-medium">Liên hệ</Link>
         </div>
 
-        {/* Right icons and search */}
+        {/* Right icons */}
         <div className="flex items-center space-x-4">
-          {/* Desktop Search Form: Visible on medium screens and up */}
-          <form
-            onSubmit={handleSearchSubmit}
-            className="relative hidden md:flex items-center bg-gray-100 rounded-3xl overflow-hidden h-10 w-50"
-          >
-            <button
-              type="submit"
-              className="absolute left-4 text-gray-400 cursor-pointer"
-              tabIndex={-1}
-              aria-label="Tìm kiếm"
-            >
-              <HiMagnifyingGlass className="w-5 h-5 text-black" />
-            </button>
-            <input
-              type="text"
-              placeholder="Tìm kiếm"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-3xl"
-              aria-label="Tìm kiếm"
-            />
-          </form>
-
-          {/* Mobile Search Icon: Visible only on small screens */}
+          {/* Search Icon */}
           <button
-            onClick={handleSearchToggle}
-            className="md:hidden cursor-pointer hover:text-black p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-            aria-label="Toggle search bar"
+            onClick={toggleSearch}
+            className="cursor-pointer hover:text-black p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-label="Tìm kiếm"
           >
             <HiMagnifyingGlass className="h-6 w-6 text-gray-800" />
           </button>
@@ -106,15 +184,70 @@ const Navbar = () => {
           {/* Cart Icon */}
           <button
             onClick={toggleMinicart}
-            className="cursor-pointer hover:text-black p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Shopping cart"
+            className="cursor-pointer hover:text-black p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-label="Shopping cart"
           >
             <FaShoppingCart className="h-6 w-6 text-gray-700" />
           </button>
 
-          {/* Profile Icon */}
-          <Link to="/profile" className="hover:text-black p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="User profile">
-            <FaUser className="h-6 w-6 text-gray-700" />
-          </Link>
+          {/* Profile Icon and Dropdown */}
+          {/* Sử dụng một div thay vì Link trực tiếp để chứa icon và dropdown */}
+          <div className="relative"> {/* Thêm class "relative" để dropdown định vị tuyệt đối */}
+            <button
+              onClick={toggleProfileDropdown}
+              className="cursor-pointer hover:text-black p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center" // Thêm flex và items-center để căn chỉnh tốt hơn
+              aria-label="Profile"
+            >
+              <FaUser className="h-6 w-6 text-gray-700" />
+            </button>
+
+            {/* Dropdown Content */}
+            {isProfileDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                  {isLoggedIn ? (
+                    <>
+                      <Link
+                        to="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsProfileDropdownOpen(false)} // Đóng dropdown khi click link
+                      >
+                        Xem thông tin cá nhân
+                      </Link>
+                      <Link
+                        to="/order-history"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsProfileDropdownOpen(false)} // Đóng dropdown khi click link
+                      >
+                        Xem lịch sử đơn hàng
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Đăng xuất
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        to="/login"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsProfileDropdownOpen(false)} // Đóng dropdown khi click link
+                      >
+                        Đăng nhập
+                      </Link>
+                      <Link
+                        to="/register"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsProfileDropdownOpen(false)} // Đóng dropdown khi click link
+                      >
+                        Đăng ký
+                      </Link>
+                    </>
+                  )}
+                </div>
+            )}
+          </div>
 
           {/* Hamburger Menu Icon: Visible only on small screens */}
           <button
@@ -124,42 +257,18 @@ const Navbar = () => {
           >
             <GiHamburgerMenu className="h-6 w-6 text-gray-800" />
           </button>
+
         </div>
 
-        {/* Mobile Search Overlay*/}
-        {isSearchOpen && (
-          <div className="flex items-center justify-center w-full transition-all duration-300 absolute top-0 left-0 bg-white h-18 z-50">
-            <form
-              onSubmit={handleSearchSubmit}
-              className="relative flex items-center justify-center w-full"
-            >
-              <div className="relative w-3/5">
-                <input 
-                  type="text"
-                  placeholder="Tìm kiếm"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="bg-gray-100 px-4 py-2 pl-2 pr-12 rounded-lg focus:outline-none w-full placeholder:text-gray-700"
-                />
-                {/* Search Button */}
-                <button
-                  type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-800 cursor-pointer"
-                >
-                  <HiMagnifyingGlass className="h-6 w-6" />
-                </button>
-              </div>
-              {/* Close Button */}
-              <button
-                type="button"
-                onClick={handleSearchToggle}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-800 cursor-pointer"
-              >
-                <HiMiniXMark className="h-6 w-6" />
-              </button>
-            </form>
-          </div>
-        )}
+        {/* SearchBar */}
+        <SearchBar
+          isOpen={isSearchOpen}
+          onClose={toggleSearch}
+          onSubmit={handleSearchSubmit}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+        />
+
 
         {/* Mobile Navigation */}
         <div className={`fixed top-0 left-0 w-3/4 sm:w-1/2 md:w-1/3 h-full bg-white shadow-lg transform transition-transform duration-300 z-50 ${
@@ -173,14 +282,15 @@ const Navbar = () => {
           <div className="p-10">
             <h2 className="text-2xl font-semibold mb-4">Menu</h2>
             <nav className="space-y-4">
-              <Link to="#" onClick={toggleNavDrawer} className="block text-gray-700 hover:text-black font-medium uppercase">Sản phẩm</Link>
-              <Link to="#" onClick={toggleNavDrawer} className="block text-gray-700 hover:text-black font-medium uppercase">Nam</Link>
-              <Link to="#" onClick={toggleNavDrawer} className="block text-gray-700 hover:text-black font-medium uppercase">Nữ</Link>
-              <Link to="#" onClick={toggleNavDrawer} className="block text-gray-700 hover:text-black font-medium uppercase">Sale Off</Link>
+              <Link to="/" onClick={toggleNavDrawer} className="block text-gray-700 hover:text-black font-medium">Trang chủ</Link>
+              <Link to="/about" onClick={toggleNavDrawer} className="block text-gray-700 hover:text-black font-medium">Giới thiệu</Link>
+              <Link to="/collections" onClick={toggleNavDrawer} className="block text-gray-700 hover:text-black font-medium">Sản phẩm</Link>
+              <Link to="/contact" onClick={toggleNavDrawer} className="block text-gray-700 hover:text-black font-medium ">Liên hệ</Link>
             </nav>
           </div>
         </div>
       </nav>
+      {/* Minicart */}
       <Minicart handleTurnOffMinicart={handleTurnOffMinicart} minicartOpen={minicartOpen} toggleMinicart={toggleMinicart} />
     </>
   )

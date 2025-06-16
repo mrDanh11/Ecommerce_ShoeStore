@@ -19,6 +19,33 @@ const createPayment = async (orderId, paymentmethod, thanhtien) => {
     return payment
 }
 
+const updatePaymentStatus = async (orderId, status) => {
+    console.log('updatePaymentStatus called with:', { orderId, status });
+  
+    const { data: before, error: selErr } = await supabase
+      .from('payment')
+      .select('*')
+      .eq('mahoadon', orderId);
+    // console.log('→ select before update:', { before, selErr });
+  
+    const updates = { status, updated_at: new Date() };
+    if (status === 'completed') {
+      updates.paid_at = new Date();
+    }
+  
+    const { data, error } = await supabase
+      .from('payment')
+      .update([updates])
+      .eq('mahoadon', orderId)
+      .single();
+  
+    console.log('→ update result:', { data, error });
+  
+    return { data, error };
+  };
+  
+
+
 module.exports = {
-    createPayment
+    createPayment, updatePaymentStatus
 }
