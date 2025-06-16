@@ -280,7 +280,7 @@ const checkoutVnPay2 = async (req, res) => {
         return res.status(200).json({
             success: true,
             orderId: orderData.mahoadon,
-            paymentUrl: vnpayResponse  
+            paymentUrl: vnpayResponse
         });
 
     } catch (error) {

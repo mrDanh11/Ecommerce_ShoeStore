@@ -494,6 +494,7 @@ const CheckoutPage = () => {
         }
     }, [selectedItems, navigate]);
 
+
     // Effect để cập nhật quận/huyện và phường/xã khi chọn tỉnh/thành
     useEffect(() => {
         if (city) {
@@ -581,6 +582,7 @@ const CheckoutPage = () => {
 
         try {
             if (paymentMethod === "VNPAY") {
+
                 const res = await fetch(
                     'http://localhost:4004/v1/api/order/checkout/vnpay',
                     {
@@ -598,6 +600,7 @@ const CheckoutPage = () => {
                 }
             }
             else if (paymentMethod === "COD") {
+
                 const response = await fetch('http://localhost:4004/v1/api/order/checkout', {
                     method: 'POST',
                     headers: {
@@ -610,11 +613,11 @@ const CheckoutPage = () => {
                     const errorResponse = await response.json();
                     throw new Error(errorResponse.message || 'Đặt hàng thất bại.');
                 }
-
                 const successData = await response.json();
                 alert(successData.message + '. Mã đơn hàng của bạn: ' + successData.orderid);
                 navigate('/order-confirmation', { state: { orderId: successData.orderid } });
             }
+
 
         } catch (err) {
             console.error('Lỗi đặt hàng:', err);
@@ -762,6 +765,9 @@ const CheckoutPage = () => {
                                 <button
                                     type="submit"
                                     className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md"
+//                                     className="cursor-pointer w-auto bg-black text-white p-4 rounded-lg font-semibold hover:bg-gray-800 transition transform hover:scale-105 shadow-lg"
+//                                     aria-label="Hoàn tất đơn hàng"
+
                                     disabled={loading}
                                 >
                                     {loading ? 'Đang xử lý đơn hàng...' : 'Hoàn tất đơn hàng'}
@@ -783,6 +789,23 @@ const CheckoutPage = () => {
                                         <div>
                                             <h3 className="text-sm font-semibold text-gray-800">{item.tensanpham}</h3>
                                             <p className="text-xs text-gray-500">{item.color} / {item.size}</p>
+// =======
+//                         <div className="space-y-6 mb-6 border-t border-gray-300 pt-6 max-h-60 overflow-y-auto">
+//                             {selectedItems.length === 0 ? (
+//                                 <p className="text-gray-600 text-center">Không có sản phẩm nào trong đơn hàng.</p>
+//                             ) : (
+//                                 selectedItems.map((product) => (
+//                                     <div key={product.productId} className="flex items-center">
+//                                         <div className="relative mr-4 flex-shrink-0">
+//                                             <img src={product.anhsanpham} alt={product.tensanpham} className="w-20 h-20 object-cover rounded-lg border border-gray-200" />
+//                                             <span className="absolute -top-2 -right-2 bg-gray-700 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+//                                                 {product.soluong}
+//                                             </span>
+//                                         </div>
+//                                         <div className="flex-grow">
+//                                             <h3 className="text-base font-medium text-gray-800">{product.tensanpham}</h3>
+//                                             <p className="text-sm text-gray-500">{product.color} / {product.size}</p>
+// >>>>>>> main
                                         </div>
                                     </div>
                                     <p className="text-sm font-semibold text-gray-700">{toVND(item.gia * item.soluong)}</p>
