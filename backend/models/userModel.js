@@ -8,7 +8,7 @@ async function createUser(userData) {
     .select();
 
   if (error) {
-    console.error(" Lỗi tạo tài khoản:", error);
+    console.error("❌ Lỗi tạo tài khoản:", error);
     throw error;
   }
 
@@ -40,7 +40,7 @@ async function createUser(userData) {
       if (nvError) throw new Error("Lỗi khi thêm nhanvien: " + nvError.message);
     }
   } catch (insertErr) {
-    console.error(" Lỗi thêm bản ghi phụ:", insertErr.message);
+    console.error("❌ Lỗi thêm bản ghi phụ:", insertErr.message);
   }
 
   return user;
@@ -103,17 +103,18 @@ async function getUserByEmail(email) {
 
 //Compare raw password with stored hash
 async function comparePassword(rawPassword, hash) {
-  if (!hash) return false;
+  if (!hash || !rawPassword) return false;
   return bcrypt.compare(rawPassword, hash);
 }
 
-// Update user by ID (Admin)
+// Update user by ID (Admin or Self)
 async function updateUser(id, updates) {
   if (updates.matkhau) {
     updates.matkhau = await bcrypt.hash(updates.matkhau, 10);
   }
 
   const currentUser = await getUserById(id);
+
   const { data, error } = await supabase
     .from('account')
     .update(updates)
@@ -123,30 +124,45 @@ async function updateUser(id, updates) {
 
   if (error) throw error;
 
-  // Nếu vai trò thay đổi
+  // Nếu vai trò thay đổi: xóa bản ghi cũ và chèn bản ghi mới
   if (updates.marole && updates.marole !== currentUser.marole) {
-    // Xoá bản ghi cũ theo vai trò cũ
     if (currentUser.marole === 2) {
       await supabase.from('khachhang').delete().eq('mataikhoan', id);
     } else if (currentUser.marole === 3) {
       await supabase.from('nhanvien').delete().eq('mataikhoan', id);
     }
 
-    // Lấy thông tin tên, sdt, địa chỉ
     const hoten = updates.tendangnhap || currentUser.tendangnhap || "Chưa có tên";
     const sdt = updates.sdt || currentUser.sdt || null;
     const diachi = updates.diachi || currentUser.diachi || null;
 
-    // Thêm bản ghi mới theo vai trò mới
     if (updates.marole === 2) {
       await supabase.from('khachhang').insert([{ mataikhoan: id, hoten, sdt, diachi }]);
     } else if (updates.marole === 3) {
       await supabase.from('nhanvien').insert([{ mataikhoan: id, hoten, sdt, diachi }]);
     }
+  } else {
+    // Nếu vai trò KHÔNG thay đổi, thì cập nhật bảng phụ tương ứng
+    const hoten = updates.tendangnhap;
+    const sdt = updates.sdt;
+    const diachi = updates.diachi;
+
+    if (currentUser.marole === 2) {
+      await supabase
+        .from('khachhang')
+        .update({ hoten, sdt, diachi })
+        .eq('mataikhoan', id);
+    } else if (currentUser.marole === 3) {
+      await supabase
+        .from('nhanvien')
+        .update({ hoten, sdt, diachi })
+        .eq('mataikhoan', id);
+    }
   }
 
   return data;
 }
+
 
 // Delete user by ID (Admin)
 async function deleteUser(id) {
