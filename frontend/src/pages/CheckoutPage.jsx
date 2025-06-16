@@ -464,6 +464,8 @@ const CheckoutPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
+    const CUSTOMER_ID = '5525453c-8f4e-4287-b380-ff1533826b56'; 
+
     // Dữ liệu giỏ hàng từ state
     const { selectedCartItems, customerId } = location.state || {}; // Lấy từ state
 
@@ -567,7 +569,7 @@ const CheckoutPage = () => {
         const wardDisplayName = availableWards.find(w => w.value === ward)?.name || ward;
 
         const orderData = {
-            customerid: customerId,
+            customerid: CUSTOMER_ID,
             items: selectedItems.map(item => ({
                 productid: item.productId,
                 quantity: item.soluong,
@@ -789,23 +791,6 @@ const CheckoutPage = () => {
                                         <div>
                                             <h3 className="text-sm font-semibold text-gray-800">{item.tensanpham}</h3>
                                             <p className="text-xs text-gray-500">{item.color} / {item.size}</p>
-// =======
-//                         <div className="space-y-6 mb-6 border-t border-gray-300 pt-6 max-h-60 overflow-y-auto">
-//                             {selectedItems.length === 0 ? (
-//                                 <p className="text-gray-600 text-center">Không có sản phẩm nào trong đơn hàng.</p>
-//                             ) : (
-//                                 selectedItems.map((product) => (
-//                                     <div key={product.productId} className="flex items-center">
-//                                         <div className="relative mr-4 flex-shrink-0">
-//                                             <img src={product.anhsanpham} alt={product.tensanpham} className="w-20 h-20 object-cover rounded-lg border border-gray-200" />
-//                                             <span className="absolute -top-2 -right-2 bg-gray-700 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-//                                                 {product.soluong}
-//                                             </span>
-//                                         </div>
-//                                         <div className="flex-grow">
-//                                             <h3 className="text-base font-medium text-gray-800">{product.tensanpham}</h3>
-//                                             <p className="text-sm text-gray-500">{product.color} / {product.size}</p>
-// >>>>>>> main
                                         </div>
                                     </div>
                                     <p className="text-sm font-semibold text-gray-700">{toVND(item.gia * item.soluong)}</p>

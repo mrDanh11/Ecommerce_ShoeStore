@@ -20,7 +20,6 @@ import OrderConfirmation from "./pages/OrderConfirmation";
 import Success from "./pages/shop/Success";
 import OrderPage from "./pages/OrderPage";
 import SaleOffManager from "./pages/admin/SaleOffManager";
-import OrderConfirmation from "./pages/OrderConfirmation"
 import ProductDetail from "./pages/ProductDetail";
 
 
