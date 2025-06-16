@@ -26,6 +26,7 @@ const Cart = () => {
         const sanpham = chiTiet.sanpham;
 
         return {
+          _id: item.machitietgiohang,
           productId: chiTiet.machitietsanpham,
           tensanpham: sanpham.tensanpham,
           description: sanpham.description,
@@ -59,17 +60,17 @@ const Cart = () => {
   const allItemsSelected = cartItems.length > 0 && cartItems.every(item => item.isSelected);
 
   // Hàm xử lý xóa sản phẩm (DELETE)
-  const handleRemoveItem = async (productId) => {
+  const handleRemoveItem = async (idToDelete) => {
     if (!window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?")) {
-      return; // Người dùng hủy xóa
+        return;
     }
 
     try {
-      const response = await fetch(`http://localhost:4004/v1/api/cart/${CUSTOMER_ID}/${productId}`, {
+      const response = await fetch(`http://localhost:4004/v1/api/cart/${CUSTOMER_ID}/${idToDelete}`, {
         method: 'DELETE',
         headers: {
-          'Content-Type': 'application/json',
-          // 'Authorization': `Bearer ${yourAuthToken}`,
+            'Content-Type': 'application/json',
+            // 'Authorization': `Bearer ${yourAuthToken}`,
         },
       });
 
@@ -78,8 +79,7 @@ const Cart = () => {
         throw new Error(errorData.message || 'Failed to remove item from cart');
       }
 
-      // Nếu xóa thành công ở backend, cập nhật lại trạng thái local
-      const updatedCartItems = cartItems.filter(item => item.productId !== productId);
+      const updatedCartItems = cartItems.filter(item => item._id !== idToDelete);
       setCartItems(updatedCartItems);
       alert('Sản phẩm đã được xóa khỏi giỏ hàng!');
     } catch (error) {
@@ -89,31 +89,31 @@ const Cart = () => {
   };
 
   // Hàm xử lý thay đổi số lượng (PUT)
-  const handleQuantityChange = async (productId, newQty) => {
+  const handleQuantityChange = async (idToUpdate, newQty) => {
     const parsedNewQty = parseInt(newQty) || 0;
 
     if (parsedNewQty <= 0) {
-      handleRemoveItem(productId); // Gọi hàm xóa nếu số lượng <= 0
+      handleRemoveItem(idToUpdate); // Gọi hàm xóa nếu số lượng <= 0
       return;
     }
 
     // Tránh gọi API nếu số lượng không thay đổi
-    const currentItem = cartItems.find(item => item.productId === productId);
-    if (currentItem && currentItem.soluong === parsedNewQty) {
+    const currentItem = cartItems.find(item => item._id === idToUpdate);
+    if (!currentItem || currentItem.soluong === parsedNewQty) {
       return;
     }
 
     try {
-      const response = await fetch(`http://localhost:4004/v1/api/cart/${CUSTOMER_ID}/${productId}`, {
+      const response = await fetch(`http://localhost:4004/v1/api/cart/${CUSTOMER_ID}/${idToUpdate}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           // 'Authorization': `Bearer ${yourAuthToken}`,
         },
         body: JSON.stringify({
-                soluong: parsedNewQty,
-                size: currentItem.size,
-                color: currentItem.color
+          soluong: parsedNewQty,
+          size: currentItem.size,
+          color: currentItem.color,
         }),
       });
 
@@ -122,24 +122,22 @@ const Cart = () => {
         throw new Error(errorData.message || 'Failed to update quantity');
       }
 
-      // Nếu cập nhật thành công ở backend, cập nhật lại trạng thái local
       const updatedCartItems = cartItems.map(item =>
-        item.productId === productId
+        item._id === idToUpdate
           ? { ...item, soluong: parsedNewQty }
           : item
       );
       setCartItems(updatedCartItems);
-      // alert('Số lượng sản phẩm đã được cập nhật!');
     } catch (error) {
-      console.error('Error updating quantity:', error);
-      alert(`Lỗi khi cập nhật số lượng: ${error.message}`);
+        console.error('Error updating quantity:', error);
+        alert(`Lỗi khi cập nhật số lượng: ${error.message}`);
     }
   };
 
   // Handle individual item selection
-  const handleSelectItem = (productId) => {
+  const handleSelectItem = (idToSelect) => {
     const updatedCartItems = cartItems.map(item =>
-      item.productId === productId
+      item._id === idToSelect
         ? { ...item, isSelected: !item.isSelected }
         : item
     );
@@ -148,10 +146,10 @@ const Cart = () => {
 
   // Handle select all items
   const handleSelectAllItems = () => {
-    const newSelectAllState = !allItemsSelected; // Đây là vấn đề
+    const newSelectAllState = !allItemsSelected;
     const updatedCartItems = cartItems.map(item => ({
       ...item,
-      isSelected: newSelectAllState, // Đây là vấn đề
+      isSelected: newSelectAllState,
     }));
     setCartItems(updatedCartItems);
   };
@@ -198,7 +196,7 @@ const Cart = () => {
             </div>
 
             {cartItems.map((product) => (
-              <div key={product.productId} className="flex items-center py-6 border-b border-gray-200 last:border-b-0">
+              <div key={product._id} className="flex items-center py-6 border-b border-gray-200 last:border-b-0">
                 <input
                   type="checkbox"
                   checked={product.isSelected}
@@ -213,14 +211,14 @@ const Cart = () => {
                     <div className="flex items-center">
                       <button
                         className="border rounded px-2 py-0.5 text-gray-700 font-medium bg-gray-100 hover:bg-gray-200 cursor-pointer"
-                        onClick={() => handleQuantityChange(product.productId, product.soluong - 1)}
+                        onClick={() => handleQuantityChange(product._id, product.soluong - 1)}
                       >
                         −
                       </button>
                       <span className="mx-3 text-sm text-gray-800">{product.soluong}</span>
                       <button
                         className="border rounded px-2 py-0.5 text-gray-700 font-medium bg-gray-100 hover:bg-gray-200 cursor-pointer"
-                        onClick={() => handleQuantityChange(product.productId, product.soluong + 1)}
+                        onClick={() => handleQuantityChange(product._id, product.soluong + 1)}
                       >
                         +
                       </button>
@@ -230,7 +228,7 @@ const Cart = () => {
                 </div>
                 <button
                   className="ml-auto text-gray-500 hover:text-red-600 transition-colors cursor-pointer"
-                  onClick={() => handleRemoveItem(product.productId)}
+                  onClick={() => handleRemoveItem(product._id)}
                 >
                   <FaTrashAlt className="h-5 w-5" />
                 </button>
