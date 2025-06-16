@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import ProductItem from "../components/ProductItem";
 
 const Collections = () => {
@@ -121,97 +121,79 @@ const Collections = () => {
 
   useEffect(() => {
     setProducts(defaultProducts);
-    // Để test chức năng tìm kiếm, bạn có thể uncomment dòng này
-    // setSearch("giày"); 
-    // setShowSearch(true); 
   }, []);
 
   // --------------------------------------------------------------------------
 
   const [showFilters, setShowFilters] = useState(false);
-  const [filterProducts, setFilterProducts] = useState([]);
   const [category, setCategory] = useState([]); 
-  const [style, setStyle] = useState([]); // State cho kiểu dáng
+  const [style, setStyle] = useState([]); 
   const [sortType, setSortType] = useState("relavent");
 
   const toggleCategory = (e) => {
-    if (category.includes(e.target.value)) {
-      setCategory((prev) => prev.filter((item) => item !== e.target.value));
-    } else {
-      setCategory((prev) => [...prev, e.target.value]);
-    } 
+    const value = e.target.value;
+    setCategory((prev) =>
+      prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
+    );
   };
 
   const toggleStyle = (e) => {
-    if (style.includes(e.target.value)) {
-      setStyle((prev) => prev.filter((item) => item !== e.target.value));
-    } else {
-      setStyle((prev) => [...prev, e.target.value]);
-    }
+    const value = e.target.value;
+    setStyle((prev) =>
+      prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
+    );
   };
 
-  const applyFilter = () => {
-    let productsCopy = [...products]; 
+   // Sử dụng useMemo để tính toán filtered và sorted products
+    const filteredAndSortedProducts = useMemo(() => {
+      let productsToDisplay = [...products];
 
-    // Lọc theo tìm kiếm
-    if (showSearch && search) {
-      productsCopy = productsCopy.filter((item) =>
-        item.name.toLowerCase().includes(search.toLowerCase()) ||
-        item.description.toLowerCase().includes(search.toLowerCase())
-      );
-    }
+      // Lọc theo tìm kiếm
+      if (showSearch && search) {
+        productsToDisplay = productsToDisplay.filter((item) =>
+          item.name.toLowerCase().includes(search.toLowerCase()) ||
+          item.description.toLowerCase().includes(search.toLowerCase())
+        );
+      }
 
-    // Lọc theo danh mục
-    if (category.length > 0) {
-      productsCopy = productsCopy.filter((item) =>
-        category.includes(item.category)
-      );
-    }
+      // Lọc theo danh mục
+      if (category.length > 0) {
+        productsToDisplay = productsToDisplay.filter((item) =>
+          category.includes(item.category)
+        );
+      }
 
-    // Lọc theo kiểu dáng
-    if (style.length > 0) {
-      productsCopy = productsCopy.filter((item) =>
-        style.includes(item.style)
-      );
-    }
+      // Lọc theo kiểu dáng
+      if (style.length > 0) {
+        productsToDisplay = productsToDisplay.filter((item) =>
+          style.includes(item.style)
+        );
+      }
 
-    setFilterProducts(productsCopy);
-  };
+      // Sắp xếp
+      switch (sortType) {
+        case "low-high":
+          productsToDisplay.sort((a, b) => a.price - b.price);
+          break;
+        case "high-low":
+          productsToDisplay.sort((a, b) => b.price - a.price);
+          break;
+        case "relavent":
+        default:
+          break;
+      }
 
-  const sortProduct = () => {
-    let productsToSort = [...filterProducts]; 
-
-    switch (sortType) {
-      case "low-high":
-        productsToSort.sort((a, b) => a.price - b.price);
-        break;
-      case "high-low":
-        productsToSort.sort((a, b) => b.price - a.price);
-        break;
-      case "relavent":
-      default:
-        applyFilter(); 
-        return; 
-    }
-    setFilterProducts(productsToSort);
-  };
-
-  useEffect(() => {
-    applyFilter();
-  }, [category, style, search, showSearch, products]);
-
-  useEffect(() => {
-    sortProduct(); 
-  }, [sortType, filterProducts]); 
+      return productsToDisplay;
+  }, [products, category, style, search, showSearch, sortType]);
 
   return (
     <main className='flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t'> 
-      {/* ------------filter options----------- */}
+      {/* Filter Options */}
       <div className='min-w-60'>
         <p onClick={() => setShowFilters(!showFilters)} className='my-2 text-xl flex items-center cursor-pointer gap-2 font-medium'>
           BỘ LỌC{" "}
         </p>
-        {/* -------Danh mục (Category) filter ------- */}
+        {/* Danh mục (Category) filter */}
         <div className={`border border-gray-300 pl-5 pr-3 py-3 mt-6 sm:block ${showFilters ? "" : "hidden"}`}>
           <p className='mb-3 text-sm font-medium'>GIỚI TÍNH</p>
           <div className='flex flex-col gap-2 text-sm font-light text-gray-700'>
@@ -248,7 +230,7 @@ const Collections = () => {
           </div>
         </div>
 
-        {/* -------Kiểu dáng (Style) filter----------- */}
+        {/* Kiểu dáng (Style) filter */}
         <div className={`border border-gray-300 pl-5 pr-3 py-3 mt-6 sm:block ${showFilters ? "" : "hidden"}`}>
           <p className='mb-3 text-sm font-medium'>KIỂU DÁNG</p>
           <div className='flex flex-col gap-2 text-sm font-light text-gray-700'>
@@ -286,12 +268,12 @@ const Collections = () => {
         </div>
       </div>
 
-      {/* ------------filter products----------- */}
+      {/* Filter Products */}
       <div className='flex-1'>
         <div className='flex justify-between items-center text-base sm:text-2xl mb-4'>
           <h1 className="text-black text-2xl font-bold">TẤT CẢ SẢN PHẨM</h1> 
 
-          {/* -----product sort------- */}
+          {/* Product Sort */}
           <select 
             onChange={(e) => setSortType(e.target.value)}
             className='border border-gray-300 text-sm p-2'
@@ -303,10 +285,10 @@ const Collections = () => {
           </select>
         </div>
 
-        {/* ---------Map products=---------- */}
+        {/* Map products */}
         <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-6'>
-          {filterProducts.length > 0 ? (
-            filterProducts.map((item) => (
+          {filteredAndSortedProducts.length > 0 ? (
+            filteredAndSortedProducts.map((item) => (
               <ProductItem key={item.id} {...item} /> 
             ))
           ) : (
