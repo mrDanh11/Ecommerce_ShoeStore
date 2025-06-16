@@ -2,9 +2,15 @@ const supabase = require('../config/supabaseClient')
 
 const getCartItem = async (customerId) => {
     const { data, error } = await supabase.from('khachhang')
+        // .select(`
+        //         makhachhang, hoten,
+        //         giohang(magiohang, chitietgiohang(soluong, machitietgiohang, chitietsanpham(machitietsanpham, gia, soluong, size, color, sanpham(masanpham, tensanpham, anhsanpham, gia, tinhtrang, description))
+        //                     )
+        //                 )
+        //     `)
         .select(`
-                makhachhang, hoten,
-                giohang(magiohang, chitietgiohang(soluong, machitietgiohang, chitietsanpham(gia, soluong, size, color, sanpham(tensanpham, anhsanpham, gia, tinhtrang, description))
+                *,
+                giohang(*, chitietgiohang(*, chitietsanpham(*, sanpham(*))
                             )
                         )
             `)
