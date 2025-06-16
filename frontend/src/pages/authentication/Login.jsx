@@ -13,9 +13,7 @@ const Login = () => {
   const handleSubmit = async(e) => {
     e.preventDefault();
 
-
     console.log('Logging in with:', form);
-
 
     try {
       const response = await fetch("http://localhost:4004/api/auth/login", {
@@ -35,7 +33,10 @@ const Login = () => {
       }
 
       console.log("Login success:", data);
-      // Store token and redirect (e.g., localStorage.setItem("token", data.token))
+      
+      // Lưu token vào localStorage
+      localStorage.setItem("token", data.token)
+
       navigate("/");
       
     } catch (error) {
