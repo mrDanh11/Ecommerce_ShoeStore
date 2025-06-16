@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
-import { HiMagnifyingGlass, HiMiniXMark } from "react-icons/hi2"
+import { Link, useNavigate } from "react-router-dom"
+import { HiMagnifyingGlass } from "react-icons/hi2"
 import { FaShoppingCart } from "react-icons/fa"
 import { GiHamburgerMenu } from "react-icons/gi"
 import { FaUser } from "react-icons/fa"
@@ -8,7 +8,7 @@ import { IoMdClose } from "react-icons/io"
 import Shoea from "../assets/Shoea-Logo.svg"
 import Minicart from "./Minicart"
 import SearchBar from "./SearchBar"
-
+import { supabase } from '../supabaseClient';
 
 const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,6 +16,86 @@ const Navbar = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [minicartOpen, setMinicartOpen] = useState(false);
 
+  // ------------------------------------------------------------------------
+  
+  // Profile Login/Logout
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      // 1. Kiểm tra trạng thái từ backend custom (qua localStorage token)
+      const customBackendToken = localStorage.getItem("token");
+      if (customBackendToken) {
+        setIsLoggedIn(true);
+        return; // Nếu đã đăng nhập qua backend custom, không cần kiểm tra Supabase
+      }
+
+      // 2. Nếu chưa có token từ backend custom, kiểm tra Supabase
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (session) {
+        setIsLoggedIn(true);
+      } else if (error) {
+        console.error("Error getting Supabase session:", error);
+        setIsLoggedIn(false);
+      } else {
+        setIsLoggedIn(false);
+      }
+    };
+
+    checkLoginStatus();
+
+    // Lắng nghe sự kiện thay đổi trạng thái Auth của Supabase
+    // Điều này đảm bảo Navbar cập nhật ngay lập tức nếu người dùng đăng nhập/đăng xuất qua Google
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === 'SIGNED_IN') {
+          setIsLoggedIn(true);
+        } else if (event === 'SIGNED_OUT') {
+          setIsLoggedIn(false);
+        }
+      }
+    );
+
+    // Clean up listener khi component unmount
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []); // Chạy một lần khi component được mount
+
+  const toggleProfileDropdown = () => {
+    setIsProfileDropdownOpen(!isProfileDropdownOpen);
+    // Đảm bảo đóng các overlay khác khi mở/đóng dropdown profile
+    if (!isProfileDropdownOpen) {
+      if (navDrawerOpen) setNavDrawerOpen(false);
+      if (isSearchOpen) setIsSearchOpen(false);
+      if (minicartOpen) setMinicartOpen(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    // Xóa token từ backend custom (nếu có)
+    localStorage.removeItem("token");
+
+    // Xóa session từ Supabase
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Error logging out from Supabase:", error);
+      alert("Đã xảy ra lỗi khi đăng xuất.");
+    } else {
+      console.log("Đã đăng xuất thành công khỏi Supabase.");
+    }
+
+    setIsLoggedIn(false); // Cập nhật trạng thái đăng nhập
+    setIsProfileDropdownOpen(false); // Đóng dropdown
+    navigate('/login'); // Chuyển hướng về trang đăng nhập
+  };
+
+
+  // ------------------------------------------------------------------------
+  
   // useEffect để kiểm tra kích thước màn hình và đóng nav drawer
   useEffect(() => {
     const handleResize = () => {
@@ -65,7 +145,6 @@ const Navbar = () => {
     }
   };
 
-
   const handleTurnOffMinicart = () => {
     setMinicartOpen(false);
   }
@@ -111,10 +190,64 @@ const Navbar = () => {
             <FaShoppingCart className="h-6 w-6 text-gray-700" />
           </button>
 
-          {/* Profile Icon for Login/Register */}
-          <Link to="/login" className="hover:text-black p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Login">
-            <FaUser className="h-6 w-6 text-gray-700" />
-          </Link>
+          {/* Profile Icon and Dropdown */}
+          {/* Sử dụng một div thay vì Link trực tiếp để chứa icon và dropdown */}
+          <div className="relative"> {/* Thêm class "relative" để dropdown định vị tuyệt đối */}
+            <button
+              onClick={toggleProfileDropdown}
+              className="cursor-pointer hover:text-black p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center" // Thêm flex và items-center để căn chỉnh tốt hơn
+              aria-label="Profile"
+            >
+              <FaUser className="h-6 w-6 text-gray-700" />
+            </button>
+
+            {/* Dropdown Content */}
+            {isProfileDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                  {isLoggedIn ? (
+                    <>
+                      <Link
+                        to="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsProfileDropdownOpen(false)} // Đóng dropdown khi click link
+                      >
+                        Xem thông tin cá nhân
+                      </Link>
+                      <Link
+                        to="/order-history"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsProfileDropdownOpen(false)} // Đóng dropdown khi click link
+                      >
+                        Xem lịch sử đơn hàng
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Đăng xuất
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        to="/login"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsProfileDropdownOpen(false)} // Đóng dropdown khi click link
+                      >
+                        Đăng nhập
+                      </Link>
+                      <Link
+                        to="/register"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsProfileDropdownOpen(false)} // Đóng dropdown khi click link
+                      >
+                        Đăng ký
+                      </Link>
+                    </>
+                  )}
+                </div>
+            )}
+          </div>
 
           {/* Hamburger Menu Icon: Visible only on small screens */}
           <button
