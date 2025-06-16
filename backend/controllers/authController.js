@@ -1,38 +1,33 @@
 const userModel = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const path = require('path');
 
-
-//Đăng ký tài khoản
+// Đăng ký tài khoản
 exports.register = async (req, res) => {
   try {
-    
-    //const { email, google_id, tendangnhap, matkhau, marole = 3 } = req.body;
-    const { tendangnhap, email, matkhau,} = req.body;
-    
+    const { tendangnhap, email, matkhau, sdt, diachi } = req.body;
+
     if (!email || !matkhau || !tendangnhap) {
       return res.status(400).json({ message: 'Thiếu thông tin bắt buộc' });
     }
 
     const existingUser = await userModel.getUserByEmail(email);
-    console.log("user",existingUser)
     if (existingUser) {
-      res.status(409).json({ message: 'Email đã được sử dụng' });
-      //throw new Error("Already user exits.")
+      return res.status(409).json({ message: 'Email đã được sử dụng' });
     }
 
     const hashedmatkhau = await bcrypt.hash(matkhau, 10);
 
     const newUser = await userModel.createUser({
       email,
-      //google_id: google_id || null,
       tendangnhap,
       matkhau: hashedmatkhau,
       marole: 2,
       trangthai: true,
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
+      sdt,
+      diachi
     });
 
     res.status(201).json({ message: 'Đăng ký thành công', user: newUser });
@@ -43,63 +38,35 @@ exports.register = async (req, res) => {
 };
 
 // Đăng nhập
-exports.login = async (req,res) => {
-    try{
-        const { email , matkhau} = req.body  
-        const user = await userModel.getUserByEmail(email)
+exports.login = async (req, res) => {
+  try {
+    const { email, matkhau } = req.body;
+    const user = await userModel.getUserByEmail(email);
 
-        console.log("User from DB:", user); // Log toàn bộ user
-        console.log("matkhau from DB:", user?.matkhau); //  Log matkhau
+    if (!user) throw new Error("User not found");
 
-       if(!user){
-          //res.status(404).json({ message: 'Không tìm thấy người dùng' });
-          throw new Error("User not found")
-       }
-
-       const checkmatkhau = await bcrypt.compare(matkhau,user.matkhau)
-
-       console.log("checkPassoword",checkmatkhau)
-
-       if(checkmatkhau){
-        const tokenData = {
-
-            mataikhoan : user.mataikhoan,
-            email : user.email,
-            vaitro: user.vaitro || user.marole
-        }
-        const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET_KEY, { expiresIn: '1d' });
-
-        const tokenOption = {
-            httpOnly : true,
-            secure : false,
-            sameSite: 'lax'
-
-        }
-
-        res.cookie("token",token,tokenOption).status(200).json({
-            message : "Login successfully",
-            //data : token,
-            success : true,
-            //error : false
-        })
-
-       }else{
-          return res.status(401).json({
-            success: false,
-            message: "Sai mật khẩu hoặc tài khoản",
-            error: true
-          });
-       }
-    }catch(err){
-        res.json({
-            message : err.message || err  ,
-            error : true,
-            success : false,
-        })
+    const isMatch = await bcrypt.compare(matkhau, user.matkhau);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Sai mật khẩu hoặc tài khoản" });
     }
 
-}
+    const token = jwt.sign({
+      mataikhoan: user.mataikhoan,
+      email: user.email,
+      vaitro: user.marole
+    }, process.env.TOKEN_SECRET_KEY, { expiresIn: '1d' });
 
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax'
+    });
+
+    res.status(200).json({ message: "Login thành công", success: true });
+  } catch (err) {
+    res.status(401).json({ message: err.message, success: false });
+  }
+};
 
 // Đăng nhập bằng Google
 exports.oauthLogin = async (req, res) => {
@@ -110,25 +77,19 @@ exports.oauthLogin = async (req, res) => {
   }
 
   try {
-    // Kiểm tra user đã tồn tại chưa
     let user = await userModel.getUserByEmail(email);
 
     if (!user) {
-      // Tạo user mới nếu chưa có
       user = await userModel.createUser({
         email,
         tendangnhap: name || email.split('@')[0],
         google_id,
         matkhau: null,
-        marole: 2, // 2 = khách hàng đăng nhập qua Google
+        marole: 2,
         trangthai: true,
       });
-    } else {
-      // Nếu có rồi mà chưa có google_id thì cập nhật
-      if (!user.google_id) {
-        await userModel.updateUser(user.mataikhoan, { google_id });
-        user.google_id = google_id; // cập nhật tạm để dùng
-      }
+    } else if (!user.google_id) {
+      await userModel.updateUser(user.mataikhoan, { google_id });
     }
 
     const token = jwt.sign({
@@ -137,15 +98,12 @@ exports.oauthLogin = async (req, res) => {
       vaitro: user.marole
     }, process.env.TOKEN_SECRET_KEY, { expiresIn: '1d' });
 
-    // Gửi cookie về frontend
     res.cookie("token", token, {
       httpOnly: true,
       secure: false,
-      sameSite: "lax",
-      path: "/"
+      sameSite: "lax"
     });
 
-    //  Response 1 lần duy nhất (tránh bị gửi 2 lần)
     res.status(200).json({
       success: true,
       message: "OAuth login thành công",
@@ -155,67 +113,65 @@ exports.oauthLogin = async (req, res) => {
         vaitro: user.marole
       }
     });
-
   } catch (error) {
     console.error('OAuth login error:', error);
     res.status(500).json({ message: 'Lỗi server' });
   }
 };
 
-
 // Đổi mật khẩu
-exports.changematkhau = async (req, res) => {
+exports.changePassword = async (req, res) => {
   try {
     const { currentmatkhau, newmatkhau } = req.body;
-    const userId = req.user.userId;
-    
-    // Lấy thông tin user
-    const user = await userModel.getUserByEmail(req.user.email);
-    if (!user) {
-      return res.status(404).json({ 
-        success: false,
-        error: 'Người dùng không tồn tại' 
-      });
-    }
-    
-    // Kiểm tra mật khẩu hiện tại
-    const isMatch = await userModel.comparematkhau(currentmatkhau, user.matkhau);
+    const user = await userModel.getUserById(req.user.userId);
 
-    if (!isMatch) {
-      return res.status(401).json({ 
-        success: false,
-        error: 'Mật khẩu hiện tại không đúng' 
-      });
+    if (!user) return res.status(404).json({ message: 'Người dùng không tồn tại' });
+    if (!newmatkhau) return res.status(400).json({ message: 'Mật khẩu mới không được bỏ trống' });
+
+    if (user.matkhau) {
+      // Đã có mật khẩu → cần xác thực mật khẩu hiện tại
+      const isMatch = await userModel.comparePassword(currentmatkhau, user.matkhau);
+      if (!isMatch) {
+        return res.status(401).json({ message: 'Mật khẩu hiện tại không đúng' });
+      }
+    } else {
+      // Người dùng chưa từng có mật khẩu (đăng nhập Google)
+      console.log(" Người dùng chưa có mật khẩu, cho phép đặt mật khẩu mới");
     }
-    
-    // Cập nhật mật khẩu mới
-    await userModel.updatematkhau(userId, newmatkhau);
-    
+
+    await userModel.updatePassword(req.user.userId, newmatkhau);
     res.json({
       success: true,
-      message: 'Mật khẩu đã được cập nhật'
+      message: user.matkhau
+        ? ' Mật khẩu đã được cập nhật'
+        : ' Mật khẩu đã được thiết lập'
     });
   } catch (error) {
-    res.status(500).json({ 
-      success: false,
-      error: error.message 
-    });
+    console.error(" Lỗi đổi mật khẩu:", error);
+    res.status(500).json({ success: false, message: error.message || 'Lỗi máy chủ' });
+  }
+};
+
+// Cập nhật thông tin người dùng hiện tại
+exports.updateProfile = async (req, res) => {
+  try {
+    const updatedUser = await userModel.updateUser(req.user.userId, req.body);
+    res.json(updatedUser);
+  } catch (error) {
+    console.error('Lỗi updateProfile:', error);
+    res.status(500).json({ message: 'Cập nhật thất bại', error: error.message });
   }
 };
 
 // Lấy thông tin user hiện tại
 exports.getMe = async (req, res) => {
   try {
-    console.log("Decoded user:", req.user);
-
     const user = await userModel.getUserById(req.user.userId);
-    if (!user) {
-      return res.status(404).json({ success: false, error: 'Người dùng không tồn tại' });
-    }
+    if (!user) return res.status(404).json({ message: 'Người dùng không tồn tại' });
     res.json({ success: true, user });
   } catch (error) {
-    console.error('Lỗi getMe:', error); 
-    res.status(500).json({ success: false, error: error.message });
+    console.error('Lỗi getMe:', error);
+    res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
   }
 };
 
@@ -224,12 +180,8 @@ exports.logout = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     secure: false,
-    sameSite: "lax",
-    path: "/"
+    sameSite: "lax"
   });
 
-  res.status(200).json({
-    success: true,
-    message: 'Đăng xuất thành công'
-  });
+  res.status(200).json({ success: true, message: 'Đăng xuất thành công' });
 };
