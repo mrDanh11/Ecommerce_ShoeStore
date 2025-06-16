@@ -16,7 +16,7 @@ import EmployeeManager from "./pages/admin/EmployeeManager";
 import ProductStatistics from "./pages/admin/ProductStatistics";
 import PromotionManager from "./pages/admin/PromotionManager";
 import LandingPage from "./pages/admin/LandingPage";
-import OrderConfirmation from "./pages/OrderConfirmation";
+import SaleOffManager from "./pages/admin/SaleOffManager";
  
 
 const App = () => {
@@ -39,6 +39,7 @@ const App = () => {
         <Route path="/admin/employees" element={<EmployeeManager />} />
         <Route path="/admin/statistics" element={<ProductStatistics />} />
         <Route path="/admin/promotions" element={<PromotionManager />} />
+        <Route path="/admin/sale-offs" element={<SaleOffManager />} />
         <Route path="/admin" element={<LandingPage />} />
       </Routes>
       <Footer />
