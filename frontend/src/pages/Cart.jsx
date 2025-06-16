@@ -26,7 +26,7 @@ const Cart = () => {
         const sanpham = chiTiet.sanpham;
 
         return {
-          productId: item.machitietgiohang,
+          productId: chiTiet.machitietsanpham,
           tensanpham: sanpham.tensanpham,
           description: sanpham.description,
           anhsanpham: sanpham.anhsanpham,

@@ -22,7 +22,7 @@ const CheckoutPage = () => {
     const [discountAmount, setDiscountAmount] = useState(0);
 
     const [shippingFee, setShippingFee] = useState(30000);
-    const [paymentMethod, setPaymentMethod] = useState('cod');
+    const [paymentMethod, setPaymentMethod] = useState('COD');
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -145,7 +145,7 @@ const CheckoutPage = () => {
                 quantity: item.soluong,
                 price: item.gia,
             })),
-            address: `[${address}] ${ward} ${district}, ${city}`,
+            address: `[${address}] ${wardDisplayName} ${districtDisplayName}, ${cityDisplayName}`,
             name: fullName,
             sdt: phone,
             paymentmethod: paymentMethod,
@@ -301,9 +301,9 @@ const CheckoutPage = () => {
                                     <input
                                         type="radio"
                                         name="paymentMethod"
-                                        value="cod"
-                                        checked={paymentMethod === 'cod'}
-                                        onChange={() => setPaymentMethod('cod')}
+                                        value="COD"
+                                        checked={paymentMethod === 'COD'}
+                                        onChange={() => setPaymentMethod('COD')}
                                         className="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500"
                                     />
                                     <span className="ml-3 text-gray-800 font-medium">Thanh toán khi nhận hàng (COD)</span>
@@ -312,14 +312,14 @@ const CheckoutPage = () => {
                                     </span>
                                 </label>
 
-                                {/* VNPay Option */}
+                                {/* VNPAY Option */}
                                 <label className="flex items-center p-4 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50 transition-colors">
                                     <input
                                         type="radio"
                                         name="paymentMethod"
-                                        value="VNPay"
-                                        checked={paymentMethod === 'VNPay'}
-                                        onChange={() => setPaymentMethod('VNPay')}
+                                        value="VNPAY"
+                                        checked={paymentMethod === 'VNPAY'}
+                                        onChange={() => setPaymentMethod('VNPAY')}
                                         className="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500"
                                     />
                                     <span className="ml-3 text-gray-800 font-medium">Thanh toán qua VNPay</span>
