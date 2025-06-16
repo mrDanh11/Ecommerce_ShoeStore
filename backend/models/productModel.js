@@ -20,20 +20,20 @@ exports.getProducts = async (limit, offset, filters) => {
       )
     `);
 
-  if (filters.category_id) {
-    query = query.eq('madanhmuc', filters.category_id);
+  if (filters.categoryId) {
+    query = query.eq('madanhmuc', filters.categoryId);
   }
 
   if (filters.search) {
     query = query.ilike('tensanpham', `%${filters.search}%`);
   }
 
-  if (filters.min_price) {
-    query = query.gte('gia', filters.min_price);
+  if (filters.minPrice) {
+    query = query.gte('gia', filters.minPrice);
   }
 
-  if (filters.max_price) {
-    query = query.lte('gia', filters.max_price);
+  if (filters.maxPrice) {
+    query = query.lte('gia', filters.maxPrice);
   }
 
   if (filters.isAvailable !== undefined) {
@@ -158,20 +158,20 @@ exports.getProductCount = async (filters) => {
     .from('sanpham')
     .select('*', { count: 'exact', head: true });
 
-  if (filters.category_id) {
-    query = query.eq('madanhmuc', filters.category_id);
+  if (filters.categoryId) {
+    query = query.eq('madanhmuc', filters.categoryId);
   }
 
   if (filters.search) {
     query = query.ilike('tensanpham', `%${filters.search}%`);
   }
 
-  if (filters.min_price) {
-    query = query.gte('gia', filters.min_price);
+  if (filters.minPrice) {
+    query = query.gte('gia', filters.minPrice);
   }
 
-  if (filters.max_price) {
-    query = query.lte('gia', filters.max_price);
+  if (filters.maxPrice) {
+    query = query.lte('gia', filters.maxPrice);
   }
 
   if (filters.isAvailable !== undefined) {

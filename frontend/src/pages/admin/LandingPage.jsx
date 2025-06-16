@@ -31,6 +31,14 @@ const LandingPage = () => {
             Xem chi tiết
           </Link>
         </div>
+
+        <div className="bg-gray-100 p-4 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-2">Quản lý Sale Off</h2>
+          <p className="mb-4">Xem và quản lý các chương trình giảm giá của cửa hàng.</p>
+          <Link to="/admin/sale-offs" className="text-blue-500 hover:underline">
+            Xem chi tiết
+          </Link>
+        </div>
       </div>
     </div>
   );

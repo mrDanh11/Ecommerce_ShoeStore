@@ -2,13 +2,73 @@ const Category = require('../models/categoryModel');
 const Product = require('../models/productModel'); 
 
 const getCategories = async (req, res) => {
-    const { limit, offset, filters } = req.body;
+    const { limit, offset, categoryId, search, saleOffId } = req.query;
     try {
-        const categories = await Category.getCategories(
-            parseInt(limit) || 10,
-            parseInt(offset) || 0,
-            filters ? JSON.parse(filters) : {}
-        );
+        // Validate limit parameter
+        let validLimit = 10; // default
+        if (limit !== undefined) {
+            const parsedLimit = parseInt(limit);
+            if (isNaN(parsedLimit) || parsedLimit <= 0) {
+                return res.status(400).json({
+                    errorCode: -1,
+                    error: 'Invalid limit parameter. Must be a positive integer.'
+                });
+            }
+            validLimit = parsedLimit;
+        }
+
+        // Validate offset parameter
+        let validOffset = 0; // default
+        if (offset !== undefined) {
+            const parsedOffset = parseInt(offset);
+            if (isNaN(parsedOffset) || parsedOffset < 0) {
+                return res.status(400).json({
+                    errorCode: -1,
+                    error: 'Invalid offset parameter. Must be a non-negative integer.'
+                });
+            }
+            validOffset = parsedOffset;
+        }
+
+        // Build filters object from individual parameters
+        let validFilters = {};
+        
+        // Validate and add categoryId to filters
+        if (categoryId !== undefined) {
+            const parsedCategoryId = parseInt(categoryId);
+            if (isNaN(parsedCategoryId) || parsedCategoryId <= 0) {
+                return res.status(400).json({
+                    errorCode: -1,
+                    error: 'Invalid categoryId parameter. Must be a positive integer.'
+                });
+            }
+            validFilters.categoryId = parsedCategoryId;
+        }
+
+        // Validate and add search to filters
+        if (search !== undefined) {
+            if (typeof search !== 'string' || search.trim() === '') {
+                return res.status(400).json({
+                    errorCode: -1,
+                    error: 'Invalid search parameter. Must be a non-empty string.'
+                });
+            }
+            validFilters.search = search.trim();
+        }
+
+        // Validate and add saleOffId to filters
+        if (saleOffId !== undefined) {
+            const parsedSaleOffId = parseInt(saleOffId);
+            if (isNaN(parsedSaleOffId) || parsedSaleOffId <= 0) {
+                return res.status(400).json({
+                    errorCode: -1,
+                    error: 'Invalid saleOffId parameter. Must be a positive integer.'
+                });
+            }
+            validFilters.saleOffId = parsedSaleOffId;
+        }
+
+        const categories = await Category.getCategories(validLimit, validOffset, validFilters);
         res.status(200).json({
             errorCode: 0,
             data: categories
@@ -22,9 +82,47 @@ const getCategories = async (req, res) => {
 }
 
 const getCategoryCount = async (req, res) => {
-    const { filters } = req.body;
+    const { categoryId, search, saleOffId } = req.query;
     try {
-        const count = await Category.getCategoryCount(filters ? JSON.parse(filters) : {});
+        // Build filters object from individual parameters
+        let validFilters = {};
+        
+        // Validate and add categoryId to filters
+        if (categoryId !== undefined) {
+            const parsedCategoryId = parseInt(categoryId);
+            if (isNaN(parsedCategoryId) || parsedCategoryId <= 0) {
+                return res.status(400).json({
+                    errorCode: -1,
+                    error: 'Invalid categoryId parameter. Must be a positive integer.'
+                });
+            }
+            validFilters.categoryId = parsedCategoryId;
+        }
+
+        // Validate and add search to filters
+        if (search !== undefined) {
+            if (typeof search !== 'string' || search.trim() === '') {
+                return res.status(400).json({
+                    errorCode: -1,
+                    error: 'Invalid search parameter. Must be a non-empty string.'
+                });
+            }
+            validFilters.search = search.trim();
+        }
+
+        // Validate and add saleOffId to filters
+        if (saleOffId !== undefined) {
+            const parsedSaleOffId = parseInt(saleOffId);
+            if (isNaN(parsedSaleOffId) || parsedSaleOffId <= 0) {
+                return res.status(400).json({
+                    errorCode: -1,
+                    error: 'Invalid saleOffId parameter. Must be a positive integer.'
+                });
+            }
+            validFilters.saleOffId = parsedSaleOffId;
+        }
+
+        const count = await Category.getCategoryCount(validFilters);
         res.status(200).json({
             errorCode: 0,
             count

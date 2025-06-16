@@ -1,6 +1,7 @@
 const supabase = require('../config/supabaseClient');
 
 const getSaleOffs = async (limit, offset, filters) => {
+    console.log('Fetching sale offs with filters:', filters);
     let query = supabase.from('saleoff').select('*');
     if (filters.minValue || filters.maxValue) {
         query = query.gte('giatri', filters.minValue ? filters.minValue : 0).lte('giatri', filters.maxValue ? filters.maxValue : 100);

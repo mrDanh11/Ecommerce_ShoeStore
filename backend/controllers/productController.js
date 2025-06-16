@@ -1,22 +1,85 @@
 const Products = require('../models/productModel')
 
 const getProducts = async (req, res) => {
-    const { limit, offset, filters } = req.body;
-    console.log('Filters:', filters);
-    console.log('Limit:', limit);
-    console.log('Offset:', offset);
+    // Lấy parameters từ query string thay vì body
+    const { 
+        limit = 10, 
+        offset = 0, 
+        search,
+        categoryId,
+        minPrice,
+        maxPrice,
+        isAvailable,
+        color,
+        size,
+    } = req.query;
+
+    console.log('Query params:', req.query);
+
     try {
+        // Validate và xây dựng filters object
+        const filters = {
+            CnS: {}
+        };
+        
+        if (search && search.trim()) {
+            filters.search = search.trim();
+        }
+        
+        if (categoryId) {
+            const catId = parseInt(categoryId);
+            if (!isNaN(catId) && catId > 0) {
+                filters.categoryId = catId;
+            }
+        }
+        
+        if (minPrice) {
+            const min = parseFloat(minPrice);
+            if (!isNaN(min) && min >= 0) {
+                filters.minPrice = min;
+            }
+        }
+        
+        if (maxPrice) {
+            const max = parseFloat(maxPrice);
+            if (!isNaN(max) && max >= 0) {
+                filters.maxPrice = max;
+            }
+        }
+
+        if (isAvailable !== undefined) {
+            filters.isAvailable = isAvailable; 
+        }
+        
+        if (color && color.trim()) {
+            filters.CnS.color = color.trim();
+        }
+        
+        if (size && size.trim()) {
+            filters.CnS.size = parseInt(size.trim());
+        }
+
+        // Validate limit và offset
+        const validatedLimit = Math.min(Math.max(parseInt(limit), 1), 100); // Max 100 items
+        const validatedOffset = Math.max(parseInt(offset), 0);
+
         const products = await Products.getProducts(
-            parseInt(limit) || 10,
-            parseInt(offset) || 0,
-            filters ? JSON.parse(filters) : {}
+            validatedLimit,
+            validatedOffset,
+            filters
         );
 
         res.status(200).json({
             errorCode: 0,
-            data: products
+            data: products,
+            pagination: {
+                limit: validatedLimit,
+                offset: validatedOffset,
+                total: products.length
+            }
         });
     } catch (error) {
+        console.error('Error in getProducts:', error);
         res.status(500).json({
             errorCode: -1,
             error: error.message
@@ -25,14 +88,68 @@ const getProducts = async (req, res) => {
 };
 
 const getProductCount = async (req, res) => {
-    const { filters } = req.body;
+    // Lấy filters từ query parameters
+    const { 
+        search,
+        categoryId,
+        minPrice,
+        maxPrice,
+        isAvailable,
+        color,
+        size
+    } = req.query;
+
     try {
-        const count = await Products.getProductCount(filters ? JSON.parse(filters) : {});
+        // Validate và xây dựng filters object (tương tự getProducts)
+        const filters = {
+            CnS: {}
+        };
+        
+        if (search && search.trim()) {
+            filters.search = search.trim();
+        }
+        
+        if (categoryId) {
+            const catId = parseInt(categoryId);
+            if (!isNaN(catId) && catId > 0) {
+                filters.categoryId = catId;
+            }
+        }
+        
+        if (minPrice) {
+            const min = parseFloat(minPrice);
+            if (!isNaN(min) && min >= 0) {
+                filters.minPrice = min;
+            }
+        }
+        
+        if (maxPrice) {
+            const max = parseFloat(maxPrice);
+            if (!isNaN(max) && max >= 0) {
+                filters.maxPrice = max;
+            }
+        }
+
+        if (isAvailable !== undefined) {
+            filters.isAvailable = isAvailable;
+        }
+        
+        if (color && color.trim()) {
+            filters.CnS.color = color.trim();
+        }
+        
+        if (size && size.trim()) {
+            filters.CnS.size = size.trim();
+        }
+
+        const count = await Products.getProductCount(filters);
+        
         res.status(200).json({
             errorCode: 0,
-            count
+            count: count || 0
         });
     } catch (error) {
+        console.error('Error in getProductCount:', error);
         res.status(500).json({
             errorCode: -1,
             error: error.message
