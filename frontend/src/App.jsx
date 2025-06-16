@@ -16,7 +16,11 @@ import EmployeeManager from "./pages/admin/EmployeeManager";
 import ProductStatistics from "./pages/admin/ProductStatistics";
 import PromotionManager from "./pages/admin/PromotionManager";
 import LandingPage from "./pages/admin/LandingPage";
+import OrderConfirmation from "./pages/OrderConfirmation";
+import Success from "./pages/shop/Success";
+import OrderPage from "./pages/OrderPage";
 import SaleOffManager from "./pages/admin/SaleOffManager";
+
  
 
 const App = () => {
@@ -35,7 +39,10 @@ const App = () => {
         <Route path="/callback" element={<CallBack />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/checkout/success" element={<Success />} />
+        <Route path="/checkout/fail" element={<CheckoutPage />} />
         <Route path="/order-confirmation" element={<OrderConfirmation />} />
+        <Route path="/order" element={ <OrderPage />} />
         <Route path="/admin/employees" element={<EmployeeManager />} />
         <Route path="/admin/statistics" element={<ProductStatistics />} />
         <Route path="/admin/promotions" element={<PromotionManager />} />

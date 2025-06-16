@@ -280,7 +280,7 @@ const checkoutVnPay2 = async (req, res) => {
         return res.status(200).json({
             success: true,
             orderId: orderData.mahoadon,
-            paymentUrl: vnpayResponse  
+            paymentUrl: vnpayResponse
         });
 
     } catch (error) {
@@ -313,6 +313,10 @@ const vnpayReturn = async (req, res) => {
         console.log('>>> ResponseCode   :', vnpData.vnp_ResponseCode);
         console.log('>>> TransStatus    :', vnpData.vnp_TransactionStatus);
 
+        const returnQS = Object.keys(vnpData)
+            .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(vnpData[key])}`)
+            .join('&');
+
         if (
             // chỗ này đang khác nhau -> chưa tìm được bug (nhưng vẫn chạy được, chỉ có vấn đề security thôi)
             // generatedHash === secureHash &&
@@ -325,7 +329,7 @@ const vnpayReturn = async (req, res) => {
                 'completed'
             );
             console.log('updatePaymentStatus:', { data, error });
-            return res.redirect(`http://localhost:5173/checkout`);
+            return res.redirect(`http://localhost:5173/checkout/success?${returnQS}`);
         } else {
             console.log('FAIL — marking failed');
             const { data, error } = await Payment.updatePaymentStatus(
@@ -333,7 +337,7 @@ const vnpayReturn = async (req, res) => {
                 'failed'
             );
             console.log('updatePaymentStatus(failed):', { data, error });
-            return res.redirect(`http://localhost:5173/`);
+            return res.redirect(`http://localhost:5173/checkout/fail?${returnQS}`);
         }
     } catch (err) {
         console.error('vnpayReturn error:', err);

@@ -29,9 +29,9 @@ const CheckoutPage = () => {
 
     const [availableDistricts, setAvailableDistricts] = useState([]);
     const [availableWards, setAvailableWards] = useState([]);
-    
+
     // ID khách hàng
-    const CUSTOMER_ID = '5525453c-8f4e-4287-b380-ff1533826b56'; 
+    const CUSTOMER_ID = '5525453c-8f4e-4287-b380-ff1533826b56';
 
     // Lấy dữ liệu sản phẩm đã chọn từ state của Link khi component mount
     useEffect(() => {
@@ -47,7 +47,7 @@ const CheckoutPage = () => {
             navigate('/cart');
             alert('Không có sản phẩm nào được chọn. Vui lòng quay lại giỏ hàng.');
         }
-    }, [location.state, navigate]); 
+    }, [location.state, navigate]);
 
     // Effect để cập nhật danh sách quận/huyện khi tỉnh/thành thay đổi
     useEffect(() => {
@@ -100,7 +100,7 @@ const CheckoutPage = () => {
             // Giả định voucher này giảm phí ship
             setShippingFee(0);
             alert('Voucher FREESHIPLSFKM đã được áp dụng! Phí vận chuyển đã được miễn phí.');
-            return; 
+            return;
         } else {
             setError('Mã giảm giá không hợp lệ hoặc đã hết hạn.');
         }
@@ -153,24 +153,42 @@ const CheckoutPage = () => {
         };
 
         try {
-            const response = await fetch('http://localhost:4004/v1/api/order/checkout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    // 'Authorization': `Bearer ${yourAuthToken}`,
-                },
-                body: JSON.stringify(orderData),
-            });
-
-            if (!response.ok) {
-                const errorResponse = await response.json();
-                throw new Error(errorResponse.message || 'Đặt hàng thất bại.');
+            if (paymentMethod === 'VNPAY') {
+                const res = await fetch(
+                    'http://localhost:4004/v1/api/order/checkout/vnpay',
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(orderData),
+                    }
+                );
+                const data = await res.json();
+                if (res.ok && data.success && data.paymentUrl) {
+                    window.location.href = data.paymentUrl;
+                    return;
+                } else {
+                    throw new Error(data.message || 'Không lấy được paymentUrl từ VNPAY');
+                }
+            }
+            else if(paymentMethod === 'COD') {
+                const response = await fetch('http://localhost:4004/v1/api/order/checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // 'Authorization': `Bearer ${yourAuthToken}`,
+                    },
+                    body: JSON.stringify(orderData),
+                });
+                if (!response.ok) {
+                    const errorResponse = await response.json();
+                    throw new Error(errorResponse.message || 'Đặt hàng thất bại.');
+                }
+                const successData = await response.json();
+                alert(successData.message + '. Mã đơn hàng của bạn: ' + successData.orderid);
+                // Chuyển hướng đến trang xác nhận đơn hàng
+                navigate('/order-confirmation', { state: { orderId: successData.orderid } });
             }
 
-            const successData = await response.json();
-            alert(successData.message + '. Mã đơn hàng của bạn: ' + successData.orderid);
-            // Chuyển hướng đến trang xác nhận đơn hàng
-            navigate('/order-confirmation', { state: { orderId: successData.orderid } });
 
         } catch (err) {
             console.error('Lỗi đặt hàng:', err);
@@ -339,7 +357,7 @@ const CheckoutPage = () => {
                                     type="submit"
                                     className="cursor-pointer w-auto bg-black text-white p-4 rounded-lg font-semibold hover:bg-gray-800 transition transform hover:scale-105 shadow-lg"
                                     aria-label="Hoàn tất đơn hàng"
-                                    disabled={loading} 
+                                    disabled={loading}
                                 >
                                     {loading ? 'Đang xử lý...' : 'Hoàn tất đơn hàng'}
                                 </button>
@@ -363,7 +381,7 @@ const CheckoutPage = () => {
                                                 {product.soluong}
                                             </span>
                                         </div>
-                                        <div className="flex-grow"> 
+                                        <div className="flex-grow">
                                             <h3 className="text-base font-medium text-gray-800">{product.tensanpham}</h3>
                                             <p className="text-sm text-gray-500">{product.color} / {product.size}</p>
                                         </div>
