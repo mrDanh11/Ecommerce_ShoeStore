@@ -252,7 +252,11 @@ const Cart = () => {
               <li>Bạn cũng có thể nhập mã giảm giá ở trang thanh toán.</li>
             </ul>
 
-            <Link to="/checkout" className={`block ${subtotal === 0 ? 'pointer-events-none opacity-50' : ''}`}>
+            <Link 
+              to="/checkout" 
+              className={`block ${subtotal === 0 ? 'pointer-events-none opacity-50' : ''}`}
+              state={{ selectedCartItems: cartItems.filter(item => item.isSelected) }}
+            >
               <button
                 className="cursor-pointer w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition transform hover:scale-105 shadow-lg"
                 aria-label="Đặt hàng ngay"
