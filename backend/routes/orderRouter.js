@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const supabase = require('../config/supabaseClient');
 const { checkout, listUserOrder, allOrder,
-    updatePaymentStatus
+    updatePaymentStatus, vnpayReturn, createQRVnpay, checkoutVnPay2
 } = require('../controllers/orderController')
 
 // thanh toán sp trong giỏ hàng
@@ -20,5 +20,8 @@ router.post('/list', allOrder)
 router.put('/payment/status', updatePaymentStatus)  
 
 // payment
+router.post('/checkout/vnpay', checkoutVnPay2);
+router.get('/check-payment-vnpay', vnpayReturn)
+router.post('/create-qr', createQRVnpay)  // test dùng vnpay trước
 
 module.exports = router;

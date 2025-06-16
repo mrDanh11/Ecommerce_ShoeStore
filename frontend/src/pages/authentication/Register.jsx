@@ -25,7 +25,7 @@ const Register = () => {
                 "content-type" : "application/json"
             },
             body : JSON.stringify({
-              tendangnhap: form.fullName,  
+              tendangnhap: form.fullName, // cần sửa tendangnhap lại thành hoten  
               email: form.email,
               matkhau: form.password
             })
