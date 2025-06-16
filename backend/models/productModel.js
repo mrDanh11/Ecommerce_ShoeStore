@@ -66,10 +66,10 @@ exports.getProducts = async (limit, offset, filters) => {
         .select('masanpham')
         .eq('color', filters.CnS.color)
         .eq('size', filters.CnS.size);
-      
+
       const productIds = matchingDetails.map(detail => detail.masanpham);
       query = query.in('masanpham', productIds);
-      
+
       // Thêm filter cho chitietsanpham để chỉ lấy chi tiết matching
       query = query.select(`
         *,
@@ -86,8 +86,8 @@ exports.getProducts = async (limit, offset, filters) => {
           gia
         )
       `).eq('chitietsanpham.color', filters.CnS.color)
-       .eq('chitietsanpham.size', filters.CnS.size);
-       
+        .eq('chitietsanpham.size', filters.CnS.size);
+
     } else {
       // Individual filters
       if (filters.CnS.color) {
@@ -97,7 +97,7 @@ exports.getProducts = async (limit, offset, filters) => {
             .select('masanpham')
             .eq('color', filters.CnS.color)
         );
-        
+
         // Filter chi tiết theo color
         query = query.select(`
           *,
@@ -115,7 +115,7 @@ exports.getProducts = async (limit, offset, filters) => {
           )
         `).eq('chitietsanpham.color', filters.CnS.color);
       }
-      
+
       if (filters.CnS.size) {
         query = query.in('masanpham',
           supabase
@@ -123,7 +123,7 @@ exports.getProducts = async (limit, offset, filters) => {
             .select('masanpham')
             .eq('size', filters.CnS.size)
         );
-        
+
         // Filter chi tiết theo size
         query = query.select(`
           *,
@@ -206,12 +206,12 @@ exports.getProductCount = async (filters) => {
 
 exports.insertProduct = async (productData, detailsData) => {
   const { name, desc, img, price, categoryId, status } = productData;
-  let product = null;  
-  let details = null;  
-  
-  if(name) {
+  let product = null;
+  let details = null;
+
+  if (name) {
     const id = uuidv4();
-    const { data: productResult, error: productError } = await supabase  
+    const { data: productResult, error: productError } = await supabase
       .from('sanpham')
       .insert([
         {
@@ -228,31 +228,31 @@ exports.insertProduct = async (productData, detailsData) => {
       .single();
 
     if (productError) throw productError;
-    product = productResult;  
-  } 
-  
+    product = productResult;
+  }
+
   const { color, size, quantity, dPrice, productId } = detailsData;
   if (color || size || quantity) {
     const detailsId = uuidv4();
-    const { data: detailsResult, error: detailsError } = await supabase  
-    .from('chitietsanpham')
-    .insert([
-      {
-        machitietsanpham: detailsId,
-        masanpham: productId || product?.masanpham,  
-        color: color,
-        size: size,
-        soluong: quantity,
-        gia: dPrice || product?.gia,  
-      },
-    ])
-    .select()
-    .single();
+    const { data: detailsResult, error: detailsError } = await supabase
+      .from('chitietsanpham')
+      .insert([
+        {
+          machitietsanpham: detailsId,
+          masanpham: productId || product?.masanpham,
+          color: color,
+          size: size,
+          soluong: quantity,
+          gia: dPrice || product?.gia,
+        },
+      ])
+      .select()
+      .single();
 
     if (detailsError) throw detailsError;
-    details = detailsResult;  
-  } 
-  
+    details = detailsResult;
+  }
+
   return { product, details };
 };
 
@@ -322,7 +322,7 @@ exports.updateProduct = async (productId, updates, detailsData) => {
   // Update chitietsanpham if detailsData is provided
   let detailsResult = null;
   if (detailsData && detailsData.detailsId) {
-    const detailId = detailsData.detailsId ;
+    const detailId = detailsData.detailsId;
     const detailsUpdateData = {};
     if (detailsData.color !== undefined) detailsUpdateData.color = detailsData.color;
     if (detailsData.size !== undefined) detailsUpdateData.size = detailsData.size;
@@ -401,3 +401,39 @@ exports.getRelatedProductCount = async (productId) => {
   if (error) throw error;
   return count;
 };
+
+exports.getProductItemById = async (productItemId) => {
+  const { data, error } = await supabase
+    .from('chitietsanpham')
+    .select('*, sanpham(*, danhmucsanpham(*,saleoff(*)))')
+    .eq('machitietsanpham', productItemId)
+
+  console.log('check data getProductById Model: ', data);
+
+  if (error) {
+    console.log('error: ', error)
+  }
+
+  return { data, error }
+}
+
+exports.getProductById = async (productId) => {
+  const { data, error } = await supabase
+    .from('sanpham')
+    .select(`
+      *,
+      danhmucsanpham (*, saleoff(*)),
+      chitietsanpham (*)
+    `)
+    .eq('masanpham', productId)
+
+  console.log('check data getProductById Model: ', data);
+
+  if (error) {
+    console.log('error: ', error)
+  }
+
+  return { data, error }
+}
+
+

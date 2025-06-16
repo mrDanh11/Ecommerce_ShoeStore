@@ -2,9 +2,9 @@ const Products = require('../models/productModel')
 
 const getProducts = async (req, res) => {
     // Lấy parameters từ query string thay vì body
-    const { 
-        limit = 10, 
-        offset = 0, 
+    const {
+        limit = 10,
+        offset = 0,
         search,
         categoryId,
         minPrice,
@@ -21,25 +21,25 @@ const getProducts = async (req, res) => {
         const filters = {
             CnS: {}
         };
-        
+
         if (search && search.trim()) {
             filters.search = search.trim();
         }
-        
+
         if (categoryId) {
             const catId = parseInt(categoryId);
             if (!isNaN(catId) && catId > 0) {
                 filters.categoryId = catId;
             }
         }
-        
+
         if (minPrice) {
             const min = parseFloat(minPrice);
             if (!isNaN(min) && min >= 0) {
                 filters.minPrice = min;
             }
         }
-        
+
         if (maxPrice) {
             const max = parseFloat(maxPrice);
             if (!isNaN(max) && max >= 0) {
@@ -48,13 +48,13 @@ const getProducts = async (req, res) => {
         }
 
         if (isAvailable !== undefined) {
-            filters.isAvailable = isAvailable; 
+            filters.isAvailable = isAvailable;
         }
-        
+
         if (color && color.trim()) {
             filters.CnS.color = color.trim();
         }
-        
+
         if (size && size.trim()) {
             filters.CnS.size = parseInt(size.trim());
         }
@@ -89,7 +89,7 @@ const getProducts = async (req, res) => {
 
 const getProductCount = async (req, res) => {
     // Lấy filters từ query parameters
-    const { 
+    const {
         search,
         categoryId,
         minPrice,
@@ -104,25 +104,25 @@ const getProductCount = async (req, res) => {
         const filters = {
             CnS: {}
         };
-        
+
         if (search && search.trim()) {
             filters.search = search.trim();
         }
-        
+
         if (categoryId) {
             const catId = parseInt(categoryId);
             if (!isNaN(catId) && catId > 0) {
                 filters.categoryId = catId;
             }
         }
-        
+
         if (minPrice) {
             const min = parseFloat(minPrice);
             if (!isNaN(min) && min >= 0) {
                 filters.minPrice = min;
             }
         }
-        
+
         if (maxPrice) {
             const max = parseFloat(maxPrice);
             if (!isNaN(max) && max >= 0) {
@@ -133,17 +133,17 @@ const getProductCount = async (req, res) => {
         if (isAvailable !== undefined) {
             filters.isAvailable = isAvailable;
         }
-        
+
         if (color && color.trim()) {
             filters.CnS.color = color.trim();
         }
-        
+
         if (size && size.trim()) {
             filters.CnS.size = size.trim();
         }
 
         const count = await Products.getProductCount(filters);
-        
+
         res.status(200).json({
             errorCode: 0,
             count: count || 0
@@ -196,16 +196,16 @@ const insertProduct = async (req, res) => {
 
             if (existingDetail && existingDetail.length > 0) {
                 const updatedQuantity = existingDetail[0].chitietsanpham[0].soluong + parseInt(quantity);
-                const detailId = existingDetail[0].chitietsanpham[0].machitietsanpham; 
+                const detailId = existingDetail[0].chitietsanpham[0].machitietsanpham;
                 const updatedProduct = await Products.updateProduct(
                     existingProduct[0].masanpham,
                     {},
-                    { 
+                    {
                         detailsId: detailId,
-                        quantity: updatedQuantity 
+                        quantity: updatedQuantity
                     },
-                );             
-                
+                );
+
                 if (!updatedProduct) {
                     return res.status(400).json({
                         errorCode: -1,
@@ -318,4 +318,48 @@ const updateProduct = async (req, res) => {
     }
 };
 
-module.exports = { getProducts, getProductCount, insertProduct, deleteProduct, updateProduct };
+const getProductItemById = async (req, res) => {
+    const { productItemId } = req.params
+    console.log('check customerId: ', productItemId)
+    console.log('check req.params: ', req.params)
+
+    try {
+        const { data, error } = await Products.getProductItemById(productItemId)
+        res.status(200).json({
+            success: true,
+            errorCode: 1,
+            data: data
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            errorCode: -1,
+            data: null
+        })
+    }
+}
+
+const getProductById = async (req, res) => {
+    const { productId } = req.params
+    console.log('check customerId: ', productId)
+    console.log('check req.params: ', req.params)
+
+    try {
+        const { data, error } = await Products.getProductById(productId)
+        res.status(200).json({
+            success: true,
+            errorCode: 1,
+            data: data
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            errorCode: -1,
+            data: null
+        })
+    }
+}
+
+module.exports = { getProducts, getProductCount, insertProduct, deleteProduct, updateProduct, getProductItemById, getProductById };

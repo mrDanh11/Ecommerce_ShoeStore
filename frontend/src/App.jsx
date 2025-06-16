@@ -17,7 +17,8 @@ import ProductStatistics from "./pages/admin/ProductStatistics";
 import PromotionManager from "./pages/admin/PromotionManager";
 import LandingPage from "./pages/admin/LandingPage";
 import SaleOffManager from "./pages/admin/SaleOffManager";
- 
+import OrderConfirmation from "./pages/OrderConfirmation"
+import ProductDetail from "./pages/ProductDetail";
 
 const App = () => {
   return (
@@ -28,6 +29,7 @@ const App = () => {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/collections" element={<Collections />} />
+        <Route path="/collections/:productId" element={<ProductDetail />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
