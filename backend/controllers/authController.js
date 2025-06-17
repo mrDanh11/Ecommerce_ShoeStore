@@ -1,4 +1,6 @@
 const userModel = require('../models/userModel');
+const supabase = require('../config/supabaseClient');
+
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
@@ -42,7 +44,6 @@ exports.login = async (req, res) => {
   try {
     const { email, matkhau } = req.body;
     const user = await userModel.getUserByEmail(email);
-
     if (!user) throw new Error("User not found");
 
     const isMatch = await bcrypt.compare(matkhau, user.matkhau);
@@ -50,21 +51,55 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "Sai mật khẩu hoặc tài khoản" });
     }
 
+    let customerId = null;
+
+    // Truy vấn bảng phụ lấy makhachhang hoặc manhanvien
+    if (user.marole === 2) {
+      const { data, error } = await supabase
+        .from('khachhang')
+        .select('makhachhang')
+        .eq('mataikhoan', user.mataikhoan)
+        .single();
+      if (error) throw error;
+      customerId = data.makhachhang;
+    } else if (user.marole === 3) {
+      const { data, error } = await supabase
+        .from('nhanvien')
+        .select('manhanvien')
+        .eq('mataikhoan', user.mataikhoan)
+        .single();
+      if (error) throw error;
+      customerId = data.manhanvien;
+    }
+
+    // Tạo token chỉ chứa thông tin cơ bản
     const token = jwt.sign({
       mataikhoan: user.mataikhoan,
       email: user.email,
       vaitro: user.marole
     }, process.env.TOKEN_SECRET_KEY, { expiresIn: '1d' });
 
+    // Lưu token vào cookie
     res.cookie("token", token, {
       httpOnly: true,
       secure: false,
       sameSite: 'lax'
     });
 
-    res.status(200).json({ message: "Login thành công", success: true });
+    // Gửi response chứa customerId trực tiếp
+    res.status(200).json({
+      success: true,
+      message: "Đăng nhập thành công",
+      user: {
+        mataikhoan: user.mataikhoan,
+        email: user.email,
+        vaitro: user.marole,
+        customerId //  Gửi trực tiếp về frontend
+      }
+    });
   } catch (err) {
-    res.status(401).json({ message: err.message, success: false });
+    console.error(" Lỗi đăng nhập:", err.message);
+    res.status(401).json({ success: false, message: err.message });
   }
 };
 
@@ -85,32 +120,48 @@ exports.oauthLogin = async (req, res) => {
         tendangnhap: name || email.split('@')[0],
         google_id,
         matkhau: null,
-        marole: 2,
+        marole: 2, // Khách hàng
         trangthai: true,
       });
     } else if (!user.google_id) {
       await userModel.updateUser(user.mataikhoan, { google_id });
     }
 
+    //  Lấy makhachhang từ bảng phụ
+    let customerId = null;
+    if (user.marole === 2) {
+      const { data, error } = await supabase
+        .from('khachhang')
+        .select('makhachhang')
+        .eq('mataikhoan', user.mataikhoan)
+        .single();
+      if (error) throw error;
+      customerId = data.makhachhang;
+    }
+
+    //  Tạo token
     const token = jwt.sign({
       mataikhoan: user.mataikhoan,
       email: user.email,
       vaitro: user.marole
     }, process.env.TOKEN_SECRET_KEY, { expiresIn: '1d' });
 
+    //  Lưu vào cookie
     res.cookie("token", token, {
       httpOnly: true,
       secure: false,
       sameSite: "lax"
     });
 
+    //  Gửi về frontend
     res.status(200).json({
       success: true,
       message: "OAuth login thành công",
       user: {
         email: user.email,
         tendangnhap: user.tendangnhap,
-        vaitro: user.marole
+        vaitro: user.marole,
+        customerId: customerId || null
       }
     });
   } catch (error) {
@@ -118,6 +169,7 @@ exports.oauthLogin = async (req, res) => {
     res.status(500).json({ message: 'Lỗi server' });
   }
 };
+
 
 // Đổi mật khẩu
 exports.changePassword = async (req, res) => {
@@ -180,7 +232,8 @@ exports.logout = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     secure: false,
-    sameSite: "lax"
+    sameSite: "lax",
+    path: "/",
   });
 
   res.status(200).json({ success: true, message: 'Đăng xuất thành công' });

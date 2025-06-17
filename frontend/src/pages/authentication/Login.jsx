@@ -35,8 +35,12 @@ const Login = () => {
       console.log("Login success:", data);
       
       // Lưu token vào localStorage
-      localStorage.setItem("token", data.token)
+      if (data.user?.customerId) {
+        localStorage.setItem("customerId", data.user.customerId);
+      }
 
+      localStorage.setItem("email", data.user.email);
+      localStorage.setItem("role", data.user.vaitro);
       navigate("/");
       
     } catch (error) {
