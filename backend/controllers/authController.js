@@ -1,6 +1,6 @@
 const userModel = require('../models/userModel');
 const supabase = require('../config/supabaseClient');
-
+const sendEmail = require("../utils/sendEmail");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
@@ -59,7 +59,7 @@ exports.login = async (req, res) => {
         .from('khachhang')
         .select('makhachhang')
         .eq('mataikhoan', user.mataikhoan)
-        .single();
+        .maybeSingle();
       if (error) throw error;
       customerId = data.makhachhang;
     } else if (user.marole === 3) {
@@ -67,7 +67,7 @@ exports.login = async (req, res) => {
         .from('nhanvien')
         .select('manhanvien')
         .eq('mataikhoan', user.mataikhoan)
-        .single();
+        .maybeSingle();
       if (error) throw error;
       customerId = data.manhanvien;
     }
@@ -134,7 +134,7 @@ exports.oauthLogin = async (req, res) => {
         .from('khachhang')
         .select('makhachhang')
         .eq('mataikhoan', user.mataikhoan)
-        .single();
+        .maybeSingle();
       if (error) throw error;
       customerId = data.makhachhang;
     }
@@ -237,4 +237,55 @@ exports.logout = (req, res) => {
   });
 
   res.status(200).json({ success: true, message: 'Đăng xuất thành công' });
+};
+
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: "Vui lòng nhập email" });
+
+  try {
+    const user = await userModel.getUserByEmail(email);
+    if (!user) return res.status(404).json({ message: "Không tìm thấy người dùng" });
+
+    const token = jwt.sign({ email }, process.env.RESET_PASSWORD_SECRET, { expiresIn: '15m' });
+
+    const resetLink = `http://localhost:5173/reset-password?token=${token}`;
+
+    const html = `
+      <p>Xin chào ${user.tendangnhap || 'bạn'},</p>
+      <p>Bạn đã yêu cầu khôi phục mật khẩu cho tài khoản tại <strong>Ứng dụng Shoea</strong>.</p>
+      <p>Nhấn vào nút dưới đây để đặt lại mật khẩu:</p>
+      <p>
+        <a href="${resetLink}" style="background: #6366f1; color: #fff; padding: 10px 16px; border-radius: 6px; text-decoration: none;">
+          Đặt lại mật khẩu
+        </a>
+      </p>
+      <p>Nếu bạn không yêu cầu hành động này, vui lòng bỏ qua email.</p>
+      <p>— Đội ngũ hỗ trợ Ứng dụng Shoea —</p>
+    `;
+
+    await sendEmail(email, "Khôi phục mật khẩu - Ứng dụng Shoea", html);
+
+    res.json({ success: true, message: "Đã gửi email khôi phục" });
+  } catch (err) {
+    res.status(500).json({ message: "Lỗi server" });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    const decoded = jwt.verify(token, process.env.RESET_PASSWORD_SECRET);
+    const email = decoded.email;
+
+    const user = await userModel.getUserByEmail(email);
+    if (!user) return res.status(404).json({ message: "Người dùng không tồn tại" });
+
+    await userModel.updatePassword(user.mataikhoan, newPassword);
+
+    res.json({ success: true, message: "Cập nhật mật khẩu thành công" });
+  } catch (err) {
+    return res.status(400).json({ message: "Token không hợp lệ hoặc đã hết hạn" });
+  }
 };
