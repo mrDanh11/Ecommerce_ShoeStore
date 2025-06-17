@@ -211,7 +211,7 @@ const Cart = () => {
                 <input
                   type="checkbox"
                   checked={product.isSelected}
-                  onChange={() => handleSelectItem(product.productId)}
+                  onChange={() => handleSelectItem(product._id)}
                   className="form-checkbox h-5 w-5 text-black rounded-sm border-gray-300 focus:ring-black cursor-pointer mr-4"
                 />
                 <img src={product.anhsanpham} alt={product.tensanpham} className="w-24 h-28 object-cover mr-6 rounded" />

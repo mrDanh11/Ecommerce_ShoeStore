@@ -19,31 +19,72 @@ const createOrderItem = async (orderId, productItemId, totalQuantity, totalAmoun
     return data
 }
 
-// chưa có filter -> chỉ có lấy order của 1 customer qua id
 const getListOrderItemByCustomerId = async (customerId) => {
     const { data, error } = await supabase
         .from('chitiethoadon')
         .select(`
-            mahoadon, 
-            hoadon(mahoadon, makhachhang, mashipment, ngaydat, tongsoluong, tongtien, thanhtien, voucher,
-            payment(id, mahoadon, phuongthuc, status, paid_at, amount, created_at, updated_at),
-            shipment(mashipment, makhachhang, diachigiaohang, trangthai, mavanchuyen, name, sdt)),
-
-            machitietsanpham, tongsoluong, tongtien,
-            chitietsanpham(machitietsanpham, size, color, soluong, gia, masanpham,
-                sanpham(masanpham, tensanpham, gia, description, tinhtrang, anhsanpham)
-            )
-        `)
-
-        .eq('hoadon.makhachhang', customerId)
+        mahoadon,
+        hoadon!inner(
+          mahoadon,
+          makhachhang,
+          mashipment,
+          ngaydat,
+          tongsoluong,
+          tongtien,
+          thanhtien,
+          voucher,
+          payment!inner(
+            id,
+            mahoadon,
+            phuongthuc,
+            status,
+            paid_at,
+            amount,
+            created_at,
+            updated_at
+          ),
+          shipment!inner(
+            mashipment,
+            makhachhang,
+            diachigiaohang,
+            trangthai,
+            mavanchuyen,
+            name,
+            sdt
+          )
+        ),
+        machitietsanpham,
+        tongsoluong,
+        tongtien,
+        chitietsanpham!inner(
+          machitietsanpham,
+          size,
+          color,
+          soluong,
+          gia,
+          masanpham,
+          sanpham!inner(
+            masanpham,
+            tensanpham,
+            gia,
+            description,
+            tinhtrang,
+            anhsanpham
+          )
+        )
+      `)
+        .eq('hoadon.makhachhang', customerId);
 
     if (error) {
-        console.log('check erorL:', error)
-        return null
+        console.error('Lỗi khi load đơn hàng:', error);
+        return null;
     }
 
-    return { data, error }
-}
+    console.log('check data: ', { data })
+
+    return { data };
+};
+
 
 // đã có filter -> tìm theo customerId hoặc getAll 
 const getAllOrder = async (limit = 10, offset = 0, filters = {}) => {
