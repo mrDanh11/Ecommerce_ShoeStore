@@ -2,13 +2,19 @@ import { useEffect, useState, useCallback } from 'react';
 import { FaTrashAlt } from "react-icons/fa";
 import { Link } from 'react-router-dom';
 import toVND from '../utils/helper';
+import Loading from '../components/Loading';
+import SuccessNotification from '../components/SuccessNotification';
+
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const CUSTOMER_ID = '5525453c-8f4e-4287-b380-ff1533826b56';
-  
+  // const CUSTOMER_ID = '5525453c-8f4e-4287-b380-ff1533826b56';
+  const CUSTOMER_ID = localStorage.getItem("customerId")
+  console.log('check customerId from local storage: ', CUSTOMER_ID)
+
   // Hàm fetch Cart Items ban đầu
   const fetchCartItems = useCallback(async () => {
     setLoading(true);
@@ -42,7 +48,7 @@ const Cart = () => {
       setCartItems(mappedItems);
     } catch (error) {
       console.error('Fetch error:', error);
-      alert(`Lỗi khi tải giỏ hàng: ${error.message}`); 
+      alert(`Lỗi khi tải giỏ hàng: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -62,15 +68,16 @@ const Cart = () => {
   // Hàm xử lý xóa sản phẩm (DELETE)
   const handleRemoveItem = async (idToDelete) => {
     if (!window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?")) {
-        return;
+      return;
     }
+    setIsDeleting(true);
 
     try {
       const response = await fetch(`http://localhost:4004/v1/api/cart/${CUSTOMER_ID}/${idToDelete}`, {
         method: 'DELETE',
         headers: {
-            'Content-Type': 'application/json',
-            // 'Authorization': `Bearer ${yourAuthToken}`,
+          'Content-Type': 'application/json',
+          // 'Authorization': `Bearer ${yourAuthToken}`,
         },
       });
 
@@ -81,10 +88,14 @@ const Cart = () => {
 
       const updatedCartItems = cartItems.filter(item => item._id !== idToDelete);
       setCartItems(updatedCartItems);
+      <SuccessNotification message={"Sản phẩm đã được xóa khỏi giỏ hàng!"}/>
       alert('Sản phẩm đã được xóa khỏi giỏ hàng!');
     } catch (error) {
       console.error('Error removing item:', error);
       alert(`Lỗi khi xóa sản phẩm: ${error.message}`);
+    }
+    finally {
+      setIsDeleting(false);
     }
   };
 
@@ -129,8 +140,8 @@ const Cart = () => {
       );
       setCartItems(updatedCartItems);
     } catch (error) {
-        console.error('Error updating quantity:', error);
-        alert(`Lỗi khi cập nhật số lượng: ${error.message}`);
+      console.error('Error updating quantity:', error);
+      alert(`Lỗi khi cập nhật số lượng: ${error.message}`);
     }
   };
 
@@ -226,6 +237,9 @@ const Cart = () => {
                     <p className="text-md font-medium text-gray-800">{toVND(product.gia * product.soluong)}</p>
                   </div>
                 </div>
+                {
+                  isDeleting && <Loading />
+                }
                 <button
                   className="ml-auto text-gray-500 hover:text-red-600 transition-colors cursor-pointer"
                   onClick={() => handleRemoveItem(product._id)}
@@ -250,8 +264,8 @@ const Cart = () => {
               <li>Bạn cũng có thể nhập mã giảm giá ở trang thanh toán.</li>
             </ul>
 
-            <Link 
-              to="/checkout" 
+            <Link
+              to="/checkout"
               className={`block ${subtotal === 0 ? 'pointer-events-none opacity-50' : ''}`}
               state={{ selectedCartItems: cartItems.filter(item => item.isSelected) }}
             >

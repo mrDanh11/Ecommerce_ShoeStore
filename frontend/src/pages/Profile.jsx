@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Loading from '../components/Loading';
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -88,7 +89,7 @@ const Profile = () => {
     }
   };
 
-  if (loading) return <p className="text-center text-lg mt-20">🔄 Đang tải thông tin...</p>;
+  if (loading) return <Loading />;
 
   if (!user) {
     return (
@@ -122,8 +123,8 @@ const Profile = () => {
               <input name="sdt" value={formData.sdt || ''} onChange={handleChange} placeholder="Số điện thoại" className="w-full border px-3 py-2 rounded" />
               <input name="diachi" value={formData.diachi || ''} onChange={handleChange} placeholder="Địa chỉ" className="w-full border px-3 py-2 rounded" />
               <div className="flex gap-2 pt-2">
-                <button onClick={saveChanges} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full">💾 Lưu</button>
-                <button onClick={() => setEditMode(false)} className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 w-full">❌ Hủy</button>
+                <button onClick={saveChanges} className="bg-green-600 cursor-pointer text-white px-4 py-2 rounded hover:bg-green-700 w-full">💾 Lưu</button>
+                <button onClick={() => setEditMode(false)} className="bg-gray-500 cursor-pointer text-white px-4 py-2 rounded hover:bg-gray-600 w-full">❌ Hủy</button>
               </div>
             </>
           ) : (
@@ -135,7 +136,7 @@ const Profile = () => {
               <p><strong>Vai trò:</strong> {getRoleName(role)}</p>
               <button
                 onClick={() => setEditMode(true)}
-                className="items-center gap-2 bg-blue-100 text-blue-800 px-4 py-2 w-full rounded-md hover:bg-blue-200 transition mt-2"
+                className="items-center cursor-pointer gap-2 bg-blue-100 text-blue-800 px-4 py-2 w-full rounded-md hover:bg-blue-200 transition mt-2"
               >
                 ✏️ Chỉnh sửa thông tin
               </button>
@@ -175,13 +176,13 @@ const Profile = () => {
               <div className="flex gap-2">
                 <button
                   onClick={changePassword}
-                  className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 w-full"
+                  className="bg-yellow-600 cursor-pointer text-white px-4 py-2 rounded hover:bg-yellow-700 w-full"
                 >
                   {user.matkhau ? '🔁 Đổi mật khẩu' : '➕ Đặt mật khẩu'}
                 </button>
                 <button
                   onClick={() => setChangePass(false)}
-                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 w-full"
+                  className="bg-gray-500 text-white cursor-pointer px-4 py-2 rounded hover:bg-gray-600 w-full"
                 >
                   ❌ Hủy
                 </button>
@@ -190,7 +191,7 @@ const Profile = () => {
           ) : (
             <button
               onClick={() => setChangePass(true)}
-              className=" items-center gap-2 bg-yellow-100 text-yellow-800 px-4 py-2 w-full rounded hover:bg-yellow-200 transition"
+              className=" items-center cursor-pointer gap-2 bg-yellow-100 text-yellow-800 px-4 py-2 w-full rounded hover:bg-yellow-200 transition"
             >
               {user.matkhau ? '🔁 Đổi mật khẩu' : '➕ Đặt mật khẩu'}
             </button>
@@ -210,7 +211,7 @@ const Profile = () => {
 
           <button
             onClick={handleLogout}
-            className="bg-red-600 text-white px-6 py-3 rounded-md w-full hover:bg-red-700"
+            className="bg-red-600 cursor-pointer text-white px-6 py-3 rounded-md w-full hover:bg-red-700"
           >
             🚪 Đăng xuất
           </button>

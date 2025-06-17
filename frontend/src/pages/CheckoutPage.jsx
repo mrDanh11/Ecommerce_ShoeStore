@@ -464,8 +464,8 @@ const CheckoutPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const CUSTOMER_ID = '5525453c-8f4e-4287-b380-ff1533826b56'; 
-
+    // const CUSTOMER_ID = '5525453c-8f4e-4287-b380-ff1533826b56'; 
+    const CUSTOMER_ID = localStorage.getItem("customerId") 
     // Dữ liệu giỏ hàng từ state
     const { selectedCartItems, customerId } = location.state || {}; // Lấy từ state
 

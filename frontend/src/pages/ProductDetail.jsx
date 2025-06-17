@@ -16,7 +16,7 @@ const ProductDetail = () => {
   const [qty, setQty] = useState(1);
 
   // lấy customerId từ localStorage hoặc Auth Context (tham khảo để lưu + lấy)
-  const customerId = localStorage.getItem("customerId") || "5525453c-8f4e-4287-b380-ff1533826b56";
+  const customerId = localStorage.getItem("customerId")
 
   useEffect(() => {
     axios
@@ -165,7 +165,7 @@ const ProductDetail = () => {
 
         {/* status */}
         <span
-          className={`inline-block px-2 py-1 rounded-full text-sm font-medium ${product.tinhtrang === "còn hàng"
+          className={`inline-block px-2 py-1 rounded-full text-sm font-medium ${product.tinhtrang === "Còn hàng"
             ? "bg-green-100 text-green-800"
             : "bg-red-100 text-red-800"
             }`}

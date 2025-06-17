@@ -3,7 +3,8 @@ import toVND from "../utils/helper.js";
 import Loading from "../components/Loading";
 
 const pageSize = 10;                          
-const customerId = "5525453c-8f4e-4287-b380-ff1533826b56";
+// const customerId = "5525453c-8f4e-4287-b380-ff1533826b56";
+const customerId = localStorage.getItem("customerId") 
 
 export default function OrderPage() {
   const [rawData,   setRawData]   = useState([]);
