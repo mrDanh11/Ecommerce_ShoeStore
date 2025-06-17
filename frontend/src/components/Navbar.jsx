@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import { HiMagnifyingGlass } from "react-icons/hi2"
-import { FaShoppingCart } from "react-icons/fa"
-import { GiHamburgerMenu } from "react-icons/gi"
-import { FaUser } from "react-icons/fa"
-import { IoMdClose } from "react-icons/io"
-import Shoea from "../assets/Shoea-Logo.svg"
-import Minicart from "./Minicart"
-import SearchBar from "./SearchBar"
-import { supabase } from '../supabaseClient';
+import { useState, useEffect, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { HiMagnifyingGlass } from "react-icons/hi2";
+import { FaShoppingCart } from "react-icons/fa";
+import { GiHamburgerMenu } from "react-icons/gi";
+import { FaUser } from "react-icons/fa";
+import { IoMdClose } from "react-icons/io";
+import Shoea from "../assets/Shoea-Logo.svg";
+import Minicart from "./Minicart";
+import SearchBar from "./SearchBar";
+import { supabase } from '../supabaseClient'; // Giữ nguyên Supabase cho OAuth
 
 const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,45 +16,86 @@ const Navbar = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [minicartOpen, setMinicartOpen] = useState(false);
 
-  // ------------------------------------------------------------------------
-  
   // Profile Login/Logout
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // Có thể lưu thông tin người dùng cơ bản nếu cần hiển thị tên, v.v.
+  const [userEmail, setUserEmail] = useState(null);
+  const [userRole, setUserRole] = useState(null);
+  const [customerId, setCustomerId] = useState(null);
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-      // 1. Kiểm tra trạng thái từ backend custom (qua localStorage token)
-      const customBackendToken = localStorage.getItem("token");
-      if (customBackendToken) {
-        setIsLoggedIn(true);
-        return; // Nếu đã đăng nhập qua backend custom, không cần kiểm tra Supabase
-      }
+  // Hàm kiểm tra trạng thái đăng nhập từ backend custom
+  const checkCustomBackendAuth = useCallback(async () => {
+    try {
+      const response = await fetch("http://localhost:4004/api/auth/getme", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Quan trọng để gửi cookie token
+      });
 
-      // 2. Nếu chưa có token từ backend custom, kiểm tra Supabase
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (session) {
+      if (response.ok) {
+        const data = await response.json();
         setIsLoggedIn(true);
-      } else if (error) {
-        console.error("Error getting Supabase session:", error);
-        setIsLoggedIn(false);
+        setUserEmail(data.user.email);
+        setUserRole(data.user.marole); // marole là mã vai trò
+        // Lấy customerId từ localStorage hoặc từ phản hồi getMe nếu API trả về (tùy thuộc vào backend getMe của bạn)
+        // Hiện tại getMe chỉ trả về user, không có customerId trực tiếp
+        // Vì vậy, ta vẫn dựa vào localStorage cho customerId
+        setCustomerId(localStorage.getItem("customerId"));
       } else {
+        // Nếu response không OK (ví dụ: 401 Unauthorized do token hết hạn hoặc không có)
         setIsLoggedIn(false);
+        setUserEmail(null);
+        setUserRole(null);
+        setCustomerId(null);
+        // Xóa token cũ và các thông tin liên quan nếu không còn hợp lệ
+        localStorage.removeItem("customerId");
+        localStorage.removeItem("email");
+        localStorage.removeItem("role");
       }
-    };
+    } catch (error) {
+      console.error("Lỗi khi kiểm tra backend custom auth:", error);
+      setIsLoggedIn(false);
+      setUserEmail(null);
+      setUserRole(null);
+      setCustomerId(null);
+      localStorage.removeItem("customerId");
+      localStorage.removeItem("email");
+      localStorage.removeItem("role");
+    }
+  }, []);
 
-    checkLoginStatus();
+  useEffect(() => {
+    // 1. Kiểm tra trạng thái từ backend custom trước
+    checkCustomBackendAuth();
 
-    // Lắng nghe sự kiện thay đổi trạng thái Auth của Supabase
+    // 2. Lắng nghe sự kiện thay đổi trạng thái Auth của Supabase
     // Điều này đảm bảo Navbar cập nhật ngay lập tức nếu người dùng đăng nhập/đăng xuất qua Google
+    // và để đảm bảo client side nhận được session sau redirect từ OAuth
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         if (event === 'SIGNED_IN') {
-          setIsLoggedIn(true);
+          // Sau khi SIGNED_IN từ Supabase, gọi lại checkCustomBackendAuth
+          // để backend custom của bạn xử lý đồng bộ thông tin và cấp token
+          console.log("Supabase SIGNED_IN event, re-checking custom backend auth...");
+          // Cần một độ trễ nhỏ để backend custom có thể xử lý OAuth callback và cấp token
+          setTimeout(() => {
+            checkCustomBackendAuth();
+          }, 500); // Thử với 500ms
         } else if (event === 'SIGNED_OUT') {
+          // Khi Supabase SIGNED_OUT, đảm bảo trạng thái đăng nhập bị tắt
+          console.log("Supabase SIGNED_OUT event.");
           setIsLoggedIn(false);
+          setUserEmail(null);
+          setUserRole(null);
+          setCustomerId(null);
+          localStorage.removeItem("customerId");
+          localStorage.removeItem("email");
+          localStorage.removeItem("role");
         }
       }
     );
@@ -63,7 +104,7 @@ const Navbar = () => {
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, []); // Chạy một lần khi component được mount
+  }, [checkCustomBackendAuth]); // Thêm checkCustomBackendAuth vào dependencies
 
   const toggleProfileDropdown = () => {
     setIsProfileDropdownOpen(!isProfileDropdownOpen);
@@ -76,26 +117,52 @@ const Navbar = () => {
   };
 
   const handleLogout = async () => {
-    // Xóa token từ backend custom (nếu có)
-    localStorage.removeItem("token");
+    try {
+      // 1. Gửi yêu cầu đăng xuất đến backend custom để xóa cookie token
+      const response = await fetch("http://localhost:4004/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Quan trọng để gửi cookie token cần xóa
+      });
 
-    // Xóa session từ Supabase
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error("Error logging out from Supabase:", error);
-      alert("Đã xảy ra lỗi khi đăng xuất.");
-    } else {
-      console.log("Đã đăng xuất thành công khỏi Supabase.");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Đăng xuất thất bại từ backend");
+      }
+      console.log("Đã đăng xuất thành công từ backend custom.");
+
+      // 2. Xóa session từ Supabase (quan trọng cho OAuth)
+      const { error: supabaseError } = await supabase.auth.signOut();
+      if (supabaseError) {
+        console.error("Lỗi khi đăng xuất khỏi Supabase:", supabaseError);
+        alert("Đã xảy ra lỗi khi đăng xuất khỏi Supabase.");
+      } else {
+        console.log("Đã đăng xuất thành công khỏi Supabase.");
+      }
+
+      // 3. Xóa các thông tin cục bộ
+      localStorage.removeItem("customerId");
+      localStorage.removeItem("email");
+      localStorage.removeItem("role");
+
+      // 4. Cập nhật trạng thái và chuyển hướng
+      setIsLoggedIn(false); // Cập nhật trạng thái đăng nhập
+      setIsProfileDropdownOpen(false); // Đóng dropdown
+      setUserEmail(null);
+      setUserRole(null);
+      setCustomerId(null);
+      navigate('/login'); // Chuyển hướng về trang đăng nhập
+    } catch (error) {
+      console.error("Lỗi xử lý đăng xuất:", error.message);
+      alert(`Đăng xuất thất bại: ${error.message}`);
     }
-
-    setIsLoggedIn(false); // Cập nhật trạng thái đăng nhập
-    setIsProfileDropdownOpen(false); // Đóng dropdown
-    navigate('/login'); // Chuyển hướng về trang đăng nhập
   };
 
 
   // ------------------------------------------------------------------------
-  
+
   // useEffect để kiểm tra kích thước màn hình và đóng nav drawer
   useEffect(() => {
     const handleResize = () => {
@@ -119,11 +186,12 @@ const Navbar = () => {
   const toggleSearch = () => {
     setIsSearchOpen(!isSearchOpen);
     // Đảm bảo đóng các overlay khác khi mở/đóng search bar
-    if (!isSearchOpen) { 
+    if (!isSearchOpen) {
       if (navDrawerOpen) setNavDrawerOpen(false);
       if (minicartOpen) setMinicartOpen(false);
+      if (isProfileDropdownOpen) setIsProfileDropdownOpen(false); // Thêm dòng này
     } else {
-      setSearchTerm(""); 
+      setSearchTerm("");
     }
   };
 
@@ -133,6 +201,7 @@ const Navbar = () => {
     if (!navDrawerOpen) {
       if (isSearchOpen) setIsSearchOpen(false);
       if (minicartOpen) setMinicartOpen(false);
+      if (isProfileDropdownOpen) setIsProfileDropdownOpen(false); // Thêm dòng này
     }
   };
 
@@ -142,6 +211,7 @@ const Navbar = () => {
     if (!minicartOpen) {
       if (isSearchOpen) setIsSearchOpen(false);
       if (navDrawerOpen) setNavDrawerOpen(false);
+      if (isProfileDropdownOpen) setIsProfileDropdownOpen(false); // Thêm dòng này
     }
   };
 
@@ -191,11 +261,10 @@ const Navbar = () => {
           </button>
 
           {/* Profile Icon and Dropdown */}
-          {/* Sử dụng một div thay vì Link trực tiếp để chứa icon và dropdown */}
-          <div className="relative"> {/* Thêm class "relative" để dropdown định vị tuyệt đối */}
+          <div className="relative">
             <button
               onClick={toggleProfileDropdown}
-              className="cursor-pointer hover:text-black p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center" // Thêm flex và items-center để căn chỉnh tốt hơn
+              className="cursor-pointer hover:text-black p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center"
               aria-label="Profile"
             >
               <FaUser className="h-6 w-6 text-gray-700" />
@@ -203,49 +272,49 @@ const Navbar = () => {
 
             {/* Dropdown Content */}
             {isProfileDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                  {isLoggedIn ? (
-                    <>
-                      <Link
-                        to="/profile"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setIsProfileDropdownOpen(false)} // Đóng dropdown khi click link
-                      >
-                        Xem thông tin cá nhân
-                      </Link>
-                      <Link
-                        to="/order-history"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setIsProfileDropdownOpen(false)} // Đóng dropdown khi click link
-                      >
-                        Xem lịch sử đơn hàng
-                      </Link>
-                      <button
-                        onClick={handleLogout}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        Đăng xuất
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <Link
-                        to="/login"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setIsProfileDropdownOpen(false)} // Đóng dropdown khi click link
-                      >
-                        Đăng nhập
-                      </Link>
-                      <Link
-                        to="/register"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setIsProfileDropdownOpen(false)} // Đóng dropdown khi click link
-                      >
-                        Đăng ký
-                      </Link>
-                    </>
-                  )}
-                </div>
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                {isLoggedIn ? (
+                  <>
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                    >
+                      Xem thông tin cá nhân
+                    </Link>
+                    <Link
+                      to="/order-history"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                    >
+                      Xem lịch sử đơn hàng
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Đăng xuất
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                    >
+                      Đăng nhập
+                    </Link>
+                    <Link
+                      to="/register"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                    >
+                      Đăng ký
+                    </Link>
+                  </>
+                )}
+              </div>
             )}
           </div>
 
@@ -296,4 +365,4 @@ const Navbar = () => {
   )
 }
 
-export default Navbar
+export default Navbar;
