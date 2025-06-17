@@ -12,6 +12,7 @@ const CallBack = () => {
 
       if (error || !data?.user) {
         console.error(' Lỗi lấy user từ Supabase:', error);
+        alert('Không thể lấy thông tin người dùng từ Supabase');
         return;
       }
 
@@ -28,13 +29,24 @@ const CallBack = () => {
           'http://localhost:4004/api/auth/oauth',
           userInfo,
           {
-            withCredentials: true, //  bắt buộc để nhận cookie từ backend
+            withCredentials: true, // cần để cookie JWT từ backend hoạt động
           }
         );
 
         console.log(' OAuth login response:', res.data);
 
         if (res.data.success) {
+          const { user } = res.data;
+
+          //  Lưu vào localStorage
+          if (user.customerId) {
+            localStorage.setItem("customerId", user.customerId);
+          }
+
+          localStorage.setItem("email", user.email);
+          localStorage.setItem("role", user.vaitro);
+
+          //  Điều hướng
           navigate('/profile'); // hoặc '/'
         } else {
           alert(res.data.message || 'Đăng nhập thất bại từ backend');
@@ -47,10 +59,10 @@ const CallBack = () => {
 
     getUser();
   }, [navigate]);
+
   return (
     <div className="text-center mt-10 text-xl text-gray-700">
       🔄 Đang xử lý đăng nhập bằng Google...
-
     </div>
   );
 };

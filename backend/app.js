@@ -22,7 +22,7 @@ app.use(cors({
 
 const authRoutes = require('./routes/authRoutes');
 
-// const adminRoutes = require('./routes/adminRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const orderRoutes = require('./routes/orderRouter')
 const productRoutes = require('./routes/productRoutes'); 
 const categoryRoutes = require('./routes/categoryRoutes');
@@ -34,7 +34,7 @@ const uploadRoutes = require('./routes/uploadRoutes');
 // API routes
 app.use('/api/auth', authRoutes);
 
-// app.use('/api/admin', adminRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/v1/api/cart',cartRouters )
 app.use('/v1/api/order',orderRoutes )
 app.use('/api/products', productRoutes);
