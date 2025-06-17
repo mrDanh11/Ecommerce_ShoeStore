@@ -6,6 +6,7 @@ import Cart from "./pages/Cart";
 import Login from "./pages/authentication/Login";
 import Register from "./pages/authentication/Register";
 import ForgotPassword from "./pages/authentication/ForgotPassword";
+import ResetPassword from "./pages/authentication/ResetPassword";
 import CallBack from "./pages/authentication/CallBack";
 import Profile from "./pages/Profile";
 import CheckoutPage from "./pages/CheckoutPage";
@@ -20,8 +21,8 @@ import OrderConfirmation from "./pages/OrderConfirmation";
 import Success from "./pages/shop/Success";
 import OrderPage from "./pages/OrderPage";
 import SaleOffManager from "./pages/admin/SaleOffManager";
+import ProductDetail from "./pages/ProductDetail";
 
- 
 
 const App = () => {
   return (
@@ -32,10 +33,12 @@ const App = () => {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/collections" element={<Collections />} />
+        <Route path="/collections/:productId" element={<ProductDetail />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/callback" element={<CallBack />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/checkout" element={<CheckoutPage />} />
