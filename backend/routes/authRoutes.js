@@ -14,6 +14,9 @@ router.get('/getme', requireAuth, authController.getMe);
 router.put('/update', requireAuth, authController.updateProfile);
 router.post('/changepassword', requireAuth, authController.changePassword);
 
+router.post('/forgot-password', authController.forgotPassword);
+router.post('/reset-password', authController.resetPassword);
+
 router.post('/logout', authController.logout);
 
 module.exports = router;
