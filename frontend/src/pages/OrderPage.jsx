@@ -3,7 +3,7 @@ import toVND from "../utils/helper.js";
 import Loading from "../components/Loading";
 
 const pageSize = 10;                          
-const customerId = "5525453c-8f4e-4287-b380-ff1533826b56";
+const customerId = "f5b1ce4b-7a58-4978-8332-70418f8f0c78";
 
 export default function OrderPage() {
   const [rawData,   setRawData]   = useState([]);

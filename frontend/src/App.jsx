@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import About from "./pages/About";
-import Navbar from "./components/Navbar"; // Thêm dòng này
+import Navbar from "./components/Navbar";
 import Cart from "./pages/Cart";
 import Login from "./pages/authentication/Login";
 import Register from "./pages/authentication/Register";
@@ -35,6 +35,7 @@ const App = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/collections" element={<Collections />} />
         <Route path="/collections/:productId" element={<ProductDetail />} />
+        <Route path="/order-history" element={<OrderHistory />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -50,7 +51,6 @@ const App = () => {
         <Route path="/admin/statistics" element={<ProductStatistics />} />
         <Route path="/admin/promotions" element={<PromotionManager />} />
         <Route path="/admin/order-manager" element={<OrderManager />} />
-        <Route path="/order-history" element={<OrderHistory />} />
         <Route path="/admin/sale-offs" element={<SaleOffManager />} />
         <Route path="/admin" element={<LandingPage />} />
       </Routes>

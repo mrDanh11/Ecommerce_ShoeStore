@@ -7,7 +7,7 @@ const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const CUSTOMER_ID = '5525453c-8f4e-4287-b380-ff1533826b56';
+  const CUSTOMER_ID = localStorage.getItem("customerId") || "5525453c-8f4e-4287-b380-ff1533826b56";
   
   // Hàm fetch Cart Items ban đầu
   const fetchCartItems = useCallback(async () => {
@@ -157,7 +157,11 @@ const Cart = () => {
   if (loading)
     return (
       <div className="max-w-7xl mx-auto min-h-screen overflow-hidden">
-        <h1 className="text-3xl font-bold text-center mb-8 uppercase">Giỏ hàng của bạn</h1>
+        <div className='text-center mb-8'>
+          <h1 className='text-2xl font-extrabold text-gray-900 leading-tight'>
+              GIỎ HÀNG CỦA BẠN
+          </h1>
+        </div>
         <div className="bg-gray-50 text-center py-20 rounded-lg shadow-sm">
           <p className="text-xl text-gray-700 mb-4">Đang tải giỏ hàng...</p>
         </div>
@@ -166,8 +170,12 @@ const Cart = () => {
 
 
   return (
-    <div className="max-w-7xl mx-auto min-h-screen overflow-hidden px-4 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold text-center mb-8 uppercase">Giỏ hàng của bạn</h1>
+    <div className="pt-10 border-t max-w-7xl mx-auto min-h-screen overflow-hidden px-4 sm:px-6 lg:px-8">
+      <div className='text-center mb-8'>
+          <h1 className='text-2xl font-extrabold text-gray-900 leading-tight'>
+              GIỎ HÀNG CỦA BẠN
+          </h1>
+      </div>
 
       {cartItems.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-lg shadow-lg">
@@ -200,7 +208,7 @@ const Cart = () => {
                 <input
                   type="checkbox"
                   checked={product.isSelected}
-                  onChange={() => handleSelectItem(product.productId)}
+                  onChange={() => handleSelectItem(product._id)}
                   className="form-checkbox h-5 w-5 text-black rounded-sm border-gray-300 focus:ring-black cursor-pointer mr-4"
                 />
                 <img src={product.anhsanpham} alt={product.tensanpham} className="w-24 h-28 object-cover mr-6 rounded" />

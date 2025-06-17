@@ -8,7 +8,7 @@ const Minicart = ({ handleTurnOffMinicart, minicartOpen, toggleMinicart }) => {
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const CUSTOMER_ID = '5525453c-8f4e-4287-b380-ff1533826b56';
+    const CUSTOMER_ID = localStorage.getItem("customerId") || "5525453c-8f4e-4287-b380-ff1533826b56";
 
     // Hàm fetch Cart Items
     const fetchCartItems = useCallback(async () => {

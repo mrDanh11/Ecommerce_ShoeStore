@@ -187,7 +187,7 @@ const Collections = () => {
   }, [products, category, style, search, showSearch, sortType]);
 
   return (
-    <main className='flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t'> 
+    <main className='flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t max-w-7xl mx-auto min-h-screen overflow-hidden px-4 sm:px-6 lg:px-8'> 
       {/* Filter Options */}
       <div className='min-w-60'>
         <p onClick={() => setShowFilters(!showFilters)} className='my-2 text-xl flex items-center cursor-pointer gap-2 font-medium'>

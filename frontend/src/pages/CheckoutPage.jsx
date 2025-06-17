@@ -464,7 +464,7 @@ const CheckoutPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const CUSTOMER_ID = '5525453c-8f4e-4287-b380-ff1533826b56'; 
+    const CUSTOMER_ID = localStorage.getItem("customerId")
 
     // Dữ liệu giỏ hàng từ state
     const { selectedCartItems, customerId } = location.state || {}; // Lấy từ state
@@ -629,12 +629,12 @@ const CheckoutPage = () => {
         }
     };
 
-    if (loading) return <div className="text-center py-20 text-xl font-semibold">Đang xử lý đơn hàng của bạn...</div>;
+    if (loading) return <div className="pt-10 border-t text-center py-20 text-xl font-semibold">Đang xử lý đơn hàng của bạn...</div>;
 
     console.log('check selectedCartItems: ', selectedCartItems)
 
     return (
-        <div className="min-h-screen py-8 px-4 lg:px-8">
+        <div className="pt-10 border-t min-h-screen py-8 px-4 lg:px-8">
             <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
                 <div className="flex flex-col-reverse lg:flex-row">
                     {/* Left Section: Shipping Information */}
