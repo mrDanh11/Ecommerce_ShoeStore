@@ -19,7 +19,11 @@ import LandingPage from "./pages/admin/LandingPage";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import OrderManager from "./pages/admin/OrderManager";
 import OrderHistory from "./pages/OrderHistory";
- 
+import Success from "./pages/shop/Success";
+import OrderPage from "./pages/OrderPage";
+import SaleOffManager from "./pages/admin/SaleOffManager";
+import ProductDetail from "./pages/ProductDetail";
+
 
 const App = () => {
   return (
@@ -30,6 +34,7 @@ const App = () => {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/collections" element={<Collections />} />
+        <Route path="/collections/:productId" element={<ProductDetail />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -37,12 +42,16 @@ const App = () => {
         <Route path="/callback" element={<CallBack />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/checkout/success" element={<Success />} />
+        <Route path="/checkout/fail" element={<CheckoutPage />} />
         <Route path="/order-confirmation" element={<OrderConfirmation />} />
+        <Route path="/order" element={ <OrderPage />} />
         <Route path="/admin/employees" element={<EmployeeManager />} />
         <Route path="/admin/statistics" element={<ProductStatistics />} />
         <Route path="/admin/promotions" element={<PromotionManager />} />
         <Route path="/admin/order-manager" element={<OrderManager />} />
         <Route path="/order-history" element={<OrderHistory />} />
+        <Route path="/admin/sale-offs" element={<SaleOffManager />} />
         <Route path="/admin" element={<LandingPage />} />
       </Routes>
       <Footer />

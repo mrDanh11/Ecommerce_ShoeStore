@@ -8,46 +8,46 @@ const Register = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    sdt: '',
+    diachi: ''
   });
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Registering with:', form);
 
     if (form.password !== form.confirmPassword) {
       alert('Mật khẩu không giống nhau!');
       return;
     }
-    else try {
-      const dataResponse = await fetch('http://localhost:4004/api/auth/register',{
-            method : "POST",
-            headers : {
-                "content-type" : "application/json"
-            },
-            body : JSON.stringify({
-              tendangnhap: form.fullName, // cần sửa tendangnhap lại thành hoten  
-              email: form.email,
-              matkhau: form.password
-            })
-          })
-  
-          const data = await dataResponse.json();
 
-          if (!dataResponse.ok) {
-            throw new Error(data.message || "Đăng ký thất bại");
-          }
+    try {
+      const response = await fetch('http://localhost:4004/api/auth/register', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          tendangnhap: form.fullName,
+          email: form.email,
+          matkhau: form.password,
+          sdt: form.sdt,
+          diachi: form.diachi
+        })
+      });
 
-          //  Hiển thị thông báo và chuyển hướng
-          alert("Đăng ký thành công! Vui lòng đăng nhập.");
-          navigate("/login");
+      const data = await response.json();
 
-        } catch (error) {
-          console.error("Đăng ký lỗi:", error);
-          alert(error.message || "Đăng ký thất bại");
+      if (!response.ok) {
+        throw new Error(data.message || "Đăng ký thất bại");
+      }
+
+      alert("Đăng ký thành công! Vui lòng đăng nhập.");
+      navigate("/login");
+
+    } catch (error) {
+      console.error("Đăng ký lỗi:", error);
+      alert(error.message || "Đăng ký thất bại");
     }
-    
-
-
   };
 
   return (
@@ -78,6 +78,30 @@ const Register = () => {
               onChange={e => setForm({ ...form, email: e.target.value })}
               required
               className="bg-white mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Số điện thoại *</label>
+            <input
+              type="text"
+              placeholder="Số điện thoại"
+              value={form.sdt}
+              onChange={e => setForm({ ...form, sdt: e.target.value })}
+              required
+              className="mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Địa chỉ *</label>
+            <input
+              type="text"
+              placeholder="Địa chỉ"
+              value={form.diachi}
+              onChange={e => setForm({ ...form, diachi: e.target.value })}
+              required
+              className="mt-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
             />
           </div>
 

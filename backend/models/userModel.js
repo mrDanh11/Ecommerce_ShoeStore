@@ -7,9 +7,47 @@ async function createUser(userData) {
     .insert([userData])
     .select();
 
-  if (error) throw error;
-  return data[0];
+  if (error) {
+    console.error("❌ Lỗi tạo tài khoản:", error);
+    throw error;
+  }
+
+  const user = data[0];
+
+  try {
+    if (user.marole === 2) {
+      const { error: khError } = await supabase
+        .from('khachhang')
+        .insert([{ 
+          mataikhoan: user.mataikhoan, 
+          hoten: user.tendangnhap,
+          sdt: user.sdt,
+          diachi: user.diachi
+
+         }]);
+
+      if (khError) throw new Error("Lỗi khi thêm khachhang: " + khError.message);
+    } else if (user.marole === 3) {
+      const { error: nvError } = await supabase
+        .from('nhanvien')
+        .insert([{ 
+          mataikhoan: user.mataikhoan,
+          hoten: user.tendangnhap,
+          sdt: user.sdt,
+          diachi: user.diachi 
+          }]);
+
+      if (nvError) throw new Error("Lỗi khi thêm nhanvien: " + nvError.message);
+    }
+  } catch (insertErr) {
+    console.error("❌ Lỗi thêm bản ghi phụ:", insertErr.message);
+  }
+
+  return user;
 }
+
+
+
 
 
 //Get single user by ID (Admin)
@@ -33,11 +71,7 @@ async function listUsers({
 } = {}) {
   let query = supabase
     .from('account')
-    .select(
-      'mataikhoan, email, tendangnhap, marole, google_id, trangthai, updated_at, created_at',
-      { count: 'exact' }
-    )
-    .range(offset, offset + limit - 1);
+    .select('*', { count: 'exact' });
 
   if (search) {
     query = query.or(`email.ilike.%${search}%,tendangnhap.ilike.%${search}%`);
@@ -46,6 +80,8 @@ async function listUsers({
   if (role) {
     query = query.eq('marole', role);
   }
+
+  query = query.range(offset, offset + limit - 1); // luôn đặt .range() sau cùng
 
   const { data, error, count } = await query;
 
@@ -67,33 +103,82 @@ async function getUserByEmail(email) {
 
 //Compare raw password with stored hash
 async function comparePassword(rawPassword, hash) {
-  if (!hash) return false;
+  if (!hash || !rawPassword) return false;
   return bcrypt.compare(rawPassword, hash);
 }
 
-// Update user by ID (Admin)
+// Update user by ID (Admin or Self)
 async function updateUser(id, updates) {
   if (updates.matkhau) {
     updates.matkhau = await bcrypt.hash(updates.matkhau, 10);
   }
 
+  const currentUser = await getUserById(id);
+
   const { data, error } = await supabase
     .from('account')
     .update(updates)
     .eq('mataikhoan', id)
-    .select('*')
+    .select()
     .single();
 
   if (error) throw error;
+
+  // Nếu vai trò thay đổi: xóa bản ghi cũ và chèn bản ghi mới
+  if (updates.marole && updates.marole !== currentUser.marole) {
+    if (currentUser.marole === 2) {
+      await supabase.from('khachhang').delete().eq('mataikhoan', id);
+    } else if (currentUser.marole === 3) {
+      await supabase.from('nhanvien').delete().eq('mataikhoan', id);
+    }
+
+    const hoten = updates.tendangnhap || currentUser.tendangnhap || "Chưa có tên";
+    const sdt = updates.sdt || currentUser.sdt || null;
+    const diachi = updates.diachi || currentUser.diachi || null;
+
+    if (updates.marole === 2) {
+      await supabase.from('khachhang').insert([{ mataikhoan: id, hoten, sdt, diachi }]);
+    } else if (updates.marole === 3) {
+      await supabase.from('nhanvien').insert([{ mataikhoan: id, hoten, sdt, diachi }]);
+    }
+  } else {
+    // Nếu vai trò KHÔNG thay đổi, thì cập nhật bảng phụ tương ứng
+    const hoten = updates.tendangnhap;
+    const sdt = updates.sdt;
+    const diachi = updates.diachi;
+
+    if (currentUser.marole === 2) {
+      await supabase
+        .from('khachhang')
+        .update({ hoten, sdt, diachi })
+        .eq('mataikhoan', id);
+    } else if (currentUser.marole === 3) {
+      await supabase
+        .from('nhanvien')
+        .update({ hoten, sdt, diachi })
+        .eq('mataikhoan', id);
+    }
+  }
+
   return data;
 }
 
+
 // Delete user by ID (Admin)
 async function deleteUser(id) {
-  const { data, error } = await supabase
+  const currentUser = await getUserById(id);
+
+  if (currentUser.marole === 2) {
+    await supabase.from('khachhang').delete().eq('mataikhoan', id);
+  } else if (currentUser.marole === 3) {
+    await supabase.from('nhanvien').delete().eq('mataikhoan', id);
+  }
+
+  const { error } = await supabase
     .from('account')
     .delete()
     .eq('mataikhoan', id);
+
   if (error) throw error;
   return true;
 }
