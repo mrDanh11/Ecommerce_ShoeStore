@@ -34,6 +34,10 @@ const Profile = () => {
   const handleLogout = async () => {
     try {
       await axios.post('http://localhost:4004/api/auth/logout', {}, { withCredentials: true });
+      //  Xóa toàn bộ localStorage liên quan đến người dùng
+      localStorage.removeItem("customerId");
+      localStorage.removeItem("email");
+      localStorage.removeItem("role");
       setUser(null);
       navigate('/login');
     } catch (err) {
