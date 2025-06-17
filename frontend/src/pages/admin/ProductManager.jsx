@@ -6,17 +6,21 @@ const ProductManager = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Gọi API để lấy danh sách sản phẩm
   useEffect(() => {
+    // Gọi API để lấy danh sách sản phẩm
     axios
-      .get("/api/products") // Đảm bảo đây là URL chính xác của API
+      .get("http://localhost:4004/api/products") // Đảm bảo đây là đường dẫn API chính xác
       .then((response) => {
-        console.log("Dữ liệu sản phẩm nhận được:", response.data); // Kiểm tra dữ liệu trả về từ API
-        setProducts(response.data); // Giả sử API trả về mảng sản phẩm
+        console.log("Dữ liệu sản phẩm nhận được:", response.data);
+        if (Array.isArray(response.data)) {
+          setProducts(response.data); // Giả sử API trả về mảng sản phẩm
+        } else {
+          setError("Dữ liệu sản phẩm không hợp lệ");
+        }
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Lỗi khi gọi API:", err); // In lỗi nếu API không thành công
+        console.error("Lỗi khi gọi API:", err);
         setError("Không thể tải sản phẩm");
         setLoading(false);
       });
@@ -44,28 +48,34 @@ const ProductManager = () => {
             </tr>
           </thead>
           <tbody>
-            {products.map((product, index) => (
-              <tr key={product.id} className="hover:bg-gray-50">
-                <td className="p-2 border">{index + 1}</td>
-                <td className="p-2 border">{product.name}</td>
-                <td className="p-2 border">{product.price} VND</td>
-                <td className="p-2 border">{product.quantity}</td>
-                <td className="p-2 border">
-                  <button
-                    onClick={() => alert(`Sửa sản phẩm: ${product.name}`)}
-                    className="bg-yellow-500 text-white p-1"
-                  >
-                    Sửa
-                  </button>
-                  <button
-                    onClick={() => alert(`Xoá sản phẩm: ${product.name}`)}
-                    className="bg-red-500 text-white p-1 ml-2"
-                  >
-                    Xoá
-                  </button>
-                </td>
+            {Array.isArray(products) && products.length > 0 ? (
+              products.map((product, index) => (
+                <tr key={product.id} className="hover:bg-gray-50">
+                  <td className="p-2 border">{index + 1}</td>
+                  <td className="p-2 border">{product.name}</td>
+                  <td className="p-2 border">{product.price} VND</td>
+                  <td className="p-2 border">{product.quantity}</td>
+                  <td className="p-2 border">
+                    <button
+                      onClick={() => alert(`Sửa sản phẩm: ${product.name}`)}
+                      className="bg-yellow-500 text-white p-1"
+                    >
+                      Sửa
+                    </button>
+                    <button
+                      onClick={() => alert(`Xoá sản phẩm: ${product.name}`)}
+                      className="bg-red-500 text-white p-1 ml-2"
+                    >
+                      Xoá
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="p-4 text-center">Không có sản phẩm</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       )}
