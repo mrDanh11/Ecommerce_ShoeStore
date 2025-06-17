@@ -11,7 +11,7 @@ router.post('/', checkout)
 
 // user
 router.get('/userorder/:customerId', listUserOrder) // khong filter
-router.post('/userorder/', allOrder)   // có filter -> phải truyền customerId qua body
+//router.post('/userorder/', allOrder)   // có filter -> phải truyền customerId qua body
 
 // admin
 // tra cứu: xem lích sử đơn hàng và trạng thái
