@@ -24,6 +24,7 @@ import Success from "./pages/shop/Success";
 import OrderPage from "./pages/OrderPage";
 import SaleOffManager from "./pages/admin/SaleOffManager";
 import ProductDetail from "./pages/ProductDetail";
+import LandingPageHome from "./pages/LandingPageHome";
 
 
 const App = () => {
@@ -31,7 +32,7 @@ const App = () => {
     <div className='px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]'>
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<LandingPageHome />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/collections" element={<Collections />} />
