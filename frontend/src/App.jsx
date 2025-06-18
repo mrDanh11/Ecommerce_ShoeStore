@@ -25,7 +25,7 @@ import OrderPage from "./pages/OrderPage";
 import SaleOffManager from "./pages/admin/SaleOffManager";
 import ProductDetail from "./pages/ProductDetail";
 import LandingPageHome from "./pages/LandingPageHome";
-
+import RequireAdmin from "./components/RequireAdmin";
 
 const App = () => {
   return (
@@ -49,13 +49,13 @@ const App = () => {
         <Route path="/checkout/fail" element={<CheckoutPage />} />
         <Route path="/order-confirmation" element={<OrderConfirmation />} />
         <Route path="/order" element={ <OrderPage />} />
-        <Route path="/admin/employees" element={<EmployeeManager />} />
-        <Route path="/admin/statistics" element={<ProductStatistics />} />
-        <Route path="/admin/promotions" element={<PromotionManager />} />
-        <Route path="/admin/order-manager" element={<OrderManager />} />
+        <Route path="/admin" element={<RequireAdmin><LandingPage /></RequireAdmin>} />
+        <Route path="/admin/employees" element={<RequireAdmin><EmployeeManager /></RequireAdmin>} />
+        <Route path="/admin/statistics" element={<RequireAdmin><ProductStatistics /></RequireAdmin>} />
+        <Route path="/admin/promotions" element={<RequireAdmin><PromotionManager /></RequireAdmin>} />
+        <Route path="/admin/order-manager" element={<RequireAdmin><OrderManager /></RequireAdmin>} />
+        <Route path="/admin/sale-offs" element={<RequireAdmin><SaleOffManager /></RequireAdmin>} />
         <Route path="/order-history" element={<OrderHistory />} />
-        <Route path="/admin/sale-offs" element={<SaleOffManager />} />
-        <Route path="/admin" element={<LandingPage />} />
       </Routes>
       <Footer />
     </div>
