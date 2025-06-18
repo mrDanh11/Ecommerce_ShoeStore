@@ -38,7 +38,7 @@ const Success = () => {
       <p className="mb-2"><strong>Đơn hàng:</strong> {info.orderInfo}</p>
       <p className="mb-4"><strong>Mã giao dịch VNPAY:</strong> {info.txnRef}</p>
       <button
-        onClick={() => navigate('/orders')}
+        onClick={() => navigate('/order-history')}
         className="mt-4 px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
       >
         Xem đơn hàng của tôi

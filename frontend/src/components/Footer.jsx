@@ -7,8 +7,8 @@ const Footer = () => {
                     <div>
                         <h3 className="text-base font-semibold mb-3 text-gray-800">Account</h3>
                         <ul className="space-y-2">
-                            <li><a href="#" className="hover:underline">Log In</a></li>
-                            <li><a href="#" className="hover:underline">Sign Up</a></li>
+                            <li><a href="/login" className="hover:underline">Log In</a></li>
+                            <li><a href="/register" className="hover:underline">Sign Up</a></li>
                         </ul>
                     </div>
 

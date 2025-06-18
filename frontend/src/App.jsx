@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import About from "./pages/About";
-import Navbar from "./components/Navbar"; // Thêm dòng này
+import Navbar from "./components/Navbar";
 import Cart from "./pages/Cart";
 import Login from "./pages/authentication/Login";
 import Register from "./pages/authentication/Register";
@@ -17,7 +17,6 @@ import EmployeeManager from "./pages/admin/EmployeeManager";
 import ProductStatistics from "./pages/admin/ProductStatistics";
 import PromotionManager from "./pages/admin/PromotionManager";
 import LandingPage from "./pages/admin/LandingPage";
-import OrderConfirmation from "./pages/OrderConfirmation";
 import OrderManager from "./pages/admin/OrderManager";
 import OrderHistory from "./pages/OrderHistory";
 import Success from "./pages/shop/Success";
@@ -25,6 +24,7 @@ import OrderPage from "./pages/OrderPage";
 import SaleOffManager from "./pages/admin/SaleOffManager";
 import ProductDetail from "./pages/ProductDetail";
 import LandingPageHome from "./pages/LandingPageHome";
+import OrderConfirmation from "./pages/shop/OrderConfirmation";
 
 
 const App = () => {
@@ -48,7 +48,7 @@ const App = () => {
         <Route path="/checkout/success" element={<Success />} />
         <Route path="/checkout/fail" element={<CheckoutPage />} />
         <Route path="/order-confirmation" element={<OrderConfirmation />} />
-        <Route path="/order" element={ <OrderPage />} />
+        {/* <Route path="/order" element={ <OrderPage />} /> */}
         <Route path="/admin/employees" element={<EmployeeManager />} />
         <Route path="/admin/statistics" element={<ProductStatistics />} />
         <Route path="/admin/promotions" element={<PromotionManager />} />
