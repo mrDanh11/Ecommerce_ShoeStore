@@ -17,7 +17,6 @@ import EmployeeManager from "./pages/admin/EmployeeManager";
 import ProductStatistics from "./pages/admin/ProductStatistics";
 import PromotionManager from "./pages/admin/PromotionManager";
 import LandingPage from "./pages/admin/LandingPage";
-import OrderConfirmation from "./pages/OrderConfirmation";
 import OrderManager from "./pages/admin/OrderManager";
 import OrderHistory from "./pages/OrderHistory";
 import Success from "./pages/shop/Success";
@@ -26,6 +25,7 @@ import SaleOffManager from "./pages/admin/SaleOffManager";
 import ProductDetail from "./pages/ProductDetail";
 import LandingPageHome from "./pages/LandingPageHome";
 import RequireAdmin from "./components/RequireAdmin";
+import OrderConfirmation from "./pages/shop/OrderConfirmation";
 
 const App = () => {
   return (

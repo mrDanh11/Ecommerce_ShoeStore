@@ -330,8 +330,8 @@ const OrderHistory = () => {
                                     Trạng thái giao hàng: <span className="font-semibold ml-1">{order.shipmentStatus}</span>
                                 </p>
                                 <p className='flex items-center'>
-                                    <span className={`min-w-2 h-2 rounded-full mr-2 ${order.paymentStatus === 'paid' ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                                    Thanh toán: <span className="font-semibold ml-1">{order.paymentMethod} ({order.paymentStatus === 'paid' ? 'Đã thanh toán' : 'Chưa thanh toán'})</span>
+                                    <span className={`min-w-2 h-2 rounded-full mr-2 ${order.paymentStatus === 'completed' ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                                    Thanh toán: <span className="font-semibold ml-1">{order.paymentMethod} ({order.paymentStatus === 'completed' ? 'Đã thanh toán' : 'Chưa thanh toán'})</span>
                                 </p>
                                 <p className='flex items-center col-span-1 md:col-span-2 lg:col-span-3'><FaMapMarkerAlt className="mr-2 text-gray-500" /> Địa chỉ: <span className="ml-1">{order.address}</span></p>
                                 <p className='flex items-center col-span-1 md:col-span-2 lg:col-span-3'><FaShippingFast className="mr-2 text-gray-500" /> Người nhận: <span className="ml-1">{order.customerName} ({order.sdt})</span></p>

@@ -3,7 +3,7 @@ const Products = require('../models/productModel')
 const getProducts = async (req, res) => {
     // Lấy parameters từ query string thay vì body
     const {
-        limit = 10,
+        limit ,
         offset = 0,
         search,
         categoryId,
