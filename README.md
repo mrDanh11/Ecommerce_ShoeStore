@@ -63,20 +63,21 @@ Welcome to **E-Commerce ShoeStore**, a modern, secure, and user-friendly online 
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="./frontend/src/assets/showReadme/homePage.png" alt="Home Page" width="230" />
-  <img src="./frontend/src/assets/showReadme/productDetail.png" alt="Product Detail" width="230" />
+  <img src="./frontend/src/assets/showReadme/homePage.png" alt="Home Page" width="400" height="240" />
+  <img src="./frontend/src/assets/showReadme/productDetail.png" alt="Product Detail" width="400" height="240" />
 </p>
 <p align="center">
-  <img src="./frontend/src/assets/showReadme/cart.png" alt="Cart" width="230" />
-  <img src="./frontend/src/assets/showReadme/checkout.png" alt="Checkout" width="230" />
+  <img src="./frontend/src/assets/showReadme/cart.png" alt="Cart" width="400" height="240" />
+  <img src="./frontend/src/assets/showReadme/checkout.png" alt="Checkout" width="400" height="240" />
 </p>
 <p align="center">
-  <img src="./frontend/src/assets/showReadme/vnpayCheckout.png" alt="VNPAY Checkout" width="230" />
-  <img src="./frontend/src/assets/showReadme/sucessCheckout.png" alt="Success Checkout" width="230" />
+  <img src="./frontend/src/assets/showReadme/vnpayCheckout.png" alt="VNPAY Checkout" width="400" height="240" />
+  <img src="./frontend/src/assets/showReadme/sucessCheckout.png" alt="Success Checkout" width="400" height="240" />
 </p>
 <p align="center">
-  <img src="./frontend/src/assets/showReadme/orderHistory.png" alt="Order History" width="230" />
+  <img src="./frontend/src/assets/showReadme/orderHistory.png" alt="Order History" width="400" height="240" />
 </p>
+
 
 ---
 
